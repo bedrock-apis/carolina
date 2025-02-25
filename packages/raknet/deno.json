@@ -1,0 +1,10 @@
+{
+    "name": "@carolina/raknet",
+    "version": "0.1.0-beta",
+    "exports": "./src/mod.ts",
+    "publish": {
+      "include": ["src/**/*.ts"],
+      "exclude": ["src/**/*.test.ts"]
+    },
+    "license": "MIT"
+}

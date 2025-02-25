@@ -1,0 +1,10 @@
+{
+  "name": "@carolina/raknet",
+  "version": "1.0.0",
+  "type": "module",
+  "main":"dist/index.js",
+  "types":"src/mod.ts",
+  "scripts": {},
+  "keywords": [],
+  "license": "MIT"
+}

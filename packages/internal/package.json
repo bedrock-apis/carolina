@@ -1,0 +1,10 @@
+{
+  "name": "@carolina/internal",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "src/index.ts",
+  "type": "module",
+  "carolina": {
+    "is-dynamic": true
+  }
+}

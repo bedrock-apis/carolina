@@ -1,0 +1,10 @@
+{
+  "name": "@carolina/base",
+  "version": "1.0.0",
+  "type": "module",
+  "main":"dist/index.js",
+  "types":"src/index.ts",
+  "scripts": {},
+  "keywords": [],
+  "license": "MIT"
+}

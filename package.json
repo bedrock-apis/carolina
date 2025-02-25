@@ -1,0 +1,33 @@
+{
+	"name": "carolina",
+	"private": true,
+	"workspaces": [
+		"packages/*",
+		"app"
+	],
+	"main": "./app/dist/index.js",
+	"type": "module",
+	"scripts": {
+		"build": "rolldown --drop-labels __debug__ --drop-labels __assert__ -c",
+		"watch": "rolldown -w -c",
+		"release": "echo not specified!!",
+		"dev": "node ."
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"packageManager": "pnpm@10.0.0-rc.3+sha512.5be0426818bc14eedfa404e2d64e10acdb5073c72dd5b78eb0b7d16ad743e817ceda0cb9309a05137da2eda405f3423899fd89217ff2d7f50c79758176cef6cc",
+	"devDependencies": {
+		"@serenityjs/raknet": "0.7.6",
+		"@types/node": "^22.10.7",
+		"oxc-parser": "^0.47.1",
+		"oxlint": "^0.15.7",
+		"rolldown": "1.0.0-beta.3",
+		"turbo": "^2.3.4",
+		"typescript": "^5.7.3",
+		"vitest": "3.0.6"
+	},
+	"dependencies": {
+		"@serenityjs/binarystream": "^2.7.0"
+	}
+}

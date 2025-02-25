@@ -1,0 +1,11 @@
+{
+  "name": "@carolina/binary",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "types":"src/index.ts",
+  "type":"module",
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

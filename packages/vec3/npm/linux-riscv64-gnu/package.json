@@ -1,0 +1,21 @@
+{
+  "name": "@serenity-lite/vec3-linux-riscv64-gnu",
+  "version": "0.0.0",
+  "os": [
+    "linux"
+  ],
+  "cpu": [
+    "riscv64"
+  ],
+  "main": "vec3.linux-riscv64-gnu.node",
+  "files": [
+    "vec3.linux-riscv64-gnu.node"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">= 10"
+  },
+  "libc": [
+    "glibc"
+  ]
+}
