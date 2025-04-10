@@ -6,13 +6,13 @@ export class NodeIO extends IO {
     public readFile(src: string): Promise<Uint8Array | null> {return readFile(src).catch(_=>null);}
     public readFileStream(src: string): ReadableStream<Uint8Array> {return ReadableStream.from(createReadStream(src));}
     public async exists(src: string): Promise<boolean> {return existsSync(src);}
-    public createDirectory(src: string, recursive: boolean): Promise<boolean> {
+    public createDirectory(_src: string, _recursive: boolean): Promise<boolean> {
         throw new Error("Method not implemented.");
     }
-    public readDirectoryFolders(src: string, recursive: boolean): AsyncIterable<string> {
+    public readDirectoryFolders(_src: string, _recursive: boolean): AsyncIterable<string> {
         throw new Error("Method not implemented.");
     }
-    public readDirectoryFiles(src: string, recursive: boolean): AsyncIterable<string> {
+    public readDirectoryFiles(_src: string, _recursive: boolean): AsyncIterable<string> {
         throw new Error("Method not implemented.");
     }
     public writeFile(src: string, data: string | Uint8Array): Promise<boolean> {

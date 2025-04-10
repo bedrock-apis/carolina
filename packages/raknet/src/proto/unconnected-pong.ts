@@ -1,8 +1,8 @@
 import { MAGIC } from "../constants";
-import { PacketId } from "../enums";
+import { RakNetUnconnectedPacketId } from "../enums";
 
 const PONG_BUFFER = new Uint8Array(256);
-PONG_BUFFER[0] = PacketId.UnconnectedPong;
+PONG_BUFFER[0] = RakNetUnconnectedPacketId.UnconnectedPong;
 PONG_BUFFER.set(MAGIC, 16 + 1);
 
 const PONG_VIEW = new DataView(PONG_BUFFER.buffer, 1); // Exclude packetId

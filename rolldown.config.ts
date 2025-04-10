@@ -1,35 +1,54 @@
-import { existsSync, readdirSync } from 'node:fs'
-import { readFile } from 'node:fs/promises';
-import { dirname, resolve } from 'node:path';
-import { defineConfig, RolldownOptions } from 'rolldown';
+import { existsSync, readdirSync, readFileSync} from "node:fs"
+import { extname, resolve, basename } from 'node:path';
+import { RolldownOptions } from 'rolldown';
+import { dependencies, devDependencies} from "./package.json";
 
+// Create external sum of packages that should not be bundled
+const libNames = Object.getOwnPropertyNames(dependencies).concat(Object.getOwnPropertyNames(devDependencies));
+const externals = new RegExp(`^(${libNames.join("|")}|node:|@carolina|@serenity)`);
 
+// Get the workspace packages
+const packages = readdirSync("./packages").filter(e=>existsSync(`.\\packages\\${e}\\package.json`)).map(e=>`.\\packages\\${e}`);
+packages.push("app");
 
+// Build rolldown options
+const options: RolldownOptions[] = [];
+export default options;
 
-let dirs = await Promise.all(readdirSync("./packages", {withFileTypes: true}).filter(e=>e.isDirectory() && existsSync("./packages/" + e.name + "/package.json")).map(e=>`./packages/${e.name}`));
-dirs.push("./app");
-const mods = await Promise.all(dirs.map(async e=>{
-    const data = await readJson<typeof import("./package.json") & {types:string}>(`${e}/package.json`);
-    if(!data) throw ReferenceError("Failed to parse package.json, " + e);
-    return {path: e, info: data};
-}));
+for(const projectRootFolder of packages) {
+    // Package.json info of the sub-package
+    const packageData = JSON.parse(readFileSync(`${projectRootFolder}/package.json`).toString()) as {main?: string, types?: string};
 
-export default defineConfig(mods.filter(e=>!("napi" in e.info)).map(e=>{
-    console.log(e.path, e.info.types);
-    return {
-        external: [ /node:|^@serenity|^@carolina/ ],
-        input: resolve(e.path,e.info.types),
-        output: (e.info as any).carolina?.["is-dynamic"]?
-            {
-                minify: true,
-                dir: dirname(resolve(e.path, e.info.main)),
-            }:{
-                minify: true,
-                file: resolve(e.path, e.info.main)
+    // Skip packages without entry point
+    if(!packageData.main) continue;
+
+    // Skip packages without types
+    if(!packageData.types) continue;
+
+    // Skip packages that doesn't match same out file name as the input
+    if(filename(packageData.main)!==filename(packageData.types)) continue;
+
+    const entry = resolve(projectRootFolder, packageData.types);
+    console.log(entry);
+    options.push({
+        input: entry,
+        transform: {
+            decorator: {
+                legacy: false,
+                emitDecoratorMetadata: true
             }
-    } satisfies RolldownOptions;
-}));
-
-async function readJson<T>(src: string): Promise<T | null> {
-    return await readFile(src).then(e=>JSON.parse(e.toString())).catch(_=>null) as T;
+        },
+        output: {
+            dir: resolve(projectRootFolder, "dist"),
+            format :"esm",
+            target: "es2024",
+            minify: false
+        },
+        external: externals,
+        platform: "node",
+        keepNames: true,
+        checks: { circularDependency: true },
+        treeshake: true,
+    });
 }
+function filename(e: string): string{return basename(e, extname(e));}

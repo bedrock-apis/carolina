@@ -2,7 +2,7 @@
   "name": "@carolina/raknet",
   "version": "1.0.0",
   "type": "module",
-  "main":"dist/index.js",
+  "main":"dist/mod.js",
   "types":"src/mod.ts",
   "scripts": {},
   "keywords": [],

@@ -1,12 +1,12 @@
 import { MAGIC } from "../constants";
-import { PacketId } from "../enums";
+import { RakNetUnconnectedPacketId } from "../enums";
 import { writeAddress } from "./address";
 import type { AddressInfo } from "node:net";
 
 const REPLY_BUFFER = new Uint8Array(1 + 16 + 8 + 29 + 2 + 1);
 
 // Set packetId
-REPLY_BUFFER[0] = PacketId.OpenConnectionReplyTwo;
+REPLY_BUFFER[0] = RakNetUnconnectedPacketId.OpenConnectionReplyTwo;
 
 // Set magic
 REPLY_BUFFER.set(MAGIC, 1);

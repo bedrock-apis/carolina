@@ -1,8 +1,10 @@
 import {createSocket, type Socket, type SocketType} from "node:dgram";
-import { PacketId } from "../enums";
+import { RakNetUnconnectedPacketId } from "../enums";
 import type { AddressInfo } from "node:net";
 import { RakNetUtils } from "../proto";
 import { internalHandleIncoming, RakNetConnection } from "./connection";
+import { Encoding } from "@carolina/encoding";
+import { MAX_MTU_SIZE, UDP_HEADER_SIZE } from "../constants";
 export class RakNetServer {
     /**
      * create new source with binding enabled for specified port and address
@@ -83,7 +85,7 @@ export class RakNetServer {
     }
 
     // Header for open connection requested two
-    protected [PacketId.OpenConnectionRequestTwo](socket: Socket, data: Uint8Array, receiver: AddressInfo): void{
+    protected [RakNetUnconnectedPacketId.OpenConnectionRequestTwo](socket: Socket, data: Uint8Array, receiver: AddressInfo): void{
         const {guid, mtu} = RakNetUtils.getDataFromOpenConnectionRequestTwo(data);
 
         // Rent buffer for reply with specified properties
@@ -96,29 +98,39 @@ export class RakNetServer {
         // Send rented buffer
         socket.send(buffer, receiver.port, receiver.address);
         const id = RakNetUtils.getFullAddressFor(receiver);
+
+        // Create new connection
         this.connections.set(id, RakNetConnection.create(socket, mtu, guid, receiver));
+
+        console.log("New Connection created");
     }
 
     // Header for open connection requested one
-    protected [PacketId.OpenConnectionRequestOne](socket: Socket, data: Uint8Array, receiver: AddressInfo): void{
+    protected [RakNetUnconnectedPacketId.OpenConnectionRequestOne](socket: Socket, data: Uint8Array, receiver: AddressInfo): void{
+        let MTU = data.length + UDP_HEADER_SIZE;
+
         // Rent buffer for reply with specified properties
         const buffer = RakNetUtils.rentOpenConnectionReplyOneBufferWith(
             this.guid,
-            data.length
+            // Official raknet source /Source/RakPeer.cpp:5186
+            MTU > MAX_MTU_SIZE ? MAX_MTU_SIZE : MTU
         );
+
         // Send rented buffer
         socket.send(buffer, receiver.port, receiver.address);
     }
 
     // Handler for unconnected ping
-    protected [PacketId.UnconnectedPing](socket: Socket, data: Uint8Array, receiver: AddressInfo): void{
+    protected [RakNetUnconnectedPacketId.UnconnectedPing](socket: Socket, data: Uint8Array, receiver: AddressInfo): void{
         const pingTime = RakNetUtils.getUnconnectedPingTime(data);
 
         // Rent buffer for pong with specified properties
         const buffer = RakNetUtils.rentUnconnectedPongBufferWith(
             pingTime,
             this.guid,
-            /*Encoding.utf8.encode(`MCPE;Carolina;390;1.14.60;15;10;${this.guid};Bedrock Level;creative;1;19132;19133;`)*/ new Uint8Array());
+
+            // Needs to be improved later on
+            Encoding.utf8.encode(`MCPE;Carolina;390;1.14.60;15;10;${this.guid};Bedrock Level;creative;1;19132;19133;`)/* new Uint8Array()*/);
         
         // Send rented buffer
         socket.send(buffer, receiver.port, receiver.address);

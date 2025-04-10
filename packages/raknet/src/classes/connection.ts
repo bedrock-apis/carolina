@@ -1,9 +1,10 @@
 import { Socket } from "node:dgram";
 import type { AddressInfo } from "node:net";
-import { ONLINE_DATAGRAM_BIT_MASK, VALID_DATAGRAM_BIT } from "../constants";
+import { ONLINE_DATAGRAM_BIT_MASK, UDP_HEADER_SIZE, VALID_DATAGRAM_BIT } from "../constants";
 import { RakNetUtils } from "../proto";
 import { FrameDescriptor } from "../interfaces";
 import { FragmentMeta } from "./fragment-meta";
+import { RakNetUnconnectedPacketId } from "../enums";
 
 export class RakNetConnection {
     static {
@@ -16,9 +17,14 @@ export class RakNetConnection {
     public readonly internetProtocolAddress: string;
     public readonly internetProtocolVersion: 4 | 6;
     protected readonly fragmentTable: Map<number, FragmentMeta> = new Map();
+    protected lastDatagramId: number = -1;
+    protected missingDatagramQueue: Set<number>; // Requires fast access and removal specific value without knowing its [index].
+    protected receivedDatagramQueue: Array<number>; // used a lot, use Array for performance benefits
+    protected receivedDatagram: Record<number, boolean> = Object.create(null);
+    protected readonly maxPayloadSize: number;
     protected constructor(
         protected readonly socket: Socket,
-        protected readonly mtu: number,
+        mtu: number,
         public readonly guid: bigint,
         address: AddressInfo
     ){
@@ -26,6 +32,10 @@ export class RakNetConnection {
         this.internetProtocolAddress = address.address;
         this.internetProtocolVersion = address.family === "IPv4"?4:6;
         this.port = address.port;
+        this.maxPayloadSize = mtu - UDP_HEADER_SIZE;
+
+        this.missingDatagramQueue = new Set();
+        this.receivedDatagramQueue = [];
     }
     /**
      * Base handler for raw incoming packets, internal usage!
@@ -36,11 +46,37 @@ export class RakNetConnection {
         const mask = msg[0] & ONLINE_DATAGRAM_BIT_MASK;
         if(mask === VALID_DATAGRAM_BIT) return void this.handleFrameSet(msg);
 
-        __debug__: console.log("Handle ack/nack packet");
+        console.log("Handle ack/nack packet");
     }
     protected handleFrameSet(msg: Uint8Array): void{
         const dataview = new DataView(msg.buffer, msg.byteOffset, msg.byteLength);
         const id = RakNetUtils.readUint24(dataview, 1);
+
+        if(id > 0xffffe0) console.warn("Fatal warning, frame sets ids are about to overflow uint24, please contact developers team.");
+
+        const frameIndex = (id) & 0xff, correctionIndex = (id + 128) & 0xff;
+        
+        // Deletes if the cycle repeats
+        delete this.receivedDatagram[correctionIndex];
+        
+        // Check for duplicate frames
+        if(this.receivedDatagram[frameIndex]) throw new ReferenceError("Duplicated frame set received");
+        
+        // register frame set as received
+        this.receivedDatagram[frameIndex] = true;
+
+        // If we didn't flush yet and this packet was missing we can optimize it by removing id that we thought it got lost.
+        this.missingDatagramQueue.delete(id);
+
+        // Some packets might be skipped
+        if(id - this.lastDatagramId > 1) 
+            for(let i = this.lastDatagramId + 1; i < id; i++) 
+                this.missingDatagramQueue.add(i);
+
+        // update lastMessageId
+        this.receivedDatagramQueue.push(this.lastDatagramId = id);
+
+        // handle each capsule
         let offset = 4;
         while(offset < dataview.byteLength) offset = this.handleCapsule(dataview, offset);
     }
@@ -54,7 +90,6 @@ export class RakNetConnection {
         // return updated offset
         return data.offset;
     }
-
     protected handleFragment(data: FrameDescriptor): void{
         const {body, fragment} = data;
 
@@ -82,9 +117,80 @@ export class RakNetConnection {
             this.handleFrame(data);
         }
     }
-    protected handleFrame(desc: FrameDescriptor): void{}
+    protected handleFrame(desc: FrameDescriptor): void{
+        console.log("Handle frame:", desc.body[0].toString(16));
+        this.flush();
+    }
+    public flush(): void{
+
+        // Acknowledge received packets
+        if(this.receivedDatagramQueue.length){
+            // Rent acknowledge buffer
+            const buffer = RakNetUtils.rentAcknowledgePacketWith(
+                RakNetUnconnectedPacketId.AckDatagram, 
+                RakNetConnection.getRangesFromSequence(this.receivedDatagramQueue.values())
+            );
+
+            //Send
+            this.sendRawData(buffer);
+            
+            // Clear the array
+            this.receivedDatagramQueue.length = 0;
+        }
+
+        // Acknowledge packet that missing
+        if(this.missingDatagramQueue.size){
+            // Rent acknowledge buffer
+            const buffer = RakNetUtils.rentAcknowledgePacketWith(
+                RakNetUnconnectedPacketId.NackDatagram, 
+                RakNetConnection.getRangesFromSequence(this.missingDatagramQueue.values())
+            );
+
+            console.log("Nack");
+            this.sendRawData(buffer);
+            // Clear the set
+            this.missingDatagramQueue.clear();
+        }
+
+        console.log("Flushed");
+
+    }
+    public enqueueData(_data: Uint8Array): void{
+
+    }
+
+
+
+    protected sendRawData(data: Uint8Array): void{
+        this.socket.send(data, this.port, this.internetProtocolAddress);
+    }
+
     // create new instance
-    public static create(socket: Socket, mtu: number, guid: bigint, address: AddressInfo): RakNetConnection{return new RakNetConnection(socket, mtu, guid, address);}
+    public static create(socket: Socket, mtu: number, guid: bigint, address: AddressInfo): RakNetConnection{
+        return new RakNetConnection(socket, mtu, guid, address);
+    }
+    protected static * getRangesFromSequence(sequence: Iterator<number>): Generator<{min: number, max: number}, number> {
+        let v = sequence.next();
+        if(v.done) return 0;
+
+        // min for range
+        let min = v.value, max = min;
+        let i = 1;
+        do {
+            v = sequence.next();
+            const current = v.value;
+            const dif = current - min;
+            if(dif === 1) max = current;
+            else if (dif > 1) {
+                yield {min, max};
+                i++;
+                min = max = current;
+            }
+        }
+        while(!v.done);
+        yield {min, max}
+        return i;
+    }
 }
 
 export var internalHandleIncoming: (connection: RakNetConnection, msg: Uint8Array)=>void;
