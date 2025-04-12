@@ -1,12 +1,14 @@
-import { Socket } from "node:dgram";
+import type { Socket } from "node:dgram";
 import type { AddressInfo } from "node:net";
 import { ONLINE_DATAGRAM_BIT_MASK, UDP_HEADER_SIZE, VALID_DATAGRAM_BIT } from "../constants";
 import { RakNetUtils } from "../proto";
 import { FrameDescriptor } from "../interfaces";
 import { FragmentMeta } from "./fragment-meta";
-import { RakNetUnconnectedPacketId } from "../enums";
+import { RakNetConnectedPacketId, RakNetUnconnectedPacketId } from "../enums";
+import { RakNetServer } from "./server";
 
 export class RakNetConnection {
+    //#region Initialization
     static {
         // Export private/protected internal fields
         internalHandleIncoming = Function.call.bind(this.prototype.handleIncoming);
@@ -16,17 +18,30 @@ export class RakNetConnection {
     public readonly port: number;
     public readonly internetProtocolAddress: string;
     public readonly internetProtocolVersion: 4 | 6;
+
     protected readonly fragmentTable: Map<number, FragmentMeta> = new Map();
     protected lastDatagramId: number = -1;
+    protected nextFragmentId: number = 0;
     protected missingDatagramQueue: Set<number>; // Requires fast access and removal specific value without knowing its [index].
     protected receivedDatagramQueue: Array<number>; // used a lot, use Array for performance benefits
     protected receivedDatagram: Record<number, boolean> = Object.create(null);
+
+    protected orderChannels: Record<number, number> = Object.create(null);
+    protected orderChannelIndex: number = 0;
+    protected outgoingSequenceIndex: number = 0;
+    protected outgoingReliableIndex: number = 0;
+    protected outgoingFrameId: number = 0;
+
+    protected datagramReadyBuffer: Uint8Array;
+    protected datagramReadyBufferOffset = 0;
+    protected resendCache: Record<number, Uint8Array> = Object.create(null);
     protected readonly maxPayloadSize: number;
     protected constructor(
+        protected readonly server: RakNetServer,
         protected readonly socket: Socket,
         mtu: number,
         public readonly guid: bigint,
-        address: AddressInfo
+        public readonly address: AddressInfo
     ){
         this.id = RakNetUtils.getFullAddressFor(address);
         this.internetProtocolAddress = address.address;
@@ -36,7 +51,12 @@ export class RakNetConnection {
 
         this.missingDatagramQueue = new Set();
         this.receivedDatagramQueue = [];
+        this.datagramReadyBuffer = this.createReadyFrameSetBuffer();
+        this.datagramReadyBufferOffset = 4;
     }
+    //#endregion
+
+    //#region FrameSet Handlers
     /**
      * Base handler for raw incoming packets, internal usage!
      * @param msg buffer
@@ -81,7 +101,7 @@ export class RakNetConnection {
         while(offset < dataview.byteLength) offset = this.handleCapsule(dataview, offset);
     }
     protected handleCapsule(view: DataView, offset: number): number{
-        const data = RakNetUtils.readFrameData(view, offset);
+        const data = RakNetUtils.readCapsuleFrameData(view, offset);
 
         // Check if the capsule is fragmented
         if(data.fragment) this.handleFragment(data);
@@ -118,11 +138,131 @@ export class RakNetConnection {
         }
     }
     protected handleFrame(desc: FrameDescriptor): void{
-        console.log("Handle frame:", desc.body[0].toString(16));
+        // First byte is Packet id
+        const packetId = desc.body[0];
+
+        // Unknown packet, maybe better to crash? I don't know
+        if(!(packetId in this))
+            return void console.error("No handler for packet with id: 0x" + packetId.toString(16));
+
+        console.log(desc);
+
+        this[packetId as RakNetConnectedPacketId.ConnectionRequest](desc.body);
+    }
+    //#endregion
+    
+    //#region Packet Handlers
+    /* Base Handlers for connected packet */
+    protected [RakNetConnectedPacketId.ConnectionRequest](message: Uint8Array): void{
+        // Gather info
+        const {time, guid} = RakNetUtils.getConnectionRequestInfo(new DataView(message.buffer, message.byteOffset));
+
+        // Check for client guid
+        if(guid !== this.guid) 
+           return void console.error("Fatal security error, infected client trying to connect.");
+
+        // rent buffer to send
+        const buffer = RakNetUtils.rentConnectionRequestAcceptPacketWith(this.address, this.socket.address(), time, 0n);
+
+        // Send
+        this.enqueueData(buffer);
+
+        // We want fast connect so lets flush it now
         this.flush();
     }
-    public flush(): void{
+    protected [RakNetConnectedPacketId.Disconnect](_: Uint8Array): void { this.close(); }
+    //#endregion
 
+    //#region protected
+    protected close():void {
+        this.server.connections.delete(this.id);
+        this.flush();
+    }
+    protected createReadyFrameSetBuffer(): Uint8Array{
+        const buffer = new Uint8Array(this.maxPayloadSize);
+        buffer[0] = VALID_DATAGRAM_BIT;
+        RakNetUtils.writeUint24(new DataView(buffer.buffer), 1, this.outgoingFrameId);
+        return buffer;
+    }
+    protected enqueueData(_data: Uint8Array): void{
+    
+        // Base send info
+        const info: FrameDescriptor = {
+            body: null!,
+            fragment: null!,
+            orderChannel: this.orderChannelIndex,
+            orderIndex: (this.orderChannels[this.orderChannelIndex]??=0)++,
+            reliableIndex: 0, // Change before sending each of single payloads/fragments
+            sequenceIndex: 0
+        }
+
+
+        // Fragmented payload
+        if(_data.length <= (this.maxPayloadSize - 4 - 13)){ 
+            // payload size + 13 capsule header + 4 datagram id and datagram packet id
+            
+            // Max chunk size per fragment
+            const chunkSize = this.maxPayloadSize - (4 + 13 + 10);
+
+            // Number of total fragments for this payload
+            const fragmentCount = Math.ceil(_data.length / chunkSize);
+
+            // Current Id of the fragment
+            const id = this.nextFragmentId++;
+            
+            // Base send info
+            const info: FrameDescriptor = {
+                body: null!,
+                fragment: {length: fragmentCount, id, index: 0},
+                orderChannel: this.orderChannelIndex,
+                orderIndex: (this.orderChannels[this.orderChannelIndex]??=0)++,
+                reliableIndex: 0,
+                sequenceIndex: 0
+            }
+            for(const chunk of RakNetUtils.getChunkIterator(_data, chunkSize)){
+                this.flushDatagramBuffer();
+                
+                // update chunk
+                info.body = chunk;
+
+                // Send
+                this.writeRawData(info);
+
+                // Increment
+                info.fragment!.index++;
+
+            }
+
+        }
+
+
+
+        let offset = this.datagramReadyBufferOffset; // Capsule metadata no fragment
+
+        if(_data.length > (this.datagramReadyBuffer.length - (offset + 13)))
+        //4+3+3+2+1
+        console.log("Data enqueued: " + _data.length);
+    }
+    protected writeRawData(descriptor: FrameDescriptor): void{
+        
+
+    }
+    protected flushDatagramBuffer(): void{
+        // Extract current buffer
+        const buffer = this.datagramReadyBuffer.subarray(0, this.datagramReadyBufferOffset);
+
+        // Save under the sequence id
+        this.resendCache[this.outgoingFrameId++] = buffer;
+
+        // Create new ready buffer 
+        this.datagramReadyBuffer = this.createReadyFrameSetBuffer();
+        this.datagramReadyBufferOffset = 4; //FrameSet packet Id and sequence number 1 + 3
+
+        // Sended
+        console.log("Sended: " + buffer.length);
+        this.sendRawData(buffer);
+    }
+    protected flushAcknowledges(): void {
         // Acknowledge received packets
         if(this.receivedDatagramQueue.length){
             // Rent acknowledge buffer
@@ -152,22 +292,38 @@ export class RakNetConnection {
             this.missingDatagramQueue.clear();
         }
 
+        console.log("This flush acknowledges");
+    }
+    //#endregion
+
+
+
+    //#region Public APIs
+    public disconnect(): void {
+        // Send close packet!
+        //TODO: Send Disconnect packet
+
+        // Close this connection
+        this.close();
+    }
+    //#endregion
+
+
+    public flush(): void{
+        this.flushAcknowledges();
+
+        if(this.datagramReadyBufferOffset > 4) this.flushDatagramBuffer();
+
         console.log("Flushed");
-
     }
-    public enqueueData(_data: Uint8Array): void{
-
-    }
-
-
-
     protected sendRawData(data: Uint8Array): void{
         this.socket.send(data, this.port, this.internetProtocolAddress);
     }
 
+    //#region Static
     // create new instance
-    public static create(socket: Socket, mtu: number, guid: bigint, address: AddressInfo): RakNetConnection{
-        return new RakNetConnection(socket, mtu, guid, address);
+    public static create(server: RakNetServer, socket: Socket, mtu: number, guid: bigint, address: AddressInfo): RakNetConnection{
+        return new RakNetConnection(server, socket, mtu, guid, address);
     }
     protected static * getRangesFromSequence(sequence: Iterator<number>): Generator<{min: number, max: number}, number> {
         let v = sequence.next();
@@ -191,6 +347,7 @@ export class RakNetConnection {
         yield {min, max}
         return i;
     }
+    //#endregion
 }
 
 export var internalHandleIncoming: (connection: RakNetConnection, msg: Uint8Array)=>void;

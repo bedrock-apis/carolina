@@ -5,12 +5,17 @@ import { rentUnconnectedPongBufferWith } from "./unconnected-pong";
 import { IS_FRAGMENTED_BIT, IS_ORDERED_LOOKUP, IS_RELIABLE_LOOKUP, IS_SEQUENCED_LOOKUP } from "../constants";
 import { FrameDescriptor } from "../interfaces";
 import { rentAcknowledgePacketWith } from "./acknowledge";
+import { getConnectionRequestInfo } from "./connection-request";
+import { rentConnectionRequestAcceptPacketWith } from "./connection-request-accepted";
+import { RakNetReliability } from "../enums";
 
 export class RakNetUtils {
     public static readonly rentUnconnectedPongBufferWith = rentUnconnectedPongBufferWith;
     public static readonly rentOpenConnectionReplyOneBufferWith = rentOpenConnectionReplyOneBufferWith;
     public static readonly rentOpenConnectionReplyTwoBufferWith = rentOpenConnectionReplyTwoBufferWith;
     public static readonly rentAcknowledgePacketWith = rentAcknowledgePacketWith;
+    public static readonly rentConnectionRequestAcceptPacketWith = rentConnectionRequestAcceptPacketWith;
+    public static readonly getConnectionRequestInfo = getConnectionRequestInfo;
     public static getUnconnectedPingTime(buffer: ArrayBufferView): bigint{
         if(!(buffer instanceof DataView)) buffer = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
 
@@ -40,7 +45,7 @@ export class RakNetUtils {
 
     // Basic method for building consistent identifier
     public static getFullAddressFor(info: AddressInfo): string{return `${info.address}:${info.port}`}
-    public static readFrameData(view: DataView, offset: number): {offset: number} & FrameDescriptor{
+    public static readCapsuleFrameData(view: DataView, offset: number): {offset: number} & FrameDescriptor{
         const result: FrameDescriptor & {offset: number} = {
             body: null!,
             offset,
@@ -76,7 +81,7 @@ export class RakNetUtils {
         if (IS_ORDERED_LOOKUP[reliability]) {
             result.orderIndex = RakNetUtils.readUint24(view, offset);
             offset += 3;
-            result.orderChannel = view.getUint8(offset++);
+            result.orderChannel = view.getUint8(offset++); 
         }
 
         if(isFragmented){
@@ -93,10 +98,61 @@ export class RakNetUtils {
         result.offset = offset+=bodyLength;
         return result;
     }
+    public static writeCapsulateFrameHeader(view: DataView, desc: Omit<FrameDescriptor, "body">, bodyLength: number, reliability: RakNetReliability): number{
+        let offset = 0;
+
+        let header = reliability<<5;
+        if(desc.fragment) header |= IS_FRAGMENTED_BIT;
+        view.setUint8(offset++, header);
+
+
+        // body length is not in bits, so 3<< bit shift makes it in bytes
+        view.setUint16(offset, bodyLength << 3, false);
+        offset+=2;
+
+        // Check if the frame is reliable.
+        // If so, read the reliable index.
+        if (IS_RELIABLE_LOOKUP[reliability]) {
+            RakNetUtils.writeUint24(view, offset, desc.reliableIndex??0);
+            offset+=3;
+        }
+
+        // Check if the frame is sequenced.
+        // If so, read the sequence index.
+        if (IS_SEQUENCED_LOOKUP[reliability]) {
+            RakNetUtils.writeUint24(view, offset, desc.sequenceIndex??0);
+            offset+=3;
+        }
+
+        // Check if the frame is ordered.
+        // If so, read the order index and channel.
+        if (IS_ORDERED_LOOKUP[reliability]) {
+            RakNetUtils.writeUint24(view, offset, desc.orderIndex??0);
+            offset+=3;
+            view.setUint8(offset++,desc.orderChannel??0);
+        }
+
+        if(desc.fragment){
+            const {id, index, length } = desc.fragment;
+            view.setUint32(offset, length, false);
+            offset += 4;
+            view.setUint16(offset, id, false);
+            offset += 2;
+            view.setUint32(offset, index, false);
+            offset += 4;
+        }
+
+        return offset;
+    }
     public static random64(): bigint{
         return (
             (BigInt((Math.random() * 0xffff_ffff) & 0xffff_ffff)<<32n)
             & (BigInt((Math.random() * 0xffff_ffff) & 0xffff_ffff))
         );
+    }
+    public static * getChunkIterator(data: Uint8Array, chunkSize: number): Generator<Uint8Array>{
+        let currentOffset = 0;
+        while(currentOffset < data.length)
+            yield data.subarray(currentOffset, currentOffset += chunkSize);
     }
 }

@@ -5,6 +5,7 @@ import { RakNetUtils } from "../proto";
 import { internalHandleIncoming, RakNetConnection } from "./connection";
 import { Encoding } from "@carolina/encoding";
 import { MAX_MTU_SIZE, UDP_HEADER_SIZE } from "../constants";
+
 export class RakNetServer {
     /**
      * create new source with binding enabled for specified port and address
@@ -100,7 +101,7 @@ export class RakNetServer {
         const id = RakNetUtils.getFullAddressFor(receiver);
 
         // Create new connection
-        this.connections.set(id, RakNetConnection.create(socket, mtu, guid, receiver));
+        this.connections.set(id, RakNetConnection.create(this, socket, mtu, guid, receiver));
 
         console.log("New Connection created");
     }
