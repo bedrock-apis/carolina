@@ -1,7 +1,7 @@
 import { AddressInfo } from "node:net";
 import { rentOpenConnectionReplyOneBufferWith } from "./open-connection-reply-one";
 import { rentOpenConnectionReplyTwoBufferWith } from "./open-connection-reply-two";
-import { rentUnconnectedPongBufferWith } from "./unconnected-pong";
+import { rentConnectedPongBufferWith, rentUnconnectedPongBufferWith } from "./pong";
 import { IS_FRAGMENTED_BIT, IS_ORDERED_LOOKUP, IS_RELIABLE_LOOKUP, IS_SEQUENCED_LOOKUP } from "../constants";
 import { FrameDescriptor } from "../interfaces";
 import { rentAcknowledgePacketWith } from "./acknowledge";
@@ -11,12 +11,45 @@ import { RakNetReliability } from "../enums";
 
 export class RakNetUtils {
     public static readonly rentUnconnectedPongBufferWith = rentUnconnectedPongBufferWith;
+    public static readonly rentConnectedPongBufferWith = rentConnectedPongBufferWith;
     public static readonly rentOpenConnectionReplyOneBufferWith = rentOpenConnectionReplyOneBufferWith;
     public static readonly rentOpenConnectionReplyTwoBufferWith = rentOpenConnectionReplyTwoBufferWith;
     public static readonly rentAcknowledgePacketWith = rentAcknowledgePacketWith;
     public static readonly rentConnectionRequestAcceptPacketWith = rentConnectionRequestAcceptPacketWith;
     public static readonly getConnectionRequestInfo = getConnectionRequestInfo;
+    public static * readACKLikePacket(buffer: Uint8Array): Generator<{min: number, max: number}>{
+        // Skip packet id
+        let offset = 1;
+        const dataView = new DataView(buffer.buffer, buffer.byteOffset);
+
+        // read number of ranges
+        const count = dataView.getUint16(offset, false);
+        offset+=2;
+        
+        // read ranges
+        for(let i = 0; i < count; i++){
+            let isSingle = dataView.getUint8(offset++);
+            let min = RakNetUtils.readUint24(dataView, offset);
+            offset+=3;
+
+            if(isSingle) {
+                yield {min, max: min};
+                continue;
+            }
+
+            let max = RakNetUtils.readUint24(dataView, offset);
+            offset+=3;
+
+            yield {min, max};
+        }
+    }
     public static getUnconnectedPingTime(buffer: ArrayBufferView): bigint{
+        if(!(buffer instanceof DataView)) buffer = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+
+        //first byte is packet so offset is hardcoded to 1
+        return (buffer as DataView).getBigUint64(1, false);
+    }
+    public static getConnectedPingTime(buffer: ArrayBufferView): bigint{
         if(!(buffer instanceof DataView)) buffer = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
 
         //first byte is packet so offset is hardcoded to 1
@@ -39,7 +72,7 @@ export class RakNetUtils {
     // Write Uint24LE
     public static writeUint24(view: DataView, offset: number, value: number): void{ 
         view.setUint16(offset, value & 0xffff, true);
-        view.setUint8(offset, (value >> 16));
+        view.setUint8(offset+2, (value >> 16));
     }
     public static debug(...params: any[]): void{ __debug__: console.log(...params); }
 

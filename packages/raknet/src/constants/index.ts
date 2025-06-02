@@ -19,7 +19,9 @@ export const IS_FRAGMENTED_BIT = 0b10001_0000;
 export const IDEAL_MAX_MTU_SIZE = 1432; //1432
 export const UDP_HEADER_SIZE = 28;
 export const MAX_MTU_SIZE = 1492;
-
+export const CAPSULE_FRAGMENT_META_SIZE = 10;
+export const MAX_CAPSULE_HEADER_SIZE = CAPSULE_FRAGMENT_META_SIZE + 13;
+export const MAX_FRAME_SET_HEADER_SIZE = MAX_CAPSULE_HEADER_SIZE + 4;
 
 export const IS_RELIABLE_LOOKUP: Record<number, boolean> = {
     2: true,
@@ -35,7 +37,12 @@ export const IS_ORDERED_LOOKUP: Record<number, boolean> = {
     3: true,
     4: true
 };
+export const iS_ORDERED_EXCLUSIVE_LOOKUP: Record<number, boolean> = {
+    3: true,
+    7: true
+};
 
 Reflect.setPrototypeOf(IS_RELIABLE_LOOKUP, null);
 Reflect.setPrototypeOf(IS_SEQUENCED_LOOKUP, null);
 Reflect.setPrototypeOf(IS_ORDERED_LOOKUP, null);
+Reflect.setPrototypeOf(iS_ORDERED_EXCLUSIVE_LOOKUP, null);

@@ -42,7 +42,7 @@ for(const projectRootFolder of packages) {
             dir: resolve(projectRootFolder, "dist"),
             format :"esm",
             target: "es2024",
-            minify: false
+            minify: true
         },
         external: externals,
         platform: "node",

@@ -1,10 +1,10 @@
 import type { Socket } from "node:dgram";
 import type { AddressInfo } from "node:net";
-import { ONLINE_DATAGRAM_BIT_MASK, UDP_HEADER_SIZE, VALID_DATAGRAM_BIT } from "../constants";
+import { ACK_DATAGRAM_BIT, CAPSULE_FRAGMENT_META_SIZE, iS_ORDERED_EXCLUSIVE_LOOKUP, IS_ORDERED_LOOKUP, IS_SEQUENCED_LOOKUP, MAX_CAPSULE_HEADER_SIZE, MAX_FRAME_SET_HEADER_SIZE, NACK_DATAGRAM_BIT, ONLINE_DATAGRAM_BIT_MASK, UDP_HEADER_SIZE, VALID_DATAGRAM_BIT } from "../constants";
 import { RakNetUtils } from "../proto";
 import { FrameDescriptor } from "../interfaces";
 import { FragmentMeta } from "./fragment-meta";
-import { RakNetConnectedPacketId, RakNetUnconnectedPacketId } from "../enums";
+import { RakNetConnectedPacketId, RakNetReliability, RakNetUnconnectedPacketId } from "../enums";
 import { RakNetServer } from "./server";
 
 export class RakNetConnection {
@@ -26,9 +26,9 @@ export class RakNetConnection {
     protected receivedDatagramQueue: Array<number>; // used a lot, use Array for performance benefits
     protected receivedDatagram: Record<number, boolean> = Object.create(null);
 
-    protected orderChannels: Record<number, number> = Object.create(null);
-    protected orderChannelIndex: number = 0;
-    protected outgoingSequenceIndex: number = 0;
+    protected outgoingChannelIndex: number = 0;
+    protected outgoingOrderChannels: Record<number, number> = Object.create(null);
+    protected outgoingSequenceChannels: Record<number, number> = Object.create(null);
     protected outgoingReliableIndex: number = 0;
     protected outgoingFrameId: number = 0;
 
@@ -36,6 +36,9 @@ export class RakNetConnection {
     protected datagramReadyBufferOffset = 0;
     protected resendCache: Record<number, Uint8Array> = Object.create(null);
     protected readonly maxPayloadSize: number;
+    protected get datagramReadyBufferAvailableLength(): number {
+        return (this.datagramReadyBuffer.length - this.datagramReadyBufferOffset);
+    }
     protected constructor(
         protected readonly server: RakNetServer,
         protected readonly socket: Socket,
@@ -66,7 +69,24 @@ export class RakNetConnection {
         const mask = msg[0] & ONLINE_DATAGRAM_BIT_MASK;
         if(mask === VALID_DATAGRAM_BIT) return void this.handleFrameSet(msg);
 
-        console.log("Handle ack/nack packet");
+        if((mask & ACK_DATAGRAM_BIT) === ACK_DATAGRAM_BIT)
+            return void this.handleAck(msg);
+
+        if((mask & NACK_DATAGRAM_BIT) === NACK_DATAGRAM_BIT)
+            return void this.handleNack(msg);
+    }
+    protected handleAck(_: Uint8Array){
+        for(const {min, max} of RakNetUtils.readACKLikePacket(_))
+            for(let i = min; i <= max; i++)
+                delete this.resendCache[i];
+    }
+    protected handleNack(_: Uint8Array){
+        for(const {min, max} of RakNetUtils.readACKLikePacket(_))
+            for(let i = min; i <= max; i++)
+            {
+                this.internalSendAsFrameSet(this.resendCache[i]);
+                delete this.resendCache[i];
+            }
     }
     protected handleFrameSet(msg: Uint8Array): void{
         const dataview = new DataView(msg.buffer, msg.byteOffset, msg.byteLength);
@@ -98,7 +118,8 @@ export class RakNetConnection {
 
         // handle each capsule
         let offset = 4;
-        while(offset < dataview.byteLength) offset = this.handleCapsule(dataview, offset);
+        while(offset < dataview.byteLength)
+            offset = this.handleCapsule(dataview, offset);
     }
     protected handleCapsule(view: DataView, offset: number): number{
         const data = RakNetUtils.readCapsuleFrameData(view, offset);
@@ -145,8 +166,6 @@ export class RakNetConnection {
         if(!(packetId in this))
             return void console.error("No handler for packet with id: 0x" + packetId.toString(16));
 
-        console.log(desc);
-
         this[packetId as RakNetConnectedPacketId.ConnectionRequest](desc.body);
     }
     //#endregion
@@ -165,12 +184,17 @@ export class RakNetConnection {
         const buffer = RakNetUtils.rentConnectionRequestAcceptPacketWith(this.address, this.socket.address(), time, 0n);
 
         // Send
-        this.enqueueData(buffer);
+        this.enqueueData(buffer, RakNetReliability.Reliable);
 
         // We want fast connect so lets flush it now
         this.flush();
     }
     protected [RakNetConnectedPacketId.Disconnect](_: Uint8Array): void { this.close(); }
+    protected [RakNetConnectedPacketId.ConnectedPing](_: Uint8Array): void {
+        const time = RakNetUtils.getConnectedPingTime(_);
+        this.enqueueData(RakNetUtils.rentConnectedPongBufferWith(time, BigInt(Date.now())), RakNetReliability.Unreliable);
+        this.flush();
+    }
     //#endregion
 
     //#region protected
@@ -178,89 +202,117 @@ export class RakNetConnection {
         this.server.connections.delete(this.id);
         this.flush();
     }
-    protected createReadyFrameSetBuffer(): Uint8Array{
-        const buffer = new Uint8Array(this.maxPayloadSize);
-        buffer[0] = VALID_DATAGRAM_BIT;
-        RakNetUtils.writeUint24(new DataView(buffer.buffer), 1, this.outgoingFrameId);
-        return buffer;
-    }
-    protected enqueueData(_data: Uint8Array): void{
-    
-        // Base send info
-        const info: FrameDescriptor = {
+    protected createReadyFrameSetBuffer(): Uint8Array{ return new Uint8Array(this.maxPayloadSize); }
+    protected enqueueData(data: Uint8Array, reliability: number): void{
+        // Ensure proper indexing
+        if(this.outgoingOrderChannels[this.outgoingChannelIndex] === undefined)
+            this.outgoingSequenceChannels[this.outgoingChannelIndex] = this.outgoingOrderChannels[this.outgoingChannelIndex] = 0;
+
+        // Base send info initialization
+        const meta: FrameDescriptor = {
             body: null!,
             fragment: null!,
-            orderChannel: this.orderChannelIndex,
-            orderIndex: (this.orderChannels[this.orderChannelIndex]??=0)++,
+            orderChannel: this.outgoingChannelIndex,
+            orderIndex: 0,
             reliableIndex: 0, // Change before sending each of single payloads/fragments
             sequenceIndex: 0
         }
 
+        // Check if sequenced
+        if(IS_SEQUENCED_LOOKUP[reliability]){
+            meta.orderIndex = this.outgoingOrderChannels[this.outgoingChannelIndex];
+            meta.sequenceIndex = this.outgoingSequenceChannels[this.outgoingChannelIndex]++;
+        }
+
+        // Check if ordered only
+        if(iS_ORDERED_EXCLUSIVE_LOOKUP[reliability]) {
+            meta.orderIndex = this.outgoingOrderChannels[this.outgoingChannelIndex]++;
+            this.outgoingSequenceChannels[this.outgoingChannelIndex] = 0;
+        }
 
         // Fragmented payload
-        if(_data.length <= (this.maxPayloadSize - 4 - 13)){ 
+        if(data.length >= (this.maxPayloadSize - MAX_FRAME_SET_HEADER_SIZE)){ 
             // payload size + 13 capsule header + 4 datagram id and datagram packet id
             
             // Max chunk size per fragment
-            const chunkSize = this.maxPayloadSize - (4 + 13 + 10);
+            const chunkSize = this.maxPayloadSize - MAX_FRAME_SET_HEADER_SIZE; // 10 + fragment meta information in header
 
             // Number of total fragments for this payload
-            const fragmentCount = Math.ceil(_data.length / chunkSize);
+            const fragmentCount = Math.ceil(data.length / chunkSize);
 
             // Current Id of the fragment
             const id = this.nextFragmentId++;
             
-            // Base send info
-            const info: FrameDescriptor = {
-                body: null!,
-                fragment: {length: fragmentCount, id, index: 0},
-                orderChannel: this.orderChannelIndex,
-                orderIndex: (this.orderChannels[this.orderChannelIndex]??=0)++,
-                reliableIndex: 0,
-                sequenceIndex: 0
-            }
-            for(const chunk of RakNetUtils.getChunkIterator(_data, chunkSize)){
+            meta.fragment = {
+                id,
+                index: 0,
+                length: fragmentCount
+            };
+
+            for(const chunk of RakNetUtils.getChunkIterator(data, chunkSize)){
                 this.flushDatagramBuffer();
                 
-                // update chunk
-                info.body = chunk;
+                // set
+                meta.body = chunk;
+                meta.reliableIndex = this.outgoingReliableIndex++;
 
-                // Send
-                this.writeRawData(info);
-
-                // Increment
-                info.fragment!.index++;
-
+                // send
+                this.writeRawData(meta, reliability);
+                
+                // increment chunk id
+                meta.fragment.index++;
             }
 
+
+            return;
         }
 
+        // Flush if no space is available
+        if(this.datagramReadyBufferAvailableLength < (data.length + MAX_CAPSULE_HEADER_SIZE - CAPSULE_FRAGMENT_META_SIZE))
+            this.flushDatagramBuffer();
 
-
-        let offset = this.datagramReadyBufferOffset; // Capsule metadata no fragment
-
-        if(_data.length > (this.datagramReadyBuffer.length - (offset + 13)))
-        //4+3+3+2+1
-        console.log("Data enqueued: " + _data.length);
+        //queue capsule
+        meta.reliableIndex = this.outgoingReliableIndex++;
+        meta.body = data;
+        this.writeRawData(meta, reliability);
     }
-    protected writeRawData(descriptor: FrameDescriptor): void{
+    protected writeRawData(descriptor: FrameDescriptor, reliability: RakNetReliability): void{
+        // Crate right dataview
+        const dataview = new DataView(this.datagramReadyBuffer.buffer, this.datagramReadyBuffer.byteOffset + this.datagramReadyBufferOffset);
+        // Write capsule header
+        this.datagramReadyBufferOffset += RakNetUtils.writeCapsulateFrameHeader(dataview, descriptor, descriptor.body.length, reliability);
+        // Set body
+        this.datagramReadyBuffer.set(descriptor.body, this.datagramReadyBufferOffset);
         
+        // update offset
+        this.datagramReadyBufferOffset += descriptor.body.length;
 
+        // There is a less space than 1 byte for payload then send the buffer immediately  
+        if(this.datagramReadyBufferAvailableLength <= (MAX_FRAME_SET_HEADER_SIZE + 1))
+            this.flushDatagramBuffer();
     }
     protected flushDatagramBuffer(): void{
         // Extract current buffer
         const buffer = this.datagramReadyBuffer.subarray(0, this.datagramReadyBufferOffset);
 
-        // Save under the sequence id
-        this.resendCache[this.outgoingFrameId++] = buffer;
-
         // Create new ready buffer 
         this.datagramReadyBuffer = this.createReadyFrameSetBuffer();
         this.datagramReadyBufferOffset = 4; //FrameSet packet Id and sequence number 1 + 3
 
-        // Sended
-        console.log("Sended: " + buffer.length);
+        // Send
+        this.internalSendAsFrameSet(buffer);
+    }
+    protected internalSendAsFrameSet(buffer: Uint8Array): void {
+        buffer[0] = VALID_DATAGRAM_BIT;
+
+        // Save under the sequence id
+        this.resendCache[this.outgoingFrameId] = buffer;
+
+        RakNetUtils.writeUint24(new DataView(buffer.buffer, buffer.byteOffset), 1, this.outgoingFrameId++);
         this.sendRawData(buffer);
+
+        // Sended
+        console.log("Sended Internal: " + buffer.length);
     }
     protected flushAcknowledges(): void {
         // Acknowledge received packets
@@ -270,10 +322,8 @@ export class RakNetConnection {
                 RakNetUnconnectedPacketId.AckDatagram, 
                 RakNetConnection.getRangesFromSequence(this.receivedDatagramQueue.values())
             );
-
             //Send
             this.sendRawData(buffer);
-            
             // Clear the array
             this.receivedDatagramQueue.length = 0;
         }
@@ -286,13 +336,10 @@ export class RakNetConnection {
                 RakNetConnection.getRangesFromSequence(this.missingDatagramQueue.values())
             );
 
-            console.log("Nack");
             this.sendRawData(buffer);
             // Clear the set
             this.missingDatagramQueue.clear();
         }
-
-        console.log("This flush acknowledges");
     }
     //#endregion
 

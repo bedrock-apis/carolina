@@ -1,5 +1,5 @@
 import { MAGIC } from "../constants";
-import { RakNetUnconnectedPacketId } from "../enums";
+import { RakNetConnectedPacketId, RakNetUnconnectedPacketId } from "../enums";
 
 const PONG_BUFFER = new Uint8Array(256);
 PONG_BUFFER[0] = RakNetUnconnectedPacketId.UnconnectedPong;
@@ -23,4 +23,18 @@ export function rentUnconnectedPongBufferWith(pongTime: bigint, serverGuid: bigi
     
     // return rented buffer with correct length
     return PONG_BUFFER.subarray(0, 35 + message.length);
+}
+
+const CONNECTED_PONG_BUFFER = new Uint8Array(1 + 8 + 8);
+CONNECTED_PONG_BUFFER[0] = RakNetConnectedPacketId.ConnectedPong;
+const CONNECTED_PONG_VIEW = new DataView(PONG_BUFFER.buffer, 1); // Exclude packetId
+export function rentConnectedPongBufferWith(pingTime: bigint, pongTime: bigint): Uint8Array{
+    // Set ping time
+    CONNECTED_PONG_VIEW.setBigUint64(0, pingTime, false);
+    
+    // Set pong time
+    CONNECTED_PONG_VIEW.setBigUint64(8, pongTime, false); 
+    
+    // return rented buffer with correct length
+    return CONNECTED_PONG_BUFFER;
 }
