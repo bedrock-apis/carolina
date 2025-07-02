@@ -3,7 +3,6 @@ import { RakNetUnconnectedPacketId } from "../enums";
 import type { AddressInfo } from "node:net";
 import { RakNetUtils } from "../proto";
 import { internalHandleIncoming, RakNetConnection } from "./connection";
-import { Encoding } from "@carolina/encoding";
 import { MAX_MTU_SIZE, UDP_HEADER_SIZE } from "../constants";
 
 export class RakNetServer {
@@ -131,9 +130,10 @@ export class RakNetServer {
             this.guid,
 
             // Needs to be improved later on
-            Encoding.utf8.encode(`MCPE;Carolina;390;1.14.60;15;10;${this.guid};Bedrock Level;creative;1;19132;19133;`)/* new Uint8Array()*/);
+            TEMPORARY.encode(`MCPE;Carolina;390;1.14.60;15;10;${this.guid};Bedrock Level;creative;1;19132;19133;`)/* new Uint8Array()*/);
         
         // Send rented buffer
         socket.send(buffer, receiver.port, receiver.address);
     }
 }
+const TEMPORARY = new TextEncoder();

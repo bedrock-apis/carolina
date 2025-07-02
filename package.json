@@ -16,7 +16,7 @@
 	"keywords": [],
 	"author": "",
 	"license": "ISC",
-	"packageManager": "pnpm@10.0.0-rc.3+sha512.5be0426818bc14eedfa404e2d64e10acdb5073c72dd5b78eb0b7d16ad743e817ceda0cb9309a05137da2eda405f3423899fd89217ff2d7f50c79758176cef6cc",
+	"packageManager": "pnpm@10.12.4+sha512.5ea8b0deed94ed68691c9bad4c955492705c5eeb8a87ef86bc62c74a26b037b08ff9570f108b2e4dbd1dd1a9186fea925e527f141c648e85af45631074680184",
 	"devDependencies": {
 		"@serenityjs/raknet": "0.7.6",
 		"@types/node": "^22.10.7",
