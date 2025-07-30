@@ -1,4 +1,4 @@
-import type { RakNetUtils } from "./index";
+import type { RakNetUtils } from "./raknet-utils";
 import { RakNetUnconnectedPacketId } from "../enums";
 
 const ACK_BUFFER = new Uint8Array(256);

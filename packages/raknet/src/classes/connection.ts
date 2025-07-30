@@ -75,12 +75,12 @@ export class RakNetConnection {
         if((mask & NACK_DATAGRAM_BIT) === NACK_DATAGRAM_BIT)
             return void this.handleNack(msg);
     }
-    protected handleAck(_: Uint8Array){
+    protected handleAck(_: Uint8Array): void{
         for(const {min, max} of RakNetUtils.readACKLikePacket(_))
             for(let i = min; i <= max; i++)
                 delete this.resendCache[i];
     }
-    protected handleNack(_: Uint8Array){
+    protected handleNack(_: Uint8Array): void{
         for(const {min, max} of RakNetUtils.readACKLikePacket(_))
             for(let i = min; i <= max; i++)
             {
@@ -163,16 +163,14 @@ export class RakNetConnection {
         const packetId = desc.body[0];
 
         // Unknown packet, maybe better to crash? I don't know
-        if(!(packetId in this))
-            return void console.error("No handler for packet with id: 0x" + packetId.toString(16));
-
+        if(!(packetId in this)) throw new SyntaxError("No handler for packet with id: 0x" + packetId.toString(16));
         this[packetId as RakNetConnectedPacketId.ConnectionRequest](desc.body);
     }
     //#endregion
     
     //#region Packet Handlers
     /* Base Handlers for connected packet */
-    protected [RakNetConnectedPacketId.ConnectionRequest](message: Uint8Array): void{
+    protected [9 /*RakNetConnectedPacketId.ConnectionRequest*/](message: Uint8Array): void{
         // Gather info
         const {time, guid} = RakNetUtils.getConnectionRequestInfo(new DataView(message.buffer, message.byteOffset));
 
@@ -189,11 +187,19 @@ export class RakNetConnection {
         // We want fast connect so lets flush it now
         this.flush();
     }
-    protected [RakNetConnectedPacketId.Disconnect](_: Uint8Array): void { this.close(); }
-    protected [RakNetConnectedPacketId.ConnectedPing](_: Uint8Array): void {
+    protected [21 /*RakNetConnectedPacketId.Disconnect*/](_: Uint8Array): void {
+        this.close();
+    }
+    protected [0 /*RakNetConnectedPacketId.ConnectedPing*/](_: Uint8Array): void {
         const time = RakNetUtils.getConnectedPingTime(_);
         this.enqueueData(RakNetUtils.rentConnectedPongBufferWith(time, BigInt(Date.now())), RakNetReliability.Unreliable);
         this.flush();
+    }
+    protected [0x13 /*RakNetConnectedPacketId.NewIncomingConnection*/](message: Uint8Array): void{
+        console.log("Connection Established")
+    }
+    protected [0xfe /*Game Data Header*/](message: Uint8Array): void {
+        console.log("GameData: ", message)
     }
     //#endregion
 
@@ -301,6 +307,7 @@ export class RakNetConnection {
 
         // Send
         this.internalSendAsFrameSet(buffer);
+        console.log("Flushed");
     }
     protected internalSendAsFrameSet(buffer: Uint8Array): void {
         buffer[0] = VALID_DATAGRAM_BIT;
@@ -310,9 +317,6 @@ export class RakNetConnection {
 
         RakNetUtils.writeUint24(new DataView(buffer.buffer, buffer.byteOffset), 1, this.outgoingFrameId++);
         this.sendRawData(buffer);
-
-        // Sended
-        console.log("Sended Internal: " + buffer.length);
     }
     protected flushAcknowledges(): void {
         // Acknowledge received packets
@@ -360,8 +364,6 @@ export class RakNetConnection {
         this.flushAcknowledges();
 
         if(this.datagramReadyBufferOffset > 4) this.flushDatagramBuffer();
-
-        console.log("Flushed");
     }
     protected sendRawData(data: Uint8Array): void{
         this.socket.send(data, this.port, this.internetProtocolAddress);

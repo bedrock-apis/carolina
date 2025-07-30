@@ -10,13 +10,13 @@ import { rentConnectionRequestAcceptPacketWith } from "./connection-request-acce
 import { RakNetReliability } from "../enums";
 
 export class RakNetUtils {
-    public static readonly rentUnconnectedPongBufferWith = rentUnconnectedPongBufferWith;
-    public static readonly rentConnectedPongBufferWith = rentConnectedPongBufferWith;
-    public static readonly rentOpenConnectionReplyOneBufferWith = rentOpenConnectionReplyOneBufferWith;
-    public static readonly rentOpenConnectionReplyTwoBufferWith = rentOpenConnectionReplyTwoBufferWith;
-    public static readonly rentAcknowledgePacketWith = rentAcknowledgePacketWith;
-    public static readonly rentConnectionRequestAcceptPacketWith = rentConnectionRequestAcceptPacketWith;
-    public static readonly getConnectionRequestInfo = getConnectionRequestInfo;
+    public static readonly rentUnconnectedPongBufferWith: typeof rentUnconnectedPongBufferWith = rentUnconnectedPongBufferWith;
+    public static readonly rentConnectedPongBufferWith: typeof rentConnectedPongBufferWith = rentConnectedPongBufferWith;
+    public static readonly rentOpenConnectionReplyOneBufferWith: typeof rentOpenConnectionReplyOneBufferWith = rentOpenConnectionReplyOneBufferWith;
+    public static readonly rentOpenConnectionReplyTwoBufferWith: typeof rentOpenConnectionReplyTwoBufferWith = rentOpenConnectionReplyTwoBufferWith;
+    public static readonly rentAcknowledgePacketWith: typeof rentAcknowledgePacketWith = rentAcknowledgePacketWith;
+    public static readonly rentConnectionRequestAcceptPacketWith: typeof rentConnectionRequestAcceptPacketWith = rentConnectionRequestAcceptPacketWith;
+    public static readonly getConnectionRequestInfo: typeof getConnectionRequestInfo = getConnectionRequestInfo;
     public static * readACKLikePacket(buffer: Uint8Array): Generator<{min: number, max: number}>{
         // Skip packet id
         let offset = 1;

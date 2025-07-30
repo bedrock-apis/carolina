@@ -2,6 +2,7 @@ import { existsSync, readdirSync, readFileSync} from "node:fs"
 import { extname, resolve, basename } from 'node:path';
 import { RolldownOptions } from 'rolldown';
 import { dependencies, devDependencies} from "./package.json";
+import {dts} from "rolldown-plugin-dts";
 
 // Create external sum of packages that should not be bundled
 const libNames = Object.getOwnPropertyNames(dependencies).concat(Object.getOwnPropertyNames(devDependencies));
@@ -25,13 +26,13 @@ for(const projectRootFolder of packages) {
     // Skip packages without types
     if(!packageData.types) continue;
 
-    // Skip packages that doesn't match same out file name as the input
-    if(filename(packageData.main)!==filename(packageData.types)) continue;
-
-    const entry = resolve(projectRootFolder, packageData.types);
+    const entry = resolve(projectRootFolder, "./src/main.ts");
     console.log(entry);
     options.push({
-        input: entry,
+        input: {
+            main: entry
+        },
+        plugins: [dts({isolatedDeclarations: true})],
         transform: {
             decorator: {
                 legacy: false,
@@ -39,15 +40,10 @@ for(const projectRootFolder of packages) {
             }
         },
         output: {
-            dir: resolve(projectRootFolder, "dist"),
-            format :"esm",
-            target: "es2024",
-            minify: true
+            dir: resolve(projectRootFolder, "dist")
         },
         external: externals,
-        platform: "node",
         keepNames: true,
-        checks: { circularDependency: true },
         treeshake: true,
     });
 }

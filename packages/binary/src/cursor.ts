@@ -1,4 +1,25 @@
 const TEXT_DECODER = new TextDecoder("utf-8");
+
+export class Cursor<T extends ArrayBufferLike = ArrayBufferLike> {
+    public readonly view: DataView<T>;
+    public readonly length: number;
+    public constructor(public readonly buffer: Uint8Array<T>, public pointer: number = 0){
+        this.view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+        this.length = buffer.length;
+    }
+    public getSliceSpan(length: number): Uint8Array<T>{return this.buffer.subarray(this.pointer, this.pointer + length);}
+    public getRemainingBytes(): Uint8Array<T>{return this.buffer.subarray(this.pointer);}
+    public getProcessedBytes(): Uint8Array<T>{return this.buffer.subarray(0, this.pointer);}
+    public static create(bufferSize: number): Cursor{return new this(new Uint8Array(bufferSize));}
+}
+
+
+
+
+
+
+
+// Do use this implementation it might be slower for prototype chain and i don't like it in general 'ha ha'
 export class BinaryStream extends DataView<ArrayBuffer | SharedArrayBuffer> {
     public static from(uint8: Uint8Array, offset: number = 0): BinaryStream { return new this(uint8.buffer, uint8.byteOffset + offset, uint8.length - offset); }
     protected cursor: number = 0;
@@ -85,4 +106,5 @@ export class BinaryStream extends DataView<ArrayBuffer | SharedArrayBuffer> {
         return new Uint8Array(this.buffer, s, size);
     }
     public getRemainingBytes(): Uint8Array{ return new Uint8Array(this.buffer, this.cursor, this.byteLength - this.cursor);}
+
 }

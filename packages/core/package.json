@@ -1,9 +1,9 @@
 {
-  "name": "@carolina/encoding",
+  "name": "@carolina/base",
   "version": "1.0.0",
   "type": "module",
-  "main":"dist/index.js",
-  "types":"src/index.ts",
+  "main":"dist/main.js",
+  "types":"dist/main.d.ts",
   "scripts": {},
   "keywords": [],
   "license": "MIT"
