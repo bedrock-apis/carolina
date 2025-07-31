@@ -19,11 +19,8 @@ importers:
         version: 2.7.0
     devDependencies:
       '@bedrock-apis/nbt':
-        specifier: 0.0.1-alpha.3
-        version: 0.0.1-alpha.3
-      '@bedrock-apis/nbt-core':
-        specifier: 0.0.1-alpha.2
-        version: 0.0.1-alpha.2
+        specifier: 0.0.1-alpha.4
+        version: 0.0.1-alpha.4
       '@serenityjs/raknet':
         specifier: 0.7.6
         version: 0.7.6
@@ -93,11 +90,11 @@ packages:
     resolution: {integrity: sha512-x0LvFTekgSX+83TI28Y9wYPUfzrnl2aT5+5QLnO6v7mSJYtEEevuDRN0F0uSHRk1G1IWZC43o00Y0xDDrpBGPQ==}
     engines: {node: '>=6.9.0'}
 
-  '@bedrock-apis/nbt-core@0.0.1-alpha.2':
-    resolution: {integrity: sha512-OY67JRWFC5956qSIVbzyQi7nPLpPso9qaMc1yyYoi0peGV+wzHGrpXUmomEt+Mxim6mnQBBVTGvQFkHbQsivtQ==}
+  '@bedrock-apis/nbt-core@0.0.1-alpha.3':
+    resolution: {integrity: sha512-ub+Vn4gKOijF6DT9fCHnQHV6mRGO0CnONo9/xshJcrIChjjhxL8Yxs2iVU1hGaAMsh3teKp1PFXQLhVUKLcm0w==}
 
-  '@bedrock-apis/nbt@0.0.1-alpha.3':
-    resolution: {integrity: sha512-llywef6iDAYidtTZofqkF74yzmJHpOFgWEAbH/SodhDBAnYz44eSPU7s8TSYTYNrDapeDzZN83cYaSMi0uR7pA==}
+  '@bedrock-apis/nbt@0.0.1-alpha.4':
+    resolution: {integrity: sha512-OTCh0/NnX1JdrYeUyNwe8zchhXL46BJX6LtY3evRVKOaEpOpPK678moC2YZhDEOyxj7oZDf7EJIOvrsqdosJSg==}
 
   '@emnapi/core@1.4.5':
     resolution: {integrity: sha512-XsLw1dEOpkSX/WucdqUhPWP7hDxSvZiY+fsUC14h+FtQ2Ifni4znbBt8punRX+Uj2JG/uDb8nEHVKvrVlvdZ5Q==}
@@ -946,11 +943,11 @@ snapshots:
       '@babel/helper-string-parser': 7.27.1
       '@babel/helper-validator-identifier': 7.27.1
 
-  '@bedrock-apis/nbt-core@0.0.1-alpha.2': {}
+  '@bedrock-apis/nbt-core@0.0.1-alpha.3': {}
 
-  '@bedrock-apis/nbt@0.0.1-alpha.3':
+  '@bedrock-apis/nbt@0.0.1-alpha.4':
     dependencies:
-      '@bedrock-apis/nbt-core': 0.0.1-alpha.2
+      '@bedrock-apis/nbt-core': 0.0.1-alpha.3
 
   '@emnapi/core@1.4.5':
     dependencies:

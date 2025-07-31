@@ -11,6 +11,33 @@ export class Cursor<T extends ArrayBufferLike = ArrayBufferLike> {
     public getRemainingBytes(): Uint8Array<T>{return this.buffer.subarray(this.pointer);}
     public getProcessedBytes(): Uint8Array<T>{return this.buffer.subarray(0, this.pointer);}
     public static create(bufferSize: number): Cursor{return new this(new Uint8Array(bufferSize));}
+    
+    public readUint8(): number {return this.buffer[this.pointer++];}
+    public readUint16(littleEndian?: boolean): number{
+        const _ = this.view.getUint16(this.pointer, littleEndian);
+        this.pointer+=2;
+        return _;
+    }
+    public readUint32(littleEndian?: boolean): number{
+        const _ = this.view.getUint32(this.pointer, littleEndian);
+        this.pointer+=4;
+        return _;
+    }
+    public readBigUint64(littleEndian?: boolean): bigint{
+        const _ = this.view.getBigUint64(this.pointer, littleEndian);
+        this.pointer+=8;
+        return _;
+    }
+    public readFloat32(littleEndian?: boolean): number{
+        const _ = this.view.getFloat32(this.pointer, littleEndian);
+        this.pointer+=4;
+        return _;
+    }
+    public readFloat64(littleEndian?: boolean): number{
+        const _ = this.view.getFloat64(this.pointer, littleEndian);
+        this.pointer+=8;
+        return _;
+    }
 }
 
 

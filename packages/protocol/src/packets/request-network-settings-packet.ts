@@ -1,6 +1,7 @@
-import { BuildIn, Marshal, Serializable } from "../base";
+import { BuildIn, Marshal, Serializable, SerializableInstance } from "../base";
 
-export class RequestNetworkSettingsPacket extends Serializable {
+@Serializable
+export class RequestNetworkSettingsPacket extends SerializableInstance {
     @Marshal(BuildIn.Int32 | BuildIn.BigEndian)
     public version: number = 0;
 }
