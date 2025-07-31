@@ -35,8 +35,8 @@ for(const projectRootFolder of packages) {
         plugins: [dts({isolatedDeclarations: true})],
         transform: {
             decorator: {
-                legacy: false,
-                emitDecoratorMetadata: true
+                legacy: true,
+                emitDecoratorMetadata: false,
             }
         },
         output: {
