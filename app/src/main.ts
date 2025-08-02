@@ -1,5 +1,4 @@
-import {RakNetServer} from "@carolina/raknet";
-
+import {RakNetServer, } from "@carolina/raknet";
 const raknet = new RakNetServer();
 const source = await RakNetServer.createSource("udp6", "::1", 19133);
 raknet.addSource(source);

@@ -45,7 +45,7 @@ export class Cursor<T extends ArrayBufferLike = ArrayBufferLike> {
 
 
 
-
+//TODO - Remove this implementation
 // Do use this implementation it might be slower for prototype chain and i don't like it in general 'ha ha'
 export class BinaryStream extends DataView<ArrayBuffer | SharedArrayBuffer> {
     public static from(uint8: Uint8Array, offset: number = 0): BinaryStream { return new this(uint8.buffer, uint8.byteOffset + offset, uint8.length - offset); }

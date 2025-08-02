@@ -1,7 +1,7 @@
 
 interface PropertyMarshalInfo {
     key: string;
-    type: BuildIn | ISerializableType;
+    type: ISerializableType;
     condition?: string;
 }
 const METADATA_MAP = new WeakMap<SerializableInstance, Map<string, PropertyMarshalInfo>>();
