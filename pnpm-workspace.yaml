@@ -1,3 +1,5 @@
-link-workspace-packages: true
+# pnpm-workspace.yaml
+
 packages:
-  - 'packages/*'
+ - 'app'
+ - 'packages/*'

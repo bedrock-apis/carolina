@@ -1,9 +1,9 @@
-import { MAGIC } from "../constants";
-import { RakNetConnectedPacketId } from "../enums";
-import { writeAddress } from "./address";
-import type { AddressInfo } from "node:net";
+import { MAGIC } from '../constants';
+import { RakNetConnectedPacketId } from '../enums';
+import { AddressInfo } from '../interfaces';
+import { writeAddress } from './address';
 
-const REQUEST_ACCEPTED_BUFFER = new Uint8Array(1 + 29 + 16 + 10*29 + 8 + 8);
+const REQUEST_ACCEPTED_BUFFER = new Uint8Array(1 + 29 + 16 + 10 * 29 + 8 + 8);
 
 // Set packetId
 REQUEST_ACCEPTED_BUFFER[0] = RakNetConnectedPacketId.ConnectionRequestAccepted;
@@ -17,26 +17,32 @@ REQUEST_ACCEPTED_BUFFER.set(MAGIC, 1);
 // Exclude packetId
 const REQUEST_ACCEPTED_VIEW = new DataView(REQUEST_ACCEPTED_BUFFER.buffer);
 
-export function rentConnectionRequestAcceptPacketWith(clientAddress: AddressInfo, serverAddress: AddressInfo, requestTime: bigint, serverTime: bigint): Uint8Array{
-    // Client address
-    let offset = writeAddress(REQUEST_ACCEPTED_VIEW, 1, clientAddress);
+export function rentConnectionRequestAcceptPacketWith(
+   clientAddress: AddressInfo,
+   serverAddress: AddressInfo,
+   requestTime: bigint,
+   serverTime: bigint,
+): Uint8Array {
+   // Client address
+   let offset = writeAddress(REQUEST_ACCEPTED_VIEW, 1, clientAddress);
 
-    // Client index
-    REQUEST_ACCEPTED_VIEW.setUint16(offset, 0, false);
-
-   offset = writeAddress(REQUEST_ACCEPTED_VIEW, offset, serverAddress);             // 1x
-   for(let i = 0; i < 9;i++) offset = writeEmptyIPv4(REQUEST_ACCEPTED_VIEW, offset);  // 9xc   -->  10x Address
+   // Client index
+   REQUEST_ACCEPTED_VIEW.setUint16(offset, 0, false);
+   offset += 2;
+   offset = writeAddress(REQUEST_ACCEPTED_VIEW, offset, serverAddress); // 1x
+   console.log(21);
+   for (let i = 0; i < 9; i++) offset = writeEmptyIPv4(REQUEST_ACCEPTED_VIEW, offset); // 9xc   -->  10x Address
 
    // client request time
    REQUEST_ACCEPTED_VIEW.setBigUint64(offset, requestTime, false);
-   REQUEST_ACCEPTED_VIEW.setBigUint64(offset + 4, serverTime, false);
+   REQUEST_ACCEPTED_VIEW.setBigUint64(offset + 8, serverTime, false);
 
    return REQUEST_ACCEPTED_BUFFER.subarray(0, offset + 16);
 }
-function writeEmptyIPv4(view: DataView, offset: number): number{
-    // Ipv4
-    view.setUint8(offset, 4); // version
-    view.setUint32(offset + 1, 0); // 4 bytes address
-    view.setUint16(offset + 5, 0); // port
-    return offset + 7;
+function writeEmptyIPv4(view: DataView, offset: number): number {
+   // Ipv4
+   view.setUint8(offset, 4); // version
+   view.setUint32(offset + 1, 0xffff_ffff); // 4 bytes address
+   view.setUint16(offset + 5, 0); // port
+   return offset + 7;
 }

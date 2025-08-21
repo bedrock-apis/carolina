@@ -1,10 +1,15 @@
 {
-  "name": "@carolina/raknet",
-  "version": "1.0.0",
-  "type": "module",
-  "main":"dist/main.js",
-  "types":"dist/main.d.ts",
-  "scripts": {},
-  "keywords": [],
-  "license": "MIT"
+   "name": "@carolina/raknet",
+   "version": "1.0.0",
+   "type": "module",
+   "main": "dist/main.js",
+   "types": "dist/main.d.ts",
+   "keywords": [],
+   "author": "bedrock-apis",
+   "license": "MIT",
+   "scripts": {
+      "build": "rolldown -c",
+      "check": "tsgo --noEmit",
+      "watch": "rolldown -w -c"
+   }
 }

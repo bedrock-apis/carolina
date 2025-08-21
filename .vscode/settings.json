@@ -1,9 +1,28 @@
 {
-    "cSpell.words": [
-        "raknet",
-        "Zong",
-        "varint",
-        "varlong",
-        "zigzong",
-    ]
+   "cSpell.words": [
+      "oxlint",
+      "raknet",
+      "rolldown",
+      "tsgo",
+      "varint",
+      "varlong",
+      "zigzong",
+      "Zong"
+   ],
+   "explorer.fileNesting.enabled": true,
+   "explorer.fileNesting.patterns": {
+      "package.json": "package-lock.json, yarn.lock, pnpm-lock.yaml, pnpm-workspace.yaml",
+      "vitest.config.ts": "turbo.json, *.config.json, *.config.ts, *config.json, .oxlintrc.json",
+      ".gitignore": ".git*, .edit*, .env*",
+      "readme.md": "*.md",
+      "*.ts": "${basename}.test.ts"
+   },
+   "editor.formatOnSave": true,
+   "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+   "editor.insertSpaces": true,
+   "editor.tabSize": 3,
+   "[typescript]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+   },
+   "files.eol": "\r\n",
 }

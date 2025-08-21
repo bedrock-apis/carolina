@@ -1,0 +1,2 @@
+- Migrate to typescript-native for rolldown declaration types bundler
+- Figure out good event handlers to be used for w whole codebase

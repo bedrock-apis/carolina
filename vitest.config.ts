@@ -2,14 +2,11 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
    test: {
-      include: ['./**/*.test.ts'],
-      testTimeout: 25_000,
+      include: ['app/src/**/*.test.ts', 'packages/*/src/**/*.test.ts'],
       coverage: {
          provider: 'istanbul',
          reporter: ['html', 'json'],
          include: ['src'],
       },
-      globals: true, // Ensure globals are enabled for performance stats
-      setupFiles: './scripts/vitest.setup.ts', // Setup file to initialize performance hooks
    },
 });

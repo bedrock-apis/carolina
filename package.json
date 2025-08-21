@@ -1,37 +1,37 @@
 {
-	"name": "carolina",
-	"private": true,
-	"workspaces": [
-		"packages/*",
-		"app"
-	],
-	"main": "./app/dist/index.js",
-	"type": "module",
-	"scripts": {
-		"build": "rolldown --drop-labels __debug__ --drop-labels __assert__ -c",
-		"watch": "rolldown -w -c",
-		"release": "echo not specified!!",
-		"dev": "node ."
-	},
-	"keywords": [],
-	"author": "",
-	"license": "ISC",
-	"packageManager": "pnpm@10.13.1+sha512.37ebf1a5c7a30d5fabe0c5df44ee8da4c965ca0c5af3dbab28c3a1681b70a256218d05c81c9c0dcf767ef6b8551eb5b960042b9ed4300c59242336377e01cfad",
-	"devDependencies": {
-		"@bedrock-apis/nbt": "0.0.1-alpha.4",
-		"@serenityjs/raknet": "0.7.6",
-		"@types/node": "^22.10.7",
-		"oxc-parser": "^0.47.1",
-		"oxlint": "^0.15.7",
-		"rolldown": "1.0.0-beta.28-commit.aaef991",
-		"rolldown-plugin-dts": "0.14.1",
-		"turbo": "^2.3.4",
-		"typescript": "^5.7.3",
-		"vitest": "3.0.6"
-	},
-	"dependencies": {
-		"@carolina/binary": "workspace:^",
-		"@carolina/raknet": "workspace:*",
-		"@serenityjs/binarystream": "^2.7.0"
-	}
+   "private": true,
+   "author": "ConMaster2112",
+   "license": "MIT",
+   "type": "module",
+   "packageManager": "pnpm@10.14.0",
+   "devDependencies": {
+      "@typescript/native-preview": "7.0.0-dev.20250816.1",
+      "chokidar-cli": "^3.0.0",
+      "oxlint": "^1.11.2",
+      "prettier": "^3.6.2",
+      "rolldown": "1.0.0-beta.31-commit.832324a",
+      "rolldown-plugin-dts": "^0.15.6",
+      "turbo": "^2.5.6",
+      "vitest": "^3.2.4"
+   },
+   "prettier": {
+      "arrowParens": "avoid",
+      "endOfLine": "crlf",
+      "printWidth": 120,
+      "quoteProps": "consistent",
+      "singleQuote": true,
+      "tabWidth": 3
+   },
+   "scripts": {
+      "dev": "chokidar \"./packages/*/src/**/*.ts\" -c \"pnpm run internal:dev\" -d 450 -i \"./**/*.test.ts\"",
+      "internal:dev": "cls && turbo run build && powershell sleep 0.1 && bun ./app/dist/main.js",
+      "build": "turbo run build",
+      "check": "turbo check -- --pretty",
+      "test": "vitest --run",
+      "lint": "oxlint"
+   },
+   "workspaces": [
+      "packages/*",
+      "app"
+   ]
 }

@@ -1,5 +1,6 @@
-
-export const MAGIC: Uint8Array = new Uint8Array([0x00, 0xFF, 0xFF, 0x00, 0xFE, 0xFE, 0xFE, 0xFE, 0xFD, 0xFD, 0xFD, 0xFD, 0x12, 0x34, 0x56, 0x78]);
+export const MAGIC: Uint8Array = new Uint8Array([
+   0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78,
+]);
 export const ONLINE_DATAGRAM_BIT_MASK = 0b1110_0000;
 export const VALID_DATAGRAM_BIT = 0b1000_0000;
 export const ACK_DATAGRAM_BIT = 0b0100_0000;
@@ -22,24 +23,27 @@ export const MAX_MTU_SIZE = 1492;
 export const CAPSULE_FRAGMENT_META_SIZE = 10;
 export const MAX_CAPSULE_HEADER_SIZE: number = CAPSULE_FRAGMENT_META_SIZE + 13;
 export const MAX_FRAME_SET_HEADER_SIZE: number = MAX_CAPSULE_HEADER_SIZE + 4;
+export const random64: () => bigint = () =>
+   (BigInt((Math.random() * Number.MAX_SAFE_INTEGER) | 0) << 32n) &
+   BigInt((Math.random() * Number.MAX_SAFE_INTEGER) | 0);
 
 export const IS_RELIABLE_LOOKUP: Record<number, boolean> = {
-    2: true,
-    3: true,
-    4: true
+   2: true,
+   3: true,
+   4: true,
 };
 export const IS_SEQUENCED_LOOKUP: Record<number, boolean> = {
-    1: true,
-    4: true
+   1: true,
+   4: true,
 };
 export const IS_ORDERED_LOOKUP: Record<number, boolean> = {
-    1: true,
-    3: true,
-    4: true
+   1: true,
+   3: true,
+   4: true,
 };
 export const iS_ORDERED_EXCLUSIVE_LOOKUP: Record<number, boolean> = {
-    3: true,
-    7: true
+   3: true,
+   7: true,
 };
 
 Reflect.setPrototypeOf(IS_RELIABLE_LOOKUP, null);
