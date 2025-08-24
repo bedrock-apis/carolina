@@ -23,9 +23,10 @@
       "tabWidth": 3
    },
    "scripts": {
-      "dev": "chokidar \"./packages/*/src/**/*.ts\" -c \"pnpm run internal:dev\" -d 450 -i \"./**/*.test.ts\"",
-      "internal:dev": "cls && turbo run build && powershell sleep 0.1 && bun ./app/dist/main.js",
+      "init": "pnpm install && pnpm run build",
+      "dev": "chokidar \"./packages/*/src/**/*.ts\" -c \"powershell -ExecutionPolicy bypass -File ./helper.ps1\" -d 450 -i \"./**/*.test.ts\"",
       "build": "turbo run build",
+      "app": "node --enable-source-maps ./app/dist/main.js",
       "check": "turbo check -- --pretty",
       "test": "vitest --run",
       "lint": "oxlint"

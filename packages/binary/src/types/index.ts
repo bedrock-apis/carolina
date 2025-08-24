@@ -3,3 +3,5 @@ export * from './base';
 export * from './internal-value-type';
 export * from './number-type';
 export * from './numbers';
+export * from './string-type';
+export * from './boolean';

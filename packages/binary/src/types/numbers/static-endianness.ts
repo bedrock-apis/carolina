@@ -6,16 +6,12 @@ import { InlineSerializable } from '../serializable-type';
 const { defineProperty } = Reflect;
 
 export interface StaticSizedNumberConstructor<T extends number | bigint>
-   extends ValueTypeConstructor<StaticSizedNumber<T>, T>,
-      InlineSerializable {
-   deserialize(cursor: Cursor, littleEndian?: boolean): T;
-   serialize(cursor: Cursor, value: T, littleEndian?: boolean): void;
-}
+   extends ValueTypeConstructor<StaticSizedNumber<T>, T, [littleEndian?: boolean]>,
+      InlineSerializable {}
 export interface StaticSizedNumber<T extends number | bigint> extends NumberType<T> {}
 type DataViewSetMethodKey = { [K in keyof DataView]: K extends `set${string}` ? K : never }[keyof DataView];
 type DataViewGetMethodKey = { [K in keyof DataView]: K extends `get${string}` ? K : never }[keyof DataView];
 
-//TODO - Check if that even works lol
 export function generateStaticTypeWithEndianness<
    T extends number | bigint,
    S extends DataViewSetMethodKey,
@@ -26,9 +22,14 @@ export function generateStaticTypeWithEndianness<
    mergeSourceDirectNoEnumerable($, {
       deserialize: createDeserializeFunction(getMethod as string, sizeOf),
       serialize: createSerializeFunction(setMethod as string, sizeOf),
-      inlineDeserializableCode: ($1: unknown) => createInlineDeserialize(getMethod as string, sizeOf, $1),
-      inlineSerializableCode: ($0: unknown, $1: unknown) =>
-         createInlineSerialize(getMethod as string, $0 as string, sizeOf, $1),
+      inliner: {
+         inlineDeserializableCode: ($1: unknown) => createInlineDeserialize(getMethod as string, sizeOf, Boolean($1)),
+         inlineSerializableCode: ($0: unknown, $1: unknown) =>
+            createInlineSerialize(setMethod as string, $0 as string, sizeOf, Boolean($1)),
+      },
+      getIdentifier(littleEndian?: unknown) {
+         return `${(this as unknown as new () => unknown).name}${Boolean(littleEndian)}`;
+      },
    });
 
    return $ as any;
@@ -78,8 +79,8 @@ return _;`,
 }
 
 function createInlineSerialize(setMethod: string, value: string, sizeOf: number, endianness: unknown): string {
-   return `$.${'view' satisfies CursorKey}.${setMethod}($.${'pointer' satisfies CursorKey}, ${value}, ${endianness}); $.${'pointer' satisfies CursorKey}+=${sizeOf}`;
+   return `$.${'view' satisfies CursorKey}.${setMethod}($.${'pointer' satisfies CursorKey},${value},${endianness});$.${'pointer' satisfies CursorKey}+=${sizeOf}`;
 }
 function createInlineDeserialize(getMethod: string, sizeOf: number, endianness: unknown): string {
-   return `$.${'view' satisfies CursorKey}.${getMethod}($.${'pointer' satisfies CursorKey}, ${endianness}); $.${'pointer' satisfies CursorKey}+=${sizeOf}`;
+   return `$.${'view' satisfies CursorKey}.${getMethod}($.${'pointer' satisfies CursorKey},${endianness});$.${'pointer' satisfies CursorKey}+=${sizeOf}`;
 }

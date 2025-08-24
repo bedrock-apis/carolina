@@ -2,12 +2,16 @@ import { Cursor } from '../../cursor';
 import { mergeSourceDirectNoEnumerable, VALUE_TYPE_CONSTRUCTOR_FACTORY, ValueTypeConstructor } from '../base';
 import { NumberType } from '../number-type';
 
-export interface Uint24Constructor extends ValueTypeConstructor<Uint24, number> {}
+export interface Uint24LEConstructor extends ValueTypeConstructor<Uint24LE, number> {}
 
-export const Uint24: Uint24Constructor = VALUE_TYPE_CONSTRUCTOR_FACTORY('Uint24', 0, NumberType) as Uint24Constructor;
-export interface Uint24 extends NumberType<number> {}
+export const Uint24LE: Uint24LEConstructor = VALUE_TYPE_CONSTRUCTOR_FACTORY(
+   'Uint24LE',
+   0,
+   NumberType,
+) as Uint24LEConstructor;
+export interface Uint24LE extends NumberType<number> {}
 
-mergeSourceDirectNoEnumerable(Uint24, {
+mergeSourceDirectNoEnumerable(Uint24LE, {
    deserialize: function deserialize(cursor: Cursor): number {
       const $ = cursor.view.getUint16(cursor.pointer, true) | (cursor.view.getUint8((cursor.pointer += 2)) << 16);
       cursor.pointer++;

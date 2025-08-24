@@ -38,6 +38,9 @@ importers:
       '@carolina/binary':
         specifier: workspace:^
         version: link:../packages/binary
+      '@carolina/protocol':
+        specifier: workspace:^
+        version: link:../packages/protocol
       '@carolina/raknet':
         specifier: workspace:^
         version: link:../packages/raknet
@@ -58,6 +61,12 @@ importers:
   packages/binary: {}
 
   packages/common: {}
+
+  packages/protocol:
+    dependencies:
+      '@carolina/binary':
+        specifier: workspace:^
+        version: link:../binary
 
   packages/raknet: {}
 

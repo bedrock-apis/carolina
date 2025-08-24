@@ -4,13 +4,8 @@
       "build": {
          "dependsOn": [
             "^build"
-         ],
-         "cache": false
+         ]
       },
-      "check": {},
-      "watch": {
-         "persistent": true,
-         "cache": false
-      }
+      "check": {}
    }
 }

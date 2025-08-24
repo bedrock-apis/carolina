@@ -57,13 +57,12 @@ export function readCapsuleFrameData(view: DataView, offset: number): { offset: 
    return result;
 }
 export function writeCapsuleFrameHeader(
+   offset: number,
    view: DataView,
    desc: Omit<FrameDescriptor, 'body'>,
    bodyLength: number,
    reliability: RakNetReliability,
 ): number {
-   let offset = 0;
-
    let header = reliability << 5;
    if (desc.fragment) header |= IS_FRAGMENTED_BIT;
    view.setUint8(offset++, header);

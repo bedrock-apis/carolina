@@ -13,6 +13,7 @@
    },
    "dependencies": {
       "@carolina/binary": "workspace:^",
+      "@carolina/protocol": "workspace:^",
       "@carolina/raknet": "workspace:^"
    },
    "devDependencies": {

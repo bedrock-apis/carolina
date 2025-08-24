@@ -13,36 +13,26 @@ import {
 } from '../constants';
 import { RakNetConnectedPacketId, RakNetReliability, RakNetUnconnectedPacketId } from '../enums';
 import { AddressInfo, FrameDescriptor, SocketSource } from '../interfaces';
-import {
-   getChunkIterator,
-   getConnectedPingTime,
-   readCapsuleFrameData,
-   rentConnectedPongBufferWith,
-   writeCapsuleFrameHeader,
-} from '../proto';
+import { getChunkIterator, readCapsuleFrameData, writeCapsuleFrameHeader } from '../proto';
 import { readACKLikePacket, rentAcknowledgePacketWith } from '../proto/acknowledge';
-import { getConnectionRequestInfo } from '../proto/connection-request';
-import { rentConnectionRequestAcceptPacketWith } from '../proto/connection-request-accepted';
-import { getDataViewFromBuffer, readUint24, writeUint24 } from '../proto/uint24';
+import { readUint24, writeUint24 } from '../proto/uint24';
 import { FragmentMeta } from './fragment-meta';
 
 export abstract class BaseConnection {
    //#region Statics
-
+   public onErrorHandle?: (error: Error) => void;
+   public onConnectionEstablished?: () => void;
    /** Don't use ":" as separator as it's valid character for IPv6 address*/
    public static getIdentifierFor: (address: AddressInfo) => string = _ => `${_.address}#${_.port}`;
    //#endregion
    public constructor(
       public readonly source: SocketSource,
       public readonly endpoint: AddressInfo,
-      public readonly serverAddress: AddressInfo,
-      mtuSize: number,
-      public readonly guid: bigint = random64(),
+      public readonly guid: bigint,
    ) {
       this.id = new.target.getIdentifierFor(endpoint);
-      this.maxPayloadSize = mtuSize - UDP_HEADER_SIZE;
       this.datagramReadyBuffer = this.createReadyFrameSetBuffer();
-      console.log(endpoint);
+      this.datagramReadyBufferOffset = 4;
    }
    public readonly id: string;
 
@@ -60,9 +50,9 @@ export abstract class BaseConnection {
    protected outgoingFrameId: number = 0;
 
    protected datagramReadyBuffer: Uint8Array;
-   protected datagramReadyBufferOffset = 0;
+   protected datagramReadyBufferOffset = 4; // Always 4 (packetId, + uint24LE for frameset sequence id)
    protected resendCache: Record<number, Uint8Array> = Object.create(null);
-   protected readonly maxPayloadSize: number;
+   protected abstract maxPayloadSize: number;
    protected get datagramReadyBufferAvailableLength(): number {
       return this.datagramReadyBuffer.length - this.datagramReadyBufferOffset;
    }
@@ -85,11 +75,9 @@ export abstract class BaseConnection {
       if ((mask & NACK_DATAGRAM_BIT) === NACK_DATAGRAM_BIT) return void this.handleNack(msg);
    }
    protected handleAck(_: Uint8Array): void {
-      console.log('ACK:', _);
       for (const { min, max } of readACKLikePacket(_)) for (let i = min; i <= max; i++) delete this.resendCache[i];
    }
    protected handleNack(_: Uint8Array): void {
-      console.log('NACK');
       for (const { min, max } of readACKLikePacket(_))
          for (let i = min; i <= max; i++) {
             this.internalSendAsFrameSet(this.resendCache[i]);
@@ -110,7 +98,7 @@ export abstract class BaseConnection {
       delete this.receivedDatagram[correctionIndex];
 
       // Check for duplicate frames
-      if (this.receivedDatagram[frameIndex]) throw new ReferenceError('Duplicated frame set received');
+      if (this.receivedDatagram[frameIndex]) this.onErrorHandle?.(new ReferenceError('Duplicated frame set received'));
 
       // register frame set as received
       this.receivedDatagram[frameIndex] = true;
@@ -143,7 +131,8 @@ export abstract class BaseConnection {
       const { body, fragment } = data;
 
       // Can't handle frames with no fragmentation
-      if (!fragment) throw new ReferenceError('This frame descriptor is not a fragment');
+      //TODO - We should consider using some kind of error handler
+      if (!fragment) return this.onErrorHandle?.(new ReferenceError('This frame descriptor is not a fragment'));
 
       // get fragment cache
       let meta = this.fragmentTable.get(fragment.id);
@@ -166,50 +155,10 @@ export abstract class BaseConnection {
          this.handleFrame(data);
       }
    }
-   protected handleFrame(desc: FrameDescriptor): void {
-      // First byte is Packet id
-      const packetId = desc.body[0];
-      console.log('Handle: ' + packetId);
-
-      // Unknown packet, maybe better to crash? I don't know
-      if (!(packetId in this)) throw new SyntaxError('No handler for packet with id: 0x' + packetId.toString(16));
-      this[packetId as RakNetConnectedPacketId.ConnectionRequest](desc.body);
-   }
+   protected abstract handleFrame(desc: FrameDescriptor): void;
    //#endregion
 
    //#region Packet Handlers
-   /* Base Handlers for connected packet */
-   protected [9 /*RakNetConnectedPacketId.ConnectionRequest*/](message: Uint8Array): void {
-      // Gather info
-      const { time, guid } = getConnectionRequestInfo(new DataView(message.buffer, message.byteOffset));
-
-      console.log('message6', message);
-      // Check for client guid
-      if (guid !== this.guid) return void console.error('Fatal security error, infected client trying to connect.');
-
-      // rent buffer to send
-      const buffer = rentConnectionRequestAcceptPacketWith(this.endpoint, this.serverAddress, time, BigInt(Date.now()));
-      console.log(buffer);
-      // Send
-      this.enqueueData(buffer, RakNetReliability.ReliableOrdered);
-
-      // We want fast connect so lets flush it now
-      this.flush();
-   }
-   protected [21 /*RakNetConnectedPacketId.Disconnect*/](_: Uint8Array): void {
-      this.close();
-   }
-   protected [0 /*RakNetConnectedPacketId.ConnectedPing*/](_: Uint8Array): void {
-      const time = getConnectedPingTime(getDataViewFromBuffer(_));
-      this.enqueueData(rentConnectedPongBufferWith(time, BigInt(Date.now())), RakNetReliability.Unreliable);
-      this.flush();
-   }
-   protected [0x13 /*RakNetConnectedPacketId.NewIncomingConnection*/](message: Uint8Array): void {
-      console.log('Connection Established');
-   }
-   protected [0xfe /*Game Data Header*/](message: Uint8Array): void {
-      console.log('GameData: ', message);
-   }
    //#endregion
 
    //#region protected
@@ -301,6 +250,7 @@ export abstract class BaseConnection {
       );
       // Write capsule header
       this.datagramReadyBufferOffset += writeCapsuleFrameHeader(
+         0,
          dataview,
          descriptor,
          descriptor.body.length,
@@ -325,7 +275,6 @@ export abstract class BaseConnection {
 
       // Send
       this.internalSendAsFrameSet(buffer);
-      console.log('Flushed');
    }
    protected internalSendAsFrameSet(buffer: Uint8Array): void {
       buffer[0] = VALID_DATAGRAM_BIT;
@@ -346,7 +295,6 @@ export abstract class BaseConnection {
          );
          //Send
          this.sendRawData(buffer);
-         console.log('Send Raw');
          // Clear the array
          this.receivedDatagramQueue.length = 0;
       }
@@ -363,7 +311,6 @@ export abstract class BaseConnection {
          // Clear the set
          this.missingDatagramQueue.clear();
       }
-      console.log('FLUSHED::::');
    }
    //#endregion
 
@@ -371,6 +318,8 @@ export abstract class BaseConnection {
    public disconnect(): void {
       // Send close packet!
       //TODO: Send Disconnect packet
+      this.enqueueData(new Uint8Array([RakNetConnectedPacketId.Disconnect]), RakNetReliability.Unreliable);
+      this.flush();
 
       // Close this connection
       this.close();
@@ -408,5 +357,8 @@ export abstract class BaseConnection {
       } while (!v.done);
       yield { min, max };
       return i;
+   }
+   public send(data: Uint8Array, reliability: RakNetReliability): void {
+      this.enqueueData(data, reliability);
    }
 }

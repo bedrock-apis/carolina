@@ -16,7 +16,6 @@ REQUEST_ACCEPTED_BUFFER.set(MAGIC, 1);
 
 // Exclude packetId
 const REQUEST_ACCEPTED_VIEW = new DataView(REQUEST_ACCEPTED_BUFFER.buffer);
-
 export function rentConnectionRequestAcceptPacketWith(
    clientAddress: AddressInfo,
    serverAddress: AddressInfo,
@@ -30,7 +29,6 @@ export function rentConnectionRequestAcceptPacketWith(
    REQUEST_ACCEPTED_VIEW.setUint16(offset, 0, false);
    offset += 2;
    offset = writeAddress(REQUEST_ACCEPTED_VIEW, offset, serverAddress); // 1x
-   console.log(21);
    for (let i = 0; i < 9; i++) offset = writeEmptyIPv4(REQUEST_ACCEPTED_VIEW, offset); // 9xc   -->  10x Address
 
    // client request time
@@ -42,7 +40,7 @@ export function rentConnectionRequestAcceptPacketWith(
 function writeEmptyIPv4(view: DataView, offset: number): number {
    // Ipv4
    view.setUint8(offset, 4); // version
-   view.setUint32(offset + 1, 0xffff_ffff); // 4 bytes address
+   view.setUint32(offset + 1, 0xffffffff); // 4 bytes address
    view.setUint16(offset + 5, 0); // port
    return offset + 7;
 }

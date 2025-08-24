@@ -6,7 +6,7 @@ export const VALID_DATAGRAM_BIT = 0b1000_0000;
 export const ACK_DATAGRAM_BIT = 0b0100_0000;
 export const NACK_DATAGRAM_BIT = 0b0010_0000;
 export const RELIABILITY_BIT_MASK = 0b1110_0000;
-export const IS_FRAGMENTED_BIT = 0b10001_0000;
+export const IS_FRAGMENTED_BIT = 0b0001_0000;
 
 /* 
     + 1500 Max Ethernet Payload Chunk, for WIFI it's default but could be extended

@@ -18,7 +18,12 @@ export function defineConfig(
             legacy: true,
          },
       },
-      output: { dir: output },
+      output: {
+         dir: output,
+         minify: true,
+         sourcemap: 'inline',
+      },
+      treeshake: true,
       keepNames: true,
    };
    const steps: RolldownOptions[] = [baseOptions];

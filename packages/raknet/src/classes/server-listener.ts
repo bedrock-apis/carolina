@@ -9,10 +9,11 @@ import { getOpenConnectionRequestTwoInfo } from '../proto/connection-request';
 import { rentOpenConnectionReplyTwoBufferWith } from '../proto/open-connection-reply-two';
 
 export class ServerConnectionListener {
+   public readonly discoveryEnabled?: boolean;
    public onErrorHandler?: (error: Error) => void;
    public onNewConnection?: (connection: ServerConnection) => void;
+   public onConnectionDisconnected?: (connection: ServerConnection) => void;
    public readonly connections: Map<string, ServerConnection> = new Map();
-
    // Random GUID for this server instance
    public readonly guid: bigint = random64();
 
@@ -58,8 +59,11 @@ export class ServerConnectionListener {
       source.send(buffer, receiver);
       const id = BaseConnection.getIdentifierFor(receiver);
 
-      const connection = new ServerConnection(source, receiver, serverAddress, mtu, guid); // RakNetConnection.create(this, source, mtu, guid, receiver);
-
+      const connection = new ServerConnection(source, receiver, serverAddress, guid, mtu); // RakNetConnection.create(this, source, mtu, guid, receiver);
+      connection.onDisconnect = (): void => {
+         this.connections.delete(id);
+         this.onConnectionDisconnected?.(connection);
+      };
       // Create new connection
       this.connections.set(id, connection);
 
@@ -95,16 +99,14 @@ export class ServerConnectionListener {
       const pingTime = getUnconnectedPingTime(view);
 
       // Rent buffer for pong with specified properties
-      const buffer = rentUnconnectedPongBufferWith(pingTime, this.guid, this.getMOTD());
+      const buffer = rentUnconnectedPongBufferWith(pingTime, this.guid, this.getMOTD(receiver));
       // Send rented buffer
       socket.send(buffer, receiver);
    }
 
    /** This method is mean to be overridden, thats why its unoptimized anyway */
-   public getMOTD(): Uint8Array {
-      return new TextEncoder().encode(
-         `MCPE;Carolina;390;1.14.60;15;10;${this.guid};Bedrock Level;creative;1;19132;19133;`,
-      );
+   public getMOTD(receiver: AddressInfo): Uint8Array {
+      return new TextEncoder().encode(`MCPE;Carolina;390;1.14.60;16;50;${this.guid};Ending;`);
    }
 
    public addListenerSource(source: SocketSource): void {

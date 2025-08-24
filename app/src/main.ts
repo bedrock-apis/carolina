@@ -1,38 +1,37 @@
-import { dlopen, FFIType } from 'bun:ffi';
-const a = dlopen('kernel32', {
-   FreeConsole: {
-      args: [],
-      returns: FFIType.bool,
-   },
-   AllocConsole: {
-      args: [],
-      returns: FFIType.bool,
-   },
-});
-a.symbols.FreeConsole();
-a.symbols.AllocConsole();
-
-console.log('OK1');
-import { AddressInfo, ServerConnectionListener, SocketSource } from '@carolina/raknet';
+import { ClientConnection, ServerConnectionListener, SocketSource } from '@carolina/raknet';
+import { createSocket } from 'node:dgram';
 
 const connectionListener = new ServerConnectionListener();
 connectionListener.addListenerSource(await createSource());
-export {};
 
+/*
+const client = ClientConnection.create(await createSource(), { address: '127.0.0.1', port: 19142, family: 'IPv4' });
+console.log(await client.sendUnconnectedPong());
+*/
 async function createSource(): Promise<SocketSource> {
+   const socket = createSocket('udp4');
+   const { promise, reject, resolve } = Promise.withResolvers();
+   socket.bind(19132, resolve);
+   socket.on('error', reject);
+   await promise;
+   return {
+      onDataCallback: _ =>
+         socket.on('message', (buffer, { address, port }) => _(buffer, { address, family: 'IPv4', port })),
+      send: async (data, endpoint) => void socket.send(data, endpoint.port, endpoint.address),
+   };
+   /*
    const socket = await Bun.udpSocket({
       binaryType: 'uint8array',
       hostname: '0.0.0.0',
       port: 19132,
       socket: {
-         data: (_, msg, port, address) => console.log(msg, address, fn?.(msg, { port, address, family: 'IPv4' })),
+         data: (_, msg, port, address) => fn?.(msg, { port, address, family: 'IPv4' }),
       },
    });
    let fn: null | ((uint8Array: Uint8Array, address: AddressInfo) => void) = null;
    return {
       onDataCallback: _ => (fn = _),
-      send: async (buffer, endpoint) =>
-         console.log('SAND', buffer, void socket.send(buffer, endpoint.port, endpoint.address)),
-   };
+      send: async (buffer, endpoint) => void socket.send(buffer, endpoint.port, endpoint.address),
+   };*/
 }
 console.log('Started . . .');
