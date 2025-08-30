@@ -3,9 +3,9 @@ import { PacketType, PacketCompilable } from '../packet';
 import { PacketCompressionAlgorithm, PacketIds } from '../enums';
 
 @PacketCompilable(PacketIds.NetworkSettings)
-export class NetworkSettings extends PacketType {
+export class NetworkSettingsPacket extends PacketType {
    @SerializeAs(Short, true)
-   public compressionThreshold: number = 0;
+   public compressionThreshold: number = 1;
    @SerializeAs(Short, true)
    public compressionAlgorithm: PacketCompressionAlgorithm = 0;
    @SerializeAs(Boolean)

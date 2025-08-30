@@ -1,2 +1,2 @@
-- Migrate to typescript-native for rolldown declaration types bundler
+- Migrate to typescript-native for rolldown declaration types - Suspended Idea as it requires isolatedDeclarations and these are really strict sometimes too strict
 - Figure out good event handlers to be used for w whole codebase

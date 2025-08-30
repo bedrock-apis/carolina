@@ -60,14 +60,14 @@ export class ServerConnectionListener {
       const id = BaseConnection.getIdentifierFor(receiver);
 
       const connection = new ServerConnection(source, receiver, serverAddress, guid, mtu); // RakNetConnection.create(this, source, mtu, guid, receiver);
+      connection.onConnectionEstablished = (): void => void this.onNewConnection?.(connection);
+      connection.onErrorHandle = (_): void => this.onErrorHandler?.(_);
       connection.onDisconnect = (): void => {
          this.connections.delete(id);
          this.onConnectionDisconnected?.(connection);
       };
       // Create new connection
       this.connections.set(id, connection);
-
-      this.onNewConnection?.(connection);
    }
 
    // Header for open connection requested one

@@ -4,5 +4,5 @@
 export enum PacketCompressionAlgorithm {
    Zlib = 0,
    Snappy = 1,
-   NoCompression = 65535,
+   NoCompression = 0xff,
 }

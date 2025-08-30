@@ -6,6 +6,7 @@ import { getDataViewFromBuffer } from '../proto/uint24';
 import { BaseConnection } from './base-connection';
 
 export class ClientConnection extends BaseConnection {
+   protected datagramReadyBuffer: Uint8Array<ArrayBufferLike> = this.createReadyFrameSetBuffer();
    protected readonly unconnectedPings: Map<
       bigint,
       PromiseWithResolvers<{ latency: number; message: string }> & { timeout?: ReturnType<typeof setTimeout> }

@@ -12,6 +12,7 @@
       "rolldown": "1.0.0-beta.31-commit.832324a",
       "rolldown-plugin-dts": "^0.15.6",
       "turbo": "^2.5.6",
+      "typescript": "6.0.0-dev.20250824",
       "vitest": "^3.2.4"
    },
    "prettier": {
@@ -23,9 +24,11 @@
       "tabWidth": 3
    },
    "scripts": {
+      "dump": "pnpm run build && node ./packages/dumper/dist/main.js",
       "init": "pnpm install && pnpm run build",
       "dev": "chokidar \"./packages/*/src/**/*.ts\" -c \"powershell -ExecutionPolicy bypass -File ./helper.ps1\" -d 450 -i \"./**/*.test.ts\"",
       "build": "turbo run build",
+      "watch": "turbo run watch",
       "app": "node --enable-source-maps ./app/dist/main.js",
       "check": "turbo check -- --pretty",
       "test": "vitest --run",

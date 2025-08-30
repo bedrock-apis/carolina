@@ -1,0 +1,22 @@
+{
+   "name": "@carolina/dumper",
+   "version": "1.0.0",
+   "type": "module",
+   "main": "dist/main.js",
+   "types": "dist/main.d.ts",
+   "keywords": [],
+   "author": "bedrock-apis",
+   "license": "MIT",
+   "scripts": {
+      "build": "rolldown -c ./rolldown.config.ts",
+      "check": "tsgo --noEmit",
+      "watch": "rolldown -w -c"
+   },
+   "devDependencies": {
+      "@minecraft/server": "2.3.0-beta.1.21.110-preview.26",
+      "@minecraft/server-net": "1.0.0-beta.1.21.110-preview.26",
+      "@types/node": "^24.0.0",
+      "rolldown": "1.0.0-beta.31-commit.832324a",
+      "unzip-web-stream": "0.0.0-alpha.1"
+   }
+}

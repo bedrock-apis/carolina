@@ -1,6 +1,11 @@
 {
-  "extends": "../../base.tsconfig.json",
-  "include": [
-    "./src/**/*.ts"
-  ]
+   "extends": "../../base.tsconfig.json",
+   "compilerOptions": {
+      "types": [
+         "../../global.d.ts"
+      ]
+   },
+   "include": [
+      "./src/**/*.ts"
+   ]
 }

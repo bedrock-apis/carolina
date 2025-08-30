@@ -5,3 +5,5 @@ export * from './number-type';
 export * from './numbers';
 export * from './string-type';
 export * from './boolean';
+export * from './encapsulation';
+export * from './buffer-type';

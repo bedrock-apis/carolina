@@ -8,7 +8,7 @@
    "author": "bedrock-apis",
    "license": "MIT",
    "scripts": {
-      "build": "rolldown -c",
+      "build": "rolldown -c ./rolldown.config.ts",
       "check": "tsgo --noEmit",
       "watch": "rolldown -w -c"
    }

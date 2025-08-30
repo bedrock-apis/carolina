@@ -1,9 +1,9 @@
-import { ClientConnection, ServerConnectionListener, SocketSource } from '@carolina/raknet';
+import { SocketSource } from '@carolina/raknet';
 import { createSocket } from 'node:dgram';
+import { Carolina } from '@carolina/core';
 
-const connectionListener = new ServerConnectionListener();
-connectionListener.addListenerSource(await createSource());
-
+const carolina = new Carolina();
+carolina.server.addListenerSource(await createSource());
 /*
 const client = ClientConnection.create(await createSource(), { address: '127.0.0.1', port: 19142, family: 'IPv4' });
 console.log(await client.sendUnconnectedPong());

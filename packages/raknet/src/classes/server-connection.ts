@@ -8,6 +8,7 @@ import { getDataViewFromBuffer } from '../proto/uint24';
 import { BaseConnection } from './base-connection';
 
 export class ServerConnection extends BaseConnection {
+   protected datagramReadyBuffer: Uint8Array<ArrayBufferLike>;
    protected override readonly maxPayloadSize: number;
    public constructor(
       source: SocketSource,
@@ -18,9 +19,12 @@ export class ServerConnection extends BaseConnection {
    ) {
       super(source, endpoint, guid);
       this.maxPayloadSize = mtuSize - UDP_HEADER_SIZE;
+      this.datagramReadyBuffer = this.createReadyFrameSetBuffer();
    }
    /**@internal */
    public onDisconnect?: () => void;
+   /**@internal */
+   public onGamePacket?: (message: Uint8Array) => void;
    public override disconnect(): void {
       super.disconnect();
       this.onDisconnect?.();
@@ -54,7 +58,8 @@ export class ServerConnection extends BaseConnection {
       this.flush();
    }
    protected [21 /*RakNetConnectedPacketId.Disconnect*/](_: Uint8Array): void {
-      this.disconnect();
+      this.close();
+      this.onDisconnect?.();
    }
    protected [0 /*RakNetConnectedPacketId.ConnectedPing*/](_: Uint8Array): void {
       const time = getConnectedPingTime(getDataViewFromBuffer(_));
@@ -65,6 +70,6 @@ export class ServerConnection extends BaseConnection {
       this.onConnectionEstablished?.();
    }
    protected [0xfe /*Game Data Header*/](message: Uint8Array): void {
-      console.log('GameData: ', Buffer.from(message));
+      this.onGamePacket?.(message);
    }
 }

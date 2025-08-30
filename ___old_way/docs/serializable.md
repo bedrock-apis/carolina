@@ -30,3 +30,6 @@ const SerializableType = objectInstance.constructor;
 
 ### Summary
 It might be more complex but i would definitely go for `Both?` variant, where serializable types are used in decorators and Serializable-s are used by dev in real-world scenarios
+
+### Step-back - Implementation
+After implementing first working prototype i realized that instances doesn't always need to have own method, the reason is because types it self rarely inherit from another type, unless its abstract type or just base shared code, the serialization logic is always for the last child, after all its single instance for whole prototype chain that does the serialization. Current choice was `SerializableType` only.

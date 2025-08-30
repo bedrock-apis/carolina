@@ -3,7 +3,7 @@ import { Int } from './numbers';
 import { Buffer } from './buffer-type';
 import { expect, suite, test } from 'vitest';
 
-const cursor = new Cursor(new Uint8Array(1 << 10));
+const cursor = Cursor.create(new Uint8Array(1 << 10));
 
 suite('Buffer Type', () => {
    test('Buffer(Int)', () => {

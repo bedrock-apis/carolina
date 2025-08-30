@@ -1,27 +1,47 @@
 export class Cursor<T extends ArrayBufferLike = ArrayBufferLike> {
-   public readonly view: DataView<T>;
-   public readonly length: number;
-   public constructor(
-      public readonly buffer: Uint8Array<T>,
-      public pointer: number = 0,
-   ) {
-      this.view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
-      this.length = buffer.length;
+   /**
+    * Zero-Copy
+    */
+   public static create<T extends ArrayBufferLike = ArrayBufferLike>(buffer: Uint8Array<T>): Cursor<T> {
+      return new this(buffer);
    }
+   protected constructor(
+      public readonly buffer: Uint8Array<T>,
+      public readonly view = new DataView<T>(buffer.buffer, buffer.byteOffset, buffer.byteLength),
+      public pointer: number = 0,
+   ) {}
+   /**
+    * Zero-Copy
+    */
    public getEncapsulation(length: number): Cursor<T> {
       return new Cursor(this.getSliceSpan(length));
    }
+   /**
+    * Zero-Copy
+    */
    public getSliceSpan(length: number): Uint8Array<T> {
       return this.buffer.subarray(this.pointer, this.pointer + length);
    }
+   /**
+    * Zero-Copy
+    */
+   public readSliceSpan(length: number): Uint8Array<T> {
+      return this.buffer.subarray(this.pointer, (this.pointer += length));
+   }
+   /**
+    * Zero-Copy
+    */
    public getRemainingBytes(): Uint8Array<T> {
       return this.buffer.subarray(this.pointer);
    }
+   /**
+    * Zero-Copy
+    */
    public getProcessedBytes(): Uint8Array<T> {
       return this.buffer.subarray(0, this.pointer);
    }
-   public static create(bufferSize: number): Cursor {
-      return new this(new Uint8Array(bufferSize));
+   public get processedBytesSize(): number {
+      return this.pointer;
    }
 
    public readUint8(): number {
@@ -75,5 +95,34 @@ export class Cursor<T extends ArrayBufferLike = ArrayBufferLike> {
    public writeFloat64(value: number, littleEndian?: boolean): void {
       this.view.setFloat64(this.pointer, value, littleEndian);
       this.pointer += 8;
+   }
+   public writeSliceSpan(value: Uint8Array): void {
+      this.buffer.set(value, this.pointer);
+      this.pointer += value.length;
+   }
+   public get isEndOfStream(): boolean {
+      return this.pointer >= this.buffer.length;
+   }
+   public get availableSize(): number {
+      return this.buffer.length - this.pointer;
+   }
+   public reset(): this {
+      this.pointer = 0;
+      return this;
+   }
+}
+
+export class ResizableCursor extends Cursor<ArrayBuffer> {
+   public readonly arrayBuffer: ArrayBuffer;
+   public constructor(size: number, maxSize: number) {
+      const arrayBuffer = new ArrayBuffer(size, { maxByteLength: maxSize });
+      super(new Uint8Array(arrayBuffer), new DataView(arrayBuffer));
+      this.arrayBuffer = arrayBuffer;
+   }
+   public grow(): void {
+      this.arrayBuffer.resize(this.arrayBuffer.byteLength * 2);
+   }
+   public growToFit(size: number): void {
+      while (this.availableSize < size) this.grow();
    }
 }

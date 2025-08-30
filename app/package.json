@@ -7,12 +7,13 @@
    "author": "bedrock-apis",
    "license": "MIT",
    "scripts": {
-      "build": "rolldown -c",
+      "build": "rolldown -c ./rolldown.config.ts",
       "watch": "rolldown -w -c",
       "dev": "bun run ./dist/main.js"
    },
    "dependencies": {
       "@carolina/binary": "workspace:^",
+      "@carolina/core": "workspace:^",
       "@carolina/protocol": "workspace:^",
       "@carolina/raknet": "workspace:^"
    },

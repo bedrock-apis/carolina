@@ -7,8 +7,6 @@ import {
    MAX_FRAME_SET_HEADER_SIZE,
    NACK_DATAGRAM_BIT,
    ONLINE_DATAGRAM_BIT_MASK,
-   random64,
-   UDP_HEADER_SIZE,
    VALID_DATAGRAM_BIT,
 } from '../constants';
 import { RakNetConnectedPacketId, RakNetReliability, RakNetUnconnectedPacketId } from '../enums';
@@ -31,7 +29,6 @@ export abstract class BaseConnection {
       public readonly guid: bigint,
    ) {
       this.id = new.target.getIdentifierFor(endpoint);
-      this.datagramReadyBuffer = this.createReadyFrameSetBuffer();
       this.datagramReadyBufferOffset = 4;
    }
    public readonly id: string;
@@ -49,7 +46,7 @@ export abstract class BaseConnection {
    protected outgoingReliableIndex: number = 0;
    protected outgoingFrameId: number = 0;
 
-   protected datagramReadyBuffer: Uint8Array;
+   protected abstract datagramReadyBuffer: Uint8Array;
    protected datagramReadyBufferOffset = 4; // Always 4 (packetId, + uint24LE for frameset sequence id)
    protected resendCache: Record<number, Uint8Array> = Object.create(null);
    protected abstract maxPayloadSize: number;
@@ -233,7 +230,6 @@ export abstract class BaseConnection {
          return;
       }
 
-      // Flush if no space is available
       if (this.datagramReadyBufferAvailableLength < data.length + MAX_CAPSULE_HEADER_SIZE - CAPSULE_FRAGMENT_META_SIZE)
          this.flushDatagramBuffer();
 

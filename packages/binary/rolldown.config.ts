@@ -1,4 +1,4 @@
-import {defineConfig} from "../../rolldown.config";
-import {dependencies} from "./package.json" with {type: "json"};
+import { defineConfig } from '../../rolldown.config';
+import { dependencies } from './package.json' with { type: 'json' };
 
-export default defineConfig({main:"./src/main.ts"}, dependencies);
+export default defineConfig({ main: './src/main.ts' }, dependencies);

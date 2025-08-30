@@ -7,9 +7,9 @@ export function defineConfig(
    output = './dist/',
    emitDeclarationFiles = true,
 ): RolldownOptions[] {
-   const externalNames = Object.getOwnPropertyNames(dependencies).filter(_ => dependencies[_].startsWith('workspace:'));
+   const externalNames = Object.getOwnPropertyNames(dependencies);
    const external = new RegExp(`^(${['node:', ...externalNames].join('|')})`);
-
+   console.log(external);
    const baseOptions: RolldownOptions = {
       input: entries,
       external,
@@ -21,7 +21,7 @@ export function defineConfig(
       output: {
          dir: output,
          minify: true,
-         sourcemap: 'inline',
+         //sourcemap: 'hidden',
       },
       treeshake: true,
       keepNames: true,

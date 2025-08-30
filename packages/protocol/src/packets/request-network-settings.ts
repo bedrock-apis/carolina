@@ -3,7 +3,7 @@ import { PacketType, PacketCompilable } from '../packet';
 import { PacketIds } from '../enums';
 
 @PacketCompilable(PacketIds.RequestNetworkSettings)
-export class RequestNetworkSettings extends PacketType {
+export class RequestNetworkSettingsPacket extends PacketType {
    @SerializeAs(Int, false)
    public clientNetworkVersion: number = 0;
 }

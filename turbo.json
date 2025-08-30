@@ -6,6 +6,12 @@
             "^build"
          ]
       },
-      "check": {}
+      "check": {},
+      "watch": {
+         "dependsOn": [
+            "build"
+         ],
+         "persistent": true
+      }
    }
 }

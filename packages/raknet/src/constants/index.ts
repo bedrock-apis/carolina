@@ -24,8 +24,7 @@ export const CAPSULE_FRAGMENT_META_SIZE = 10;
 export const MAX_CAPSULE_HEADER_SIZE: number = CAPSULE_FRAGMENT_META_SIZE + 13;
 export const MAX_FRAME_SET_HEADER_SIZE: number = MAX_CAPSULE_HEADER_SIZE + 4;
 export const random64: () => bigint = () =>
-   (BigInt((Math.random() * Number.MAX_SAFE_INTEGER) | 0) << 32n) &
-   BigInt((Math.random() * Number.MAX_SAFE_INTEGER) | 0);
+   (BigInt(~~(Math.random() * 0xffff_ffff)) << 32n) | BigInt(~~(Math.random() * 0xffff_ffff));
 
 export const IS_RELIABLE_LOOKUP: Record<number, boolean> = {
    2: true,
