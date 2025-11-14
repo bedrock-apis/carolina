@@ -1,13 +1,13 @@
 import { Cursor } from '@carolina/binary';
-import { CarolinaConnection } from './connection';
-import { NetworkSettings, PacketIds } from '@carolina/protocol';
-import { registerHandler } from '../handlers/base';
+import { NetworkConnection } from './connection';
+import { NetworkSettingsPacket, PacketIds } from '@carolina/protocol';
+import { registerHandlers } from '../handlers/base';
 
 export class NetworkProtocolHandler {
-   static [K: number]: (connection: CarolinaConnection, packetId: number, cursor: Cursor) => void;
+   static [K: number]: (connection: NetworkConnection, packetId: number, cursor: Cursor) => void;
    //This class is marked as not constructable, use static only
    private constructor() {}
-   public static handlePacket(connection: CarolinaConnection, packetId: number, cursor: Cursor): void {
+   public static handlePacket(connection: NetworkConnection, packetId: number, cursor: Cursor): void {
       if (!(packetId in this))
          return void console.error(
             '[PacketHandler][Error]',
@@ -20,4 +20,4 @@ export class NetworkProtocolHandler {
    }
 }
 
-registerHandler(NetworkSettings, () => {});
+registerHandlers(NetworkSettingsPacket, () => {});

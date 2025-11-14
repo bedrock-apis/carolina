@@ -3,7 +3,8 @@
    "version": "1.0.0",
    "type": "module",
    "main": "dist/main.js",
-   "types": "dist/main.d.ts",
+   "--comment--": "We use src as we can link the files the typescript loads and rename works across",
+   "types": "src/main.ts",
    "keywords": [],
    "author": "bedrock-apis",
    "license": "MIT",
@@ -11,5 +12,11 @@
       "build": "rolldown -c ./rolldown.config.ts",
       "check": "tsgo --noEmit",
       "watch": "rolldown -w -c"
+   },
+   "rolldown": {
+      "sources": {
+         "main": "./src/main.ts"
+      },
+      "external": "dependencies"
    }
 }

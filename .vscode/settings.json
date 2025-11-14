@@ -1,5 +1,6 @@
 {
    "cSpell.words": [
+      "MCPE",
       "oxlint",
       "raknet",
       "rolldown",
@@ -9,6 +10,7 @@
       "zigzong",
       "Zong"
    ],
+   "window.border": "#3586A4",
    "explorer.fileNesting.enabled": true,
    "explorer.fileNesting.patterns": {
       "package.json": "package-lock.json, yarn.lock, pnpm-lock.yaml, pnpm-workspace.yaml",
@@ -25,4 +27,7 @@
       "editor.defaultFormatter": "esbenp.prettier-vscode",
    },
    "files.eol": "\r\n",
+   "[xml]": {
+      "editor.defaultFormatter": "mikeburgh.xml-format"
+   },
 }

@@ -13,7 +13,7 @@
 
 ### Performance
 - Avoid using Generators unless you don't have all data available or in cases where you might quit the loop before it end.
-- Avoid using Iterable Protocol on arrays, use regular for with indexing loop.
+- Avoid using Iterable Protocol on arrays, use regular indexed for loop.
 - Don't redeclare array when clearing, use length assignment to zero.
 - Avoid using complex event handlers for hot paths (the event that runs multiple times every tick should avoid unnecessary complex object creations)
 

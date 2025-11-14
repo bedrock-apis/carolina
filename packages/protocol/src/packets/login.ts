@@ -1,14 +1,4 @@
-import {
-   Encapsulation,
-   Int,
-   SerializeAs,
-   Cursor,
-   Str,
-   VarInt,
-   Buffer,
-   Compilable,
-   AbstractType,
-} from '@carolina/binary';
+import { Int, SerializeAs, Cursor, Str, VarInt, Buffer, Compilable, AbstractType } from '@carolina/binary';
 import { PacketCompilable, PacketType } from '../packet';
 import { PacketIds } from '../enums';
 
@@ -24,15 +14,15 @@ const String32LE = Str(Int, true);
 @Compilable
 export class LoginTokensPayload extends AbstractType {
    @SerializeAs(String32LE)
-   public client: string = '';
+   public authentication: string = '';
    @SerializeAs(String32LE)
-   public identity: string = '';
+   public data: string = '';
    public static fromBytes(data: Uint8Array): LoginTokensPayload {
       const cursor = Cursor.create(data);
       return this.deserialize(cursor);
    }
    public getBytes(): Uint8Array {
-      const cursor = Cursor.create(new Uint8Array(this.client.length + this.identity.length + 8));
+      const cursor = Cursor.create(new Uint8Array(this.data.length + this.authentication.length + 8));
       LoginTokensPayload.serialize(cursor, this);
       return cursor.getProcessedBytes();
    }

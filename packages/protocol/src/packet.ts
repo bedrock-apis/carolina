@@ -1,6 +1,7 @@
 import { AbstractType, Compilable, mergeSourceDirectNoEnumerable, SerializableType } from '@carolina/binary';
 import { PacketIds } from './enums/packet-ids';
 
+const { assign } = Object;
 type Mutable<T> = { -readonly [k in keyof T]: T[k] };
 export abstract class PacketType extends AbstractType {
    public static readonly packetId: number = -1;

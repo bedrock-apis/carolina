@@ -6,19 +6,18 @@ import { getDataViewFromBuffer } from '../proto/uint24';
 import { BaseConnection } from './base-connection';
 
 export class ClientConnection extends BaseConnection {
-   protected datagramReadyBuffer: Uint8Array<ArrayBufferLike> = this.createReadyFrameSetBuffer();
    protected readonly unconnectedPings: Map<
       bigint,
       PromiseWithResolvers<{ latency: number; message: string }> & { timeout?: ReturnType<typeof setTimeout> }
    > = new Map();
-   protected override maxPayloadSize: number = 0;
    private constructor(source: SocketSource, serverEndpoint: AddressInfo) {
       super(source, serverEndpoint, random64());
    }
    protected handleFrame(desc: FrameDescriptor): void {
+      super.handleFrame(desc);
       throw new Error('Method not implemented.');
    }
-   protected handleRaw(message: Uint8Array, remote: AddressInfo): void {
+   protected handleRaw(message: Uint8Array, _: AddressInfo): void {
       const packetId = message[0];
       if (packetId & 0x80) {
          // Connected packet
@@ -47,7 +46,7 @@ export class ClientConnection extends BaseConnection {
          const d = this.unconnectedPings.get(pingTime);
          this.unconnectedPings.delete(pingTime);
          if (d) d.reject(new Error('Ping timed out.'));
-      }, 3_000).unref();
+      }, 3_000).unref?.();
 
       const rs = Promise.withResolvers<bigint>() as any;
       rs.timeout = timeout;

@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "",
   "main": "dist/main.js",
-  "types": "dist/main.d.ts",
+  "--comment--": "We use src as we can link the files the typescript loads and rename works across",
+  "types": "src/main.ts",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

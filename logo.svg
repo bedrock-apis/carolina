@@ -1,0 +1,35 @@
+<svg width="128" height="128" xmlns="http://www.w3.org/2000/svg">
+   <!-- Background with autumn gradient -->
+   <defs>
+      <linearGradient id="autumnGrad" x1="0" y1="0" x2="1" y2="1">
+         <stop offset="0%" stop-color="#9e673eff"/>
+         <stop offset="100%" stop-color="#8d4c30ff"/>
+      </linearGradient>
+      <linearGradient id="autumnGra2" x1="0" y1="0" x2="1" y2="1">
+         <stop offset="0%" stop-color="#1f0a0a"/>
+         <stop offset="100%" stop-color="#2e1610ff"/>
+      </linearGradient>
+      <!-- Blur filter -->
+      <filter id="blurC" x="-30%" y="-30%" width="160%" height="160%">
+         <feGaussianBlur in="SourceGraphic" stdDeviation="4"/>
+      </filter>
+      <filter id="lightC" x="-30%" y="-30%" width="160%" height="160%">
+         <feComponentTransfer>
+            <feFuncR type="linear" slope="2.8"/>
+            <!-- >1 = brighter -->
+            <feFuncG type="linear" slope="2.8"/>
+            <feFuncB type="linear" slope="2.8"/>
+         </feComponentTransfer>
+      </filter>
+   </defs>
+   <!-- Rounded background -->
+   <!-- Modern C shape -->
+   <!-- Accent leaf -->
+   <g>
+      <title>Layer 1</title>
+      <rect x="0" y="0" width="128" height="128" rx="26" fill="url(#autumnGrad)" filter="url(#lightC)" id="svg_1"/>
+      <rect x="4" y="4" width="120" height="120" rx="24" fill="url(#autumnGra2)" id="svg_1"/>
+      <path d="m89,39 a35,35 0 1 0 0,50" fill="none" stroke="url(#autumnGrad)" filter="url(#blurC)" stroke-width="18" stroke-linecap="round" id="svg_2"/>
+      <path d="m89,39 a35,35 0 1 0 0,50" fill="none" stroke="url(#autumnGrad)" filter="url(#lightC)" stroke-width="18" stroke-linecap="round" id="svg_2"/>
+   </g>
+</svg>

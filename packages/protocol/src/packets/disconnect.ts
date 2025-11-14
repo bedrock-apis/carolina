@@ -11,11 +11,11 @@ import { PacketIds } from '../enums';
 import { PacketCompilable, PacketType } from '../packet';
 import { DisconnectReason } from '../enums/disconnect-reason';
 
+//Creates simple interface compounded type
 const DisconnectMessage = createStructSerializable({
    message: Str(VarInt),
    filteredMessage: Str(VarInt),
 });
-console.log(DisconnectMessage.deserialize.toString());
 
 @PacketCompilable(PacketIds.Disconnect)
 class DisconnectPacket extends PacketType {
@@ -51,6 +51,4 @@ class DisconnectPacket extends PacketType {
       return that;
    }
 }
-console.log(DisconnectPacket.deserialize.toString());
-
 export { DisconnectPacket };

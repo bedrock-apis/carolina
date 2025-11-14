@@ -3,7 +3,8 @@
    "version": "1.0.0",
    "type": "module",
    "main": "dist/main.js",
-   "types": "dist/main.d.ts",
+   "--comment--": "We use src as we can link the files the typescript loads and rename works across",
+   "types": "src/main.ts",
    "keywords": [],
    "author": "bedrock-apis",
    "license": "MIT",
@@ -16,7 +17,13 @@
       "@minecraft/server": "2.3.0-beta.1.21.110-preview.26",
       "@minecraft/server-net": "1.0.0-beta.1.21.110-preview.26",
       "@types/node": "^24.0.0",
-      "rolldown": "1.0.0-beta.31-commit.832324a",
+      "rolldown": "1.0.0-beta.38",
       "unzip-web-stream": "0.0.0-alpha.1"
+   },
+   "rolldown": {
+      "sources": {
+         "main": "./src/main.ts"
+      },
+      "external": "devDependencies"
    }
 }

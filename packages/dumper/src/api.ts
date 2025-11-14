@@ -16,7 +16,7 @@ async function readAndMaybeRunBds(file: string): Promise<object> {
    return JSON.parse(await fs.readFile(filepath, 'utf-8'));
 }
 
-async function readReport(name: string) {
+async function readReport(name: string): Promise<object> {
    return readAndMaybeRunBds(path.join('report', name));
 }
 

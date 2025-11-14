@@ -17,9 +17,6 @@ export class RakNetListener extends ServerConnectionListener {
          serverGuid: this.guid,
          worldName: 'World Name',
       });
-      setTimeout(async () => {
-         for (const connection of this.connections.values()) setImmediate(() => connection.flush());
-      }, 10);
    }
    public override getMOTD(receiver: AddressInfo): Uint8Array {
       return this.temporaryMOTD;

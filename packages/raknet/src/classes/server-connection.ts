@@ -8,8 +8,6 @@ import { getDataViewFromBuffer } from '../proto/uint24';
 import { BaseConnection } from './base-connection';
 
 export class ServerConnection extends BaseConnection {
-   protected datagramReadyBuffer: Uint8Array<ArrayBufferLike>;
-   protected override readonly maxPayloadSize: number;
    public constructor(
       source: SocketSource,
       endpoint: AddressInfo,
@@ -18,8 +16,7 @@ export class ServerConnection extends BaseConnection {
       mtuSize: number,
    ) {
       super(source, endpoint, guid);
-      this.maxPayloadSize = mtuSize - UDP_HEADER_SIZE;
-      this.datagramReadyBuffer = this.createReadyFrameSetBuffer();
+      this.outgoingMTU = mtuSize - UDP_HEADER_SIZE;
    }
    /**@internal */
    public onDisconnect?: () => void;
@@ -30,6 +27,8 @@ export class ServerConnection extends BaseConnection {
       this.onDisconnect?.();
    }
    public override handleFrame(desc: FrameDescriptor): void {
+      // Make sure we call parent logic as well
+      super.handleFrame(desc);
       // First byte is Packet id
       const packetId = desc.body[0];
 
@@ -52,10 +51,7 @@ export class ServerConnection extends BaseConnection {
       const buffer = rentConnectionRequestAcceptPacketWith(this.endpoint, this.serverAddress, time, BigInt(Date.now()));
 
       // Send
-      this.enqueueData(buffer, RakNetReliability.ReliableOrdered);
-
-      // We want fast connect so lets flush it now
-      this.flush();
+      this.enqueueFrame(buffer, RakNetReliability.ReliableOrdered);
    }
    protected [21 /*RakNetConnectedPacketId.Disconnect*/](_: Uint8Array): void {
       this.close();
@@ -63,11 +59,11 @@ export class ServerConnection extends BaseConnection {
    }
    protected [0 /*RakNetConnectedPacketId.ConnectedPing*/](_: Uint8Array): void {
       const time = getConnectedPingTime(getDataViewFromBuffer(_));
-      this.enqueueData(rentConnectedPongBufferWith(time, BigInt(Date.now())), RakNetReliability.Unreliable);
-      this.flush();
+      this.enqueueFrame(rentConnectedPongBufferWith(time, BigInt(Date.now())), RakNetReliability.Unreliable);
    }
-   protected [0x13 /*RakNetConnectedPacketId.NewIncomingConnection*/](message: Uint8Array): void {
-      this.onConnectionEstablished?.();
+   protected [0x13 /*RakNetConnectedPacketId.NewIncomingConnection*/](_: Uint8Array): void {
+      console.log('Established');
+      this.onConnectionEstablishedHandle?.();
    }
    protected [0xfe /*Game Data Header*/](message: Uint8Array): void {
       this.onGamePacket?.(message);

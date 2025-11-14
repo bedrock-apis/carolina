@@ -30,10 +30,11 @@ export class ServerConnectionListener {
          const connection = this.connections.get(id);
 
          // Ignore any packets from unknown client
+         /*
          if (!connection)
-            return void this.onErrorHandler?.(new ReferenceError('Got online packet from not registered connection'));
+            return void this.onErrorHandler?.(new ReferenceError('Got online packet from not registered connection'));*/
 
-         return void connection.handleIncoming(msg);
+         return void connection?.handleIncoming(msg);
       }
 
       // Check for handler availability
@@ -60,7 +61,7 @@ export class ServerConnectionListener {
       const id = BaseConnection.getIdentifierFor(receiver);
 
       const connection = new ServerConnection(source, receiver, serverAddress, guid, mtu); // RakNetConnection.create(this, source, mtu, guid, receiver);
-      connection.onConnectionEstablished = (): void => void this.onNewConnection?.(connection);
+      connection.onConnectionEstablishedHandle = (): void => void this.onNewConnection?.(connection);
       connection.onErrorHandle = (_): void => this.onErrorHandler?.(_);
       connection.onDisconnect = (): void => {
          this.connections.delete(id);
