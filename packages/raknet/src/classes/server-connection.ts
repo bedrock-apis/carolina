@@ -62,7 +62,6 @@ export class ServerConnection extends BaseConnection {
       this.enqueueFrame(rentConnectedPongBufferWith(time, BigInt(Date.now())), RakNetReliability.Unreliable);
    }
    protected [0x13 /*RakNetConnectedPacketId.NewIncomingConnection*/](_: Uint8Array): void {
-      console.log('Established');
       this.onConnectionEstablishedHandle?.();
    }
    protected [0xfe /*Game Data Header*/](message: Uint8Array): void {

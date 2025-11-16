@@ -5,6 +5,9 @@ import { getUnconnectedPongInfo, rentUnconnectedPingBufferWith } from '../proto'
 import { getDataViewFromBuffer } from '../proto/uint24';
 import { BaseConnection } from './base-connection';
 
+/**
+ * We have to ask Bananoo more about his implementation
+ */
 export class ClientConnection extends BaseConnection {
    protected readonly unconnectedPings: Map<
       bigint,

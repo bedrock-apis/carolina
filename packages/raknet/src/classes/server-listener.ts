@@ -1,5 +1,5 @@
 import { ServerConnection } from './server-connection';
-import { MAX_MTU_SIZE, random64, UDP_HEADER_SIZE } from '../constants';
+import { IDEAL_MAX_MTU_SIZE, random64, UDP_HEADER_SIZE } from '../constants';
 import { AddressInfo, SocketSource } from '../interfaces';
 import { BaseConnection } from './base-connection';
 import { getUnconnectedPingTime, rentUnconnectedPongBufferWith } from '../proto';
@@ -83,7 +83,7 @@ export class ServerConnectionListener {
       const buffer = rentOpenConnectionReplyOneBufferWith(
          this.guid,
          // Official raknet source /Source/RakPeer.cpp:5186
-         MTU > MAX_MTU_SIZE ? MAX_MTU_SIZE : MTU,
+         MTU > IDEAL_MAX_MTU_SIZE ? IDEAL_MAX_MTU_SIZE : MTU,
       );
 
       // Send rented buffer

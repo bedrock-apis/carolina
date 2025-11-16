@@ -13,6 +13,7 @@ import {
 } from '@carolina/protocol';
 import { deflateRawSync, inflateRawSync } from 'node:zlib';
 import { HANDLERS, registerHandlers } from '../handlers/base';
+import { Authentication, AuthenticationType } from '../authentication';
 
 export class NetworkConnection {
    static {
@@ -137,6 +138,7 @@ function tryWriteUnknownSize<T>(type: SerializableType<T>, value: T, cursor: Res
       } catch (error) {
          if (error instanceof RangeError || cursor.availableSize <= 0) {
             cursor.grow();
+            console.log('Growing buffer btw');
             // Try again with bigger buffer
             continue;
          }
@@ -145,23 +147,45 @@ function tryWriteUnknownSize<T>(type: SerializableType<T>, value: T, cursor: Res
       }
    }
 }
-registerHandlers(LoginPacket, packet => {
+registerHandlers(LoginPacket, async (packet, player) => {
    const data = LoginTokensPayload.fromBytes(packet.payload);
-   //console.log(data);
-   /*console.log({
-      client: JSON.parse(data.authentication),
-      text: JSON.parse(
-         Buffer.from(data.data.substring(data.data.indexOf('.') + 1, data.data.lastIndexOf('.')), 'base64').toString(),
-      ),
-   });*/
-   //console.log(data);
-   console.log(JSON.parse(data.authentication));
-   getJWTData(JSON.parse(data.authentication).Token);
-});
+   const { AuthenticationType: auth, Token } = Authentication.parse(data.authentication);
+   if (auth !== AuthenticationType.Online) return void player.connection.disconnect();
+   const userIdentity = await Authentication.authenticate(Token).catch(_ => {
+      player.connection.disconnect();
+      return null;
+   });
+   if (!userIdentity) return; // Failed to authenticate
+   console.log('XUID: ' + userIdentity.xid);
+   console.log('CPK: ' + userIdentity.cpk);
 
-function getJWTData<T extends object>(src: string): T {
-   let indexOf = src.indexOf('.'),
-      lastIndexOf = src.lastIndexOf('.');
-   console.log(src.split('.').map(e => new TextDecoder().decode(Uint8Array.fromBase64(e))));
-   console.log(new TextDecoder().decode(Uint8Array.fromBase64(src.substring(indexOf + 1, lastIndexOf))));
-}
+   const key = userIdentity.cpk;
+   const jwt = data.data;
+
+   // split JWT
+   const [hB64, pB64, sB64] = jwt.split('.');
+
+   // prepare data to verify
+   const encoder = new TextEncoder();
+   const dataToVerify = encoder.encode(`${hB64}.${pB64}`);
+
+   // import public key (raw P-384)
+   const publicKey = await crypto.subtle.importKey(
+      'spki',
+      Uint8Array.fromBase64(key),
+      { name: 'ECDSA', namedCurve: 'P-384' },
+      false,
+      ['verify'],
+   );
+
+   // verify ES384 signature
+   const valid = await crypto.subtle.verify(
+      { name: 'ECDSA', hash: 'SHA-384' },
+      publicKey,
+      Uint8Array.fromBase64(sB64, { alphabet: 'base64url' }),
+      dataToVerify,
+   );
+
+   // valid is true/false
+   console.log(valid);
+});

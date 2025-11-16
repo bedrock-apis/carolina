@@ -3,7 +3,7 @@ import { DeferredRunner } from '../../../common/src/deferred-runner';
 import { nextTick } from 'node:process';
 import {
    ACK_DATAGRAM_BIT,
-   iS_ORDERED_EXCLUSIVE_LOOKUP,
+   IS_ORDERED_EXCLUSIVE_LOOKUP,
    IS_SEQUENCED_LOOKUP,
    MAX_CAPSULE_HEADER_SIZE,
    MAX_FRAME_SET_HEADER_SIZE,
@@ -85,8 +85,11 @@ export abstract class BaseConnection {
       const dataview = new DataView(msg.buffer, msg.byteOffset, msg.byteLength);
       const id = readUint24(dataview, 1);
 
+      // In theory the connection would have to be at least 2 days of active playing, more like the MC client would crash
       if (id > 0xffffe0)
-         console.warn('Fatal warning, frame sets ids are about to overflow uint24, please contact developers team.');
+         console.warn(
+            'Fatal warning, frame sets ids are about to overflow uint24, i personally have no idea what to do, please contact developers team.',
+         );
 
       const frameIndex = id & 0xff,
          correctionIndex = (id + this.unacknowledgedWindowSize) & 0xff;
@@ -247,7 +250,7 @@ export abstract class BaseConnection {
       }
 
       // Check if ordered only
-      if (iS_ORDERED_EXCLUSIVE_LOOKUP[reliability]) {
+      if (IS_ORDERED_EXCLUSIVE_LOOKUP[reliability]) {
          meta.orderIndex = this.outgoingOrderChannels[this.outgoingChannelIndex]++;
          this.outgoingSequenceChannels[this.outgoingChannelIndex] = 0;
       }
@@ -439,27 +442,3 @@ export class CircularBufferQueue<T> {
       return this.size === 0;
    }
 }
-/*
-
-   public readonly id: string;
-   protected readonly fragmentTable: Map<number, FragmentMeta> = new Map();
-   protected lastDatagramId: number = -1;
-   protected nextFragmentId: number = 0;
-   protected missingDatagramQueue: Set<number> = new Set(); // Requires fast access and removal specific value without knowing its [index].
-   protected receivedDatagramQueue: Array<number> = []; // used a lot, use Array for performance benefits
-   protected receivedDatagram: Record<number, boolean> = Object.create(null);
-
-   protected outgoingChannelIndex: number = 0;
-   protected outgoingOrderChannels: Record<number, number> = Object.create(null);
-   protected outgoingSequenceChannels: Record<number, number> = Object.create(null);
-   protected outgoingReliableIndex: number = 0;
-   protected outgoingFrameId: number = 0;
-   protected currentReliableWindowSize: number = 512;
-
-   protected abstract datagramReadyBuffer: Uint8Array;
-   protected datagramReadyBufferOffset = 4; // Always 4 (packetId, + uint24LE for frameset sequence id)
-   protected resendCache: Record<number, Uint8Array> = Object.create(null);
-   protected abstract maxPayloadSize: number;
-   protected get datagramReadyBufferAvailableLength(): number {
-      return this.datagramReadyBuffer.length - this.datagramReadyBufferOffset;
-   }*/

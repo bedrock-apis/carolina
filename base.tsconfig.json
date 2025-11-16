@@ -27,8 +27,5 @@
       // "allowUnusedLabels": true,/* Disable error reporting for unused labels. */
       // "allowUnreachableCode": true, /* Disable error reporting for unreachable code. */
       "skipLibCheck": true
-   },
-   "includes": [
-      "./global.d.ts"
-   ]
+   }
 }

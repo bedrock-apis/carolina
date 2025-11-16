@@ -17,6 +17,9 @@ importers:
       chokidar-cli:
         specifier: ^3.0.0
         version: 3.0.0
+      mitata:
+        specifier: ^1.0.34
+        version: 1.0.34
       oxlint:
         specifier: ^1.28.0
         version: 1.28.0
@@ -66,6 +69,15 @@ importers:
       '@types/node':
         specifier: ^24.3.0
         version: 24.3.0
+
+  benchmarks:
+    dependencies:
+      '@carolina/raknet':
+        specifier: link:..\packages\raknet
+        version: link:../packages/raknet
+      '@serenityjs/raknet':
+        specifier: 0.8.15-beta-20251114055206
+        version: 0.8.15-beta-20251114055206
 
   packages/binary: {}
 
@@ -669,6 +681,21 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  '@serenityjs/binarystream@3.0.10':
+    resolution: {integrity: sha512-3YW14LQ6+MNcnDXT48DoTS/chFl0HvJumukTEKFvVuJL49ulRGCBfudC81BuyFK1sD3ZNeqhi8cgE3U7mEgT5g==}
+
+  '@serenityjs/emitter@0.8.15-beta-20251114055206':
+    resolution: {integrity: sha512-zro2BzDBgyjoaBkub9VhehLOjmnSILXRS5BQ7aNz3vYalgfd8h0UIIWJ/Ac3TbUoaogEgxWgEBTat8fY2xapTw==}
+
+  '@serenityjs/logger@0.8.15-beta-20251114055206':
+    resolution: {integrity: sha512-ZPPfqbswNdnyB8N6R93gwOGDawpwY62eLymWW67gPDpvGleWJ9d6RNjalFYDvVAsTsjmllYeZXeM9uEKlROSng==}
+
+  '@serenityjs/nbt@0.8.15-beta-20251114055206':
+    resolution: {integrity: sha512-e4Qy4fgOiEtADdpcdd/wcOlXwu0gOLpm2L6Nd6zthIZq4GPNYaI6yFDuHcL1ZxVZvgiiTN3/Z/mXTQeOf3uByA==}
+
+  '@serenityjs/raknet@0.8.15-beta-20251114055206':
+    resolution: {integrity: sha512-nr7ob0UwOHx0uKuG1ufFIQfqN5b+ZmWrzuk3v2PL5Pn9k6KYyX1N6MmUdATCpotwhdpq7PGHNvPtHW4PZu7r5g==}
+
   '@standard-schema/spec@1.0.0':
     resolution: {integrity: sha512-m2bOd0f2RT9k8QJx1JN85cZYyH1RqFBdlwtkSlf4tBDYLCiiZnv1fIIwacK6cqwXavOydf0NPToMQgpKq+dVlA==}
 
@@ -848,6 +875,9 @@ packages:
   color-name@1.1.3:
     resolution: {integrity: sha512-72fSenhMw2HZMTVHeCA9KCmpEIbzWiQsjN+BHcBbS9vr1mtt+vJjPdksIBNUmKAW8TFUDPJK5SUU3QhE9NEXDw==}
 
+  colorette@2.0.20:
+    resolution: {integrity: sha512-IfEDxwoWIjkeXL1eXcDiow4UbKjhLdq6/EuSVR9GMN7KVH3r9gQ83e73hsz1Nd1T3ijd5xv1wcWRYO+D6kCI2w==}
+
   csstype@3.1.3:
     resolution: {integrity: sha512-M1uQkMl8rQK/szD0LNhtqxIPLpimGm8sOBwU7lLnCpSbTyY3yeU1Vc7l4KT5zT4s/yOxHH5O7tIuuLOCnLADRw==}
 
@@ -962,6 +992,12 @@ packages:
   magic-string@0.30.21:
     resolution: {integrity: sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ==}
 
+  mitata@1.0.34:
+    resolution: {integrity: sha512-Mc3zrtNBKIMeHSCQ0XqRLo1vbdIx1wvFV9c8NJAiyho6AjNfMY8bVhbS12bwciUdd1t4rj8099CH3N3NFahaUA==}
+
+  moment@2.30.1:
+    resolution: {integrity: sha512-uEmtNhbDOrWPFS+hdjFCBfy9f2YoyzRpwcl+DqpC6taX21FzsTLQVbMV/W7PzNSX6x/bhC1zA3c2UQ5NzH6how==}
+
   ms@2.1.3:
     resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
 
@@ -1034,6 +1070,9 @@ packages:
   readdirp@3.6.0:
     resolution: {integrity: sha512-hOS089on8RduqdbhvQ5Z37A0ESjsqz6qnRcffsMU3495FuTdqSm+7bhJ29JvIOsBDEEnan5DPu9t3To9VRlMzA==}
     engines: {node: '>=8.10.0'}
+
+  reflect-metadata@0.2.2:
+    resolution: {integrity: sha512-urBwgfrvVP/eAyXx4hluJivBKzuEbSQs9rKWCrCkbSxNv8mxPcUZKeuoF3Uy4mJl3Lwprp6yy5/39VWigZ4K6Q==}
 
   require-directory@2.1.1:
     resolution: {integrity: sha512-fGxEI7+wsG9xrvdjsrlmL22OMTTiHRwAMroiEeMgq8gzoLC/PQr7RsRDSTLUg/bZAZtF+TVIkHc6/4RIKrui+Q==}
@@ -1618,6 +1657,27 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.46.2':
     optional: true
 
+  '@serenityjs/binarystream@3.0.10': {}
+
+  '@serenityjs/emitter@0.8.15-beta-20251114055206': {}
+
+  '@serenityjs/logger@0.8.15-beta-20251114055206':
+    dependencies:
+      colorette: 2.0.20
+      moment: 2.30.1
+
+  '@serenityjs/nbt@0.8.15-beta-20251114055206':
+    dependencies:
+      '@serenityjs/binarystream': 3.0.10
+
+  '@serenityjs/raknet@0.8.15-beta-20251114055206':
+    dependencies:
+      '@serenityjs/binarystream': 3.0.10
+      '@serenityjs/emitter': 0.8.15-beta-20251114055206
+      '@serenityjs/logger': 0.8.15-beta-20251114055206
+      '@serenityjs/nbt': 0.8.15-beta-20251114055206
+      reflect-metadata: 0.2.2
+
   '@standard-schema/spec@1.0.0': {}
 
   '@tybys/wasm-util@0.10.1':
@@ -1804,6 +1864,8 @@ snapshots:
 
   color-name@1.1.3: {}
 
+  colorette@2.0.20: {}
+
   csstype@3.1.3: {}
 
   debug@4.4.3:
@@ -1907,6 +1969,10 @@ snapshots:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.5
 
+  mitata@1.0.34: {}
+
+  moment@2.30.1: {}
+
   ms@2.1.3: {}
 
   nanoid@3.3.11: {}
@@ -1959,6 +2025,8 @@ snapshots:
   readdirp@3.6.0:
     dependencies:
       picomatch: 2.3.1
+
+  reflect-metadata@0.2.2: {}
 
   require-directory@2.1.1: {}
 

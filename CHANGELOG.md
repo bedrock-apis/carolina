@@ -1,4 +1,9 @@
 # Carolina Changelog
+# 0.0.0-alpha.4
+ - Huge changes to raknet
+  - Improved un-acknowledged packets limit, and waiting for proper acknowledge before sending any more reliable packets
+  - Whole rework how timing works in raknet, raknet no longer yields every 10ms if connection is not used
+  - Improved packets batching
 
 # 0.0.0-alpha.3
  - Implemented Login Packet

@@ -1,0 +1,10 @@
+{
+   "name": "benchmarks",
+   "version": "1.0.0",
+   "type": "module",
+   "packageManager": "pnpm@10.22.0",
+   "dependencies": {
+      "@carolina/raknet": "link:..\\packages\\raknet",
+      "@serenityjs/raknet": "0.8.15-beta-20251114055206"
+   }
+}

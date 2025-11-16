@@ -8,6 +8,7 @@
       "@types/node": "^24.5.0",
       "@typescript/native-preview": "7.0.0-dev.20250816.1",
       "chokidar-cli": "^3.0.0",
+      "mitata": "^1.0.34",
       "oxlint": "^1.28.0",
       "prettier": "^3.6.2",
       "rolldown": "1.0.0-beta.50",
@@ -33,13 +34,15 @@
    "scripts": {
       "dump": "pnpm run build && node ./packages/dumper/dist/main.js",
       "init": "pnpm install && pnpm run build",
-      "dev": "chokidar \"./packages/*/src/**/*.ts\" -c \"powershell -ExecutionPolicy bypass -File ./helper.ps1\" -d 450 -i \"./**/*.test.ts\"",
       "build": "rolldown -c .\\rolldown.config.ts",
       "watch": "rolldown -c .\\rolldown.config.ts -w",
       "app": "bun --enable-source-maps ./app/dist/main.js",
       "check": "turbo check -- --pretty",
       "test": "vitest --run",
-      "lint": "oxlint"
+      "bench": "vitest bench --run",
+      "lint": "oxlint",
+      "format:ts": "prettier --write \"**/*.ts\"",
+      "format:ts:check": "prettier --check \"**/*.ts\""
    },
    "workspaces": [
       "packages/*",
