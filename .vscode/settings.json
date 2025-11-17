@@ -1,15 +1,5 @@
 {
-   "cSpell.words": [
-      "MCPE",
-      "oxlint",
-      "raknet",
-      "rolldown",
-      "tsgo",
-      "varint",
-      "varlong",
-      "zigzong",
-      "Zong"
-   ],
+   "cSpell.words": ["MCPE", "oxlint", "raknet", "rolldown", "tsgo", "varint", "varlong", "zigzong", "Zong"],
    "window.border": "#3586A4",
    "explorer.fileNesting.enabled": true,
    "explorer.fileNesting.patterns": {
@@ -24,10 +14,10 @@
    "editor.insertSpaces": true,
    "editor.tabSize": 3,
    "[typescript]": {
-      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
    },
    "files.eol": "\r\n",
    "[xml]": {
       "editor.defaultFormatter": "mikeburgh.xml-format"
-   },
+   }
 }

@@ -4,7 +4,8 @@
    "type": "module",
    "packageManager": "pnpm@10.22.0",
    "dependencies": {
-      "@carolina/raknet": "link:..\\packages\\raknet",
+      "@carolina/net": "link:..\\packages\\net",
+      "@sanctumterra/raknet": "^1.4.2",
       "@serenityjs/raknet": "0.8.15-beta-20251114055206"
    }
 }

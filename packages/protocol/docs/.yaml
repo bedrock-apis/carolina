@@ -1,10 +1,10 @@
-minecraft-engine: "1.22.130"
+minecraft-engine: '1.22.130'
 protocol-version: 997
 
 includes:
-  - ref: packets/
-    type: packet
-  - ref: structs/
-    type: struct
-  - ref: enums/
-    type: enum
+   - ref: packets/
+     type: packet
+   - ref: structs/
+     type: struct
+   - ref: enums/
+     type: enum

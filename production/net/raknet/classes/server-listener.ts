@@ -7,12 +7,24 @@ import { getDataViewFromBuffer } from '../proto/uint24';
 import { rentOpenConnectionReplyOneBufferWith } from '../proto/open-connection-reply-one';
 import { getOpenConnectionRequestTwoInfo } from '../proto/connection-request';
 import { rentOpenConnectionReplyTwoBufferWith } from '../proto/open-connection-reply-two';
-
-export class ServerConnectionListener {
+import type { Connection, ServerListener } from '../../api/interface';
+export class ServerConnectionListener implements ServerListener {
+   public static STALE_CONNECTION_ELIMINATION_INTERVAL = 3_000;
+   public static STALE_CONNECTION_LIFETIME_MAX_AGE = 15_000;
+   public constructor() {
+      setInterval(() => {
+         const now = performance.now();
+         for (const connection of this.connections.values())
+            if (now - connection.incomingLastActivity > 4_000) {
+               connection.disconnect();
+               connection.onDisconnect?.();
+            }
+      }, 2_000).unref();
+   }
    public readonly discoveryEnabled?: boolean;
    public onErrorHandler?: (error: Error) => void;
-   public onNewConnection?: (connection: ServerConnection) => void;
-   public onConnectionDisconnected?: (connection: ServerConnection) => void;
+   public onNewConnection?: (connection: Connection) => void;
+   public onConnectionDisconnected?: (connection: Connection) => void;
    public readonly connections: Map<string, ServerConnection> = new Map();
    // Random GUID for this server instance
    public readonly guid: bigint = random64();
@@ -23,14 +35,13 @@ export class ServerConnectionListener {
       const packedId = msg[0];
       // Is Online Packet
       if (packedId & 0x80) {
+         // Ignore any packets from unknown client
          //Build id from the endpoint
          const id = BaseConnection.getIdentifierFor(endpoint);
-
          //Connection instance
          const connection = this.connections.get(id);
-
-         // Ignore any packets from unknown client
          /*
+         
          if (!connection)
             return void this.onErrorHandler?.(new ReferenceError('Got online packet from not registered connection'));*/
 
@@ -59,6 +70,7 @@ export class ServerConnectionListener {
       // Send rented buffer
       source.send(buffer, receiver);
       const id = BaseConnection.getIdentifierFor(receiver);
+      if (this.connections.has(id)) return;
 
       const connection = new ServerConnection(source, receiver, serverAddress, guid, mtu); // RakNetConnection.create(this, source, mtu, guid, receiver);
       connection.onConnectionEstablishedHandle = (): void => void this.onNewConnection?.(connection);
@@ -100,15 +112,16 @@ export class ServerConnectionListener {
       const pingTime = getUnconnectedPingTime(view);
 
       // Rent buffer for pong with specified properties
-      const buffer = rentUnconnectedPongBufferWith(pingTime, this.guid, this.getMOTD(receiver));
+      const buffer = rentUnconnectedPongBufferWith(
+         pingTime,
+         this.guid,
+         this.onGetMOTD?.(receiver) ??
+            new TextEncoder().encode(`MCPE;Carolina;390;1.14.60;16;50;${this.guid};The New World;`),
+      );
       // Send rented buffer
       socket.send(buffer, receiver);
    }
-
-   /** This method is mean to be overridden, thats why its unoptimized anyway */
-   public getMOTD(receiver: AddressInfo): Uint8Array {
-      return new TextEncoder().encode(`MCPE;Carolina;390;1.14.60;16;50;${this.guid};Ending;`);
-   }
+   public onGetMOTD?: (receiver: AddressInfo) => Uint8Array;
 
    public addListenerSource(source: SocketSource): void {
       source.onDataCallback((msg, rinfo) => this.onMessage(source, msg, rinfo));

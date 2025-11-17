@@ -17,9 +17,10 @@ import { getChunkIterator, readCapsuleFrameData, writeCapsuleFrameHeader } from 
 import { readACKLikePacket, rentAcknowledgePacketWith } from '../proto/acknowledge';
 import { readUint24, writeUint24 } from '../proto/uint24';
 import { FragmentMeta } from './fragment-meta';
+import { Connection } from '../../api/interface';
 
 type CapsuleCache = { frame: FrameDescriptor; reliability: number };
-export abstract class BaseConnection {
+export abstract class BaseConnection implements Connection {
    public onErrorHandle?: (error: Error) => void;
    public onConnectionEstablishedHandle?: () => void;
    /** Don't use colon ":" as separator as it's valid character for IPv6 address*/
@@ -40,6 +41,7 @@ export abstract class BaseConnection {
    protected readonly incomingReceivedDatagramAcknowledgeStack: Array<number> = []; // Fast append, fast iterating
    protected readonly incomingMissingDatagram: Set<number> = new Set(); // Fast unordered deletions, insertions
    protected incomingLastDatagramId: number = -1;
+   public incomingLastActivity: number = performance.now();
    //protected incomingNextFragmentId: number = 0;
    //#region FrameSet Handlers
    /**
@@ -50,6 +52,7 @@ export abstract class BaseConnection {
     */
    public handleIncoming(msg: Uint8Array): void {
       const mask = msg[0] & ONLINE_DATAGRAM_BIT_MASK;
+      this.incomingLastActivity = performance.now();
       if (mask === VALID_DATAGRAM_BIT) return void this.handleFrameSet(msg);
 
       if ((mask & ACK_DATAGRAM_BIT) === ACK_DATAGRAM_BIT) return void this.handleAck(msg);
@@ -66,7 +69,6 @@ export abstract class BaseConnection {
    }
    protected handleNack(_: Uint8Array): void {
       const packets = readACKLikePacket(_);
-
       // reverse outer loop
       for (let p = packets.length - 1; p >= 0; p--) {
          const { min, max } = packets[p];
@@ -131,7 +133,6 @@ export abstract class BaseConnection {
    }
    protected handleFragment(data: FrameDescriptor): void {
       const { body, fragment } = data;
-
       // Can't handle frames with no fragmentation
       //TODO - We should consider using some kind of error handler
       if (!fragment) return this.onErrorHandle?.(new ReferenceError('This frame descriptor is not a fragment'));
@@ -269,24 +270,24 @@ export abstract class BaseConnection {
          const id = this.outgoingNextFragmentId++;
 
          // Each object must be unique
-         let fragment_meta = Object.create(meta);
-         fragment_meta.fragment = {
-            id,
-            index: 0,
-            length: fragmentCount,
-         };
+         let index = 0;
 
          for (const chunk of getChunkIterator(data, chunkSize)) {
+            let fragment_meta = Object.create(meta);
+            fragment_meta.fragment = {
+               id,
+               index,
+               length: fragmentCount,
+            };
             // set
-            meta.body = chunk;
-            meta.reliableIndex = this.outgoingReliableIndex++;
+            fragment_meta.body = chunk;
+            fragment_meta.reliableIndex = this.outgoingReliableIndex++;
 
             // send
             this.enqueueCapsule(fragment_meta, reliability);
 
             // increment chunk id
-            fragment_meta.fragment.index++;
-            // TODO: Yield
+            index++;
          }
 
          return;
@@ -351,13 +352,14 @@ export abstract class BaseConnection {
 
       writeUint24(this.outgoingBufferDataView, 1, this.outgoingFrameSetId++);
       this.sendToSocket(this.outgoingBuffer.subarray(0, this.outgoingBufferCursor));
-
       //Reset the cursor
       this.outgoingBufferCursor = 4;
-      console.log('Batched: ' + this.outgoingToSendStack.isEmpty());
+      //console.log('Batched: ' + this.outgoingToSendStack.isEmpty());
    }
    protected sendToSocket(data: Uint8Array): void {
-      this.source.send(data, this.endpoint);
+      const copy = new Uint8Array(data.byteLength);
+      copy.set(data);
+      this.source.send(copy, this.endpoint);
    }
    //#endregion
    //#region General
@@ -373,7 +375,7 @@ export abstract class BaseConnection {
       // Close this connection
       this.close();
    }
-   public send(data: Uint8Array, reliability: RakNetReliability): void {
+   public send(data: Uint8Array, reliability: RakNetReliability = RakNetReliability.Reliable): void {
       this.enqueueFrame(data, reliability);
    }
    //#endregion
@@ -413,8 +415,8 @@ export class CircularBufferQueue<T> {
    }
    public reverseEnqueue(item: T): boolean {
       if (this.size === this.buffer.length) return false;
-      this.buffer[this.tailCursor] = item;
       this.tailCursor = (this.buffer.length + this.tailCursor - 1) % this.buffer.length;
+      this.buffer[this.tailCursor] = item;
       this.size++;
       return true;
    }

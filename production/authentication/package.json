@@ -1,0 +1,13 @@
+{
+   "name": "@carolina/authentication",
+   "version": "1.0.0-beta.1",
+   "type": "module",
+   "keywords": [],
+   "author": "bedrock-apis",
+   "license": "MIT",
+   "scripts": {
+      "build": "rolldown -c ./rolldown.config.ts",
+      "check": "tsgo --noEmit",
+      "watch": "rolldown -w -c"
+   }
+}

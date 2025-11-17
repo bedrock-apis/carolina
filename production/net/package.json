@@ -1,0 +1,31 @@
+{
+   "name": "@carolina/net",
+   "version": "1.0.0-beta.1",
+   "type": "module",
+   "keywords": [],
+   "author": "bedrock-apis",
+   "license": "MIT",
+   "scripts": {
+      "build": "rolldown -c ./rolldown.config.ts",
+      "check": "tsgo --noEmit",
+      "watch": "rolldown -w -c"
+   },
+   "exports": {
+      ".": {
+         "default": "./dist/main.js",
+         "types": "./dist/main.d.ts"
+      },
+      "./raknet": {
+         "default": "./dist/raknet.js",
+         "types": "./dist/raknet.d.ts"
+      }
+   },
+   "rolldown": {
+      "sources": {
+         "main": "./api/interface.ts",
+         "raknet": "./raknet/main.ts",
+         "nethernet": "./nethernet/main.ts"
+      },
+      "external": "dependencies"
+   }
+}

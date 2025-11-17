@@ -1,4 +1,5 @@
 ### Improve raknet lib
+
 - Separate whole class to two sections, incoming logic and outgoing logic so its more clear
 - Rework how resending works, doesn't cache whole outgoing packets but save only reliable capsules and rebuild it in send
   this would also help with buffer reusing in sending final packets.

@@ -1,5 +1,6 @@
 import { FrameSet } from '@serenityjs/raknet';
 import { proto } from '@carolina/raknet';
+import { FrameSet as FS } from '@sanctumterra/raknet';
 import { bench, describe } from 'vitest';
 
 describe('FrameSet Deserialization', () => {
@@ -8,6 +9,7 @@ describe('FrameSet Deserialization', () => {
       'hex',
    );
    bench('SerenityJS', () => void new FrameSet(TEST_PACKET).deserialize(), { iterations: 1000 });
+   bench('Sanctumterra', () => void new FS(TEST_PACKET).deserialize(), { iterations: 1000 });
    bench(
       'Carolina Raknet',
       () => {

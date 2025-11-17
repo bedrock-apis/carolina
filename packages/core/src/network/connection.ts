@@ -1,4 +1,4 @@
-import { RakNetReliability, ServerConnection } from '@carolina/raknet';
+import { RakNetReliability, ServerConnection } from '@carolina/net/raknet';
 import { NetworkServer } from './server';
 import { Cursor, ResizableCursor, SerializableType, VarInt } from '@carolina/binary';
 import {

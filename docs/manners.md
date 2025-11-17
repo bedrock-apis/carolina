@@ -9,9 +9,10 @@
 - When implementing classes similar to those in Script APIs, such as `BlockPermutation`, strive for consistency in design and implementation.
 - Ensure comprehensive test coverage. If a function can be tested independently, write corresponding tests. Robust testing is essential for code reliability.
 - Use code regions for big files
-- Prefer `Reflect` over `Object` 
+- Prefer `Reflect` over `Object`
 
 ### Performance
+
 - Avoid using Generators unless you don't have all data available or in cases where you might quit the loop before it end.
 - Avoid using Iterable Protocol on arrays, use regular indexed for loop.
 - Don't redeclare array when clearing, use length assignment to zero.
@@ -20,6 +21,7 @@
 ## Rationale for Choosing Bun Runtime
 
 Bun has demonstrated superior performance in most benchmarks, as verified by ConMaster2112. While DataViews are slightly slower than V8 implementations, Bun excels in other areas.
+
 - **Deno:** Offers good performance and an exemplary API design, but is relatively heavy and lacks certain hook features required for this project. It can compile to executables out of the box.
 - **Bun:** Provides better performance in most scenarios, is lightweight, features a well-designed API, includes numerous features, and supports out-of-the-box compilation.
 - **Node:** Delivers reasonable performance but is heavier, has an outdated API design, and requires third-party tools for compilation. It does, however, support hooks.

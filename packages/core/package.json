@@ -16,7 +16,7 @@
    "dependencies": {
       "@carolina/binary": "workspace:^",
       "@carolina/protocol": "workspace:^",
-      "@carolina/raknet": "workspace:^",
+      "@carolina/net": "workspace:^",
       "@types/bun": "^1.2.20"
    },
    "rolldown": {

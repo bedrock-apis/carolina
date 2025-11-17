@@ -24,12 +24,14 @@ export function defineConfig(
    const baseOptions: RolldownOptions = {
       input: entries,
       external,
+      plugins: [dts({ tsgo: true, tsconfig })],
       transform: {
          decorator: {
             legacy: true,
          },
       },
       output: {
+         cleanDir: true,
          dir: output,
          minify: true,
          keepNames: true,
@@ -37,10 +39,7 @@ export function defineConfig(
       },
       treeshake: true,
    };
-   const steps: RolldownOptions[] = [baseOptions];
-   if (emitDeclarationFiles)
-      steps.push({ ...baseOptions, plugins: [dts({ emitDtsOnly: true, tsgo: true, tsconfig })] });
-   return steps;
+   return [baseOptions];
 }
 
 export async function createEntry(path: string): Promise<RolldownOptions | RolldownOptions[] | null> {

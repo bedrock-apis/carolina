@@ -1,5 +1,4 @@
-import '@carolina/common';
-import { AddressInfo, ServerConnectionListener } from '@carolina/raknet';
+import { ServerConnectionListener } from '@carolina/net/raknet';
 import { type Carolina } from '../carolina';
 
 export class RakNetListener extends ServerConnectionListener {
@@ -18,12 +17,12 @@ export class RakNetListener extends ServerConnectionListener {
          worldName: 'World Name',
       });
    }
-   public override getMOTD(receiver: AddressInfo): Uint8Array {
+   public override getMOTD(receiver: unknown): Uint8Array {
       return this.temporaryMOTD;
    }
    public setDiscoveryStats(motdInformation: MotdInformation): void {
       const { provider, protoVersion, engineVersion, onlinePlayers, maxPlayers, serverGuid, worldName, gameMode } = ((
-         this as Mutable<this>
+         this as any
       ).discoveryStats = motdInformation);
       this.temporaryMOTD = new TextEncoder().encode(
          `MCPE;${provider};${protoVersion};${engineVersion};${onlinePlayers};${maxPlayers};${serverGuid};${worldName};${gameMode};`,

@@ -1,10 +1,10 @@
 packet_id: 0x45
 name: RequestNetworkSettings
-description: "Client sends a command string to be executed."
+description: 'Client sends a command string to be executed.'
 
 fields:
-  - name: clientNetworkVersion
-    type:
-      family: primitive
-      name: int32
-      encoding: big-endian
+   - name: clientNetworkVersion
+     type:
+        family: primitive
+        name: int32
+        encoding: big-endian
