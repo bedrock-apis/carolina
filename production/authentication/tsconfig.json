@@ -1,0 +1,10 @@
+{
+   "extends": "../../base.tsconfig.json",
+   "compilerOptions": {
+      "declaration": true,
+      "isolatedDeclarations": true
+   },
+   "include": [
+      "src/**/*.ts",
+   ]
+}
