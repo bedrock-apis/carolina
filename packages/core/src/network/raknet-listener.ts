@@ -1,4 +1,5 @@
 import { ServerConnectionListener } from '@carolina/net/raknet';
+
 import { type Carolina } from '../carolina';
 
 export class RakNetListener extends ServerConnectionListener {
@@ -25,7 +26,7 @@ export class RakNetListener extends ServerConnectionListener {
          this as any
       ).discoveryStats = motdInformation);
       this.temporaryMOTD = new TextEncoder().encode(
-         `MCPE;${provider};${protoVersion};${engineVersion};${onlinePlayers};${maxPlayers};${serverGuid};${worldName};${gameMode};`,
+         `MCPE;${provider};${protoVersion};${engineVersion};${onlinePlayers};${maxPlayers};${serverGuid};${worldName};${gameMode};`
       );
    }
 }

@@ -17,7 +17,7 @@ const PONG_VIEW = new DataView(REPLY_BUFFER.buffer, 1);
 export function rentOpenConnectionReplyTwoBufferWith(
    serverGuid: bigint,
    clientAddress: AddressInfo,
-   mtuSize: number,
+   mtuSize: number
 ): Uint8Array {
    // Set server guid
    PONG_VIEW.setBigUint64(16, serverGuid, false);

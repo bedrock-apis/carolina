@@ -8,7 +8,7 @@ export class Cursor<T extends ArrayBufferLike = ArrayBufferLike> {
    protected constructor(
       public readonly buffer: Uint8Array<T>,
       public readonly view = new DataView<T>(buffer.buffer, buffer.byteOffset, buffer.byteLength),
-      public pointer: number = 0,
+      public pointer: number = 0
    ) {}
    /**
     * Zero-Copy

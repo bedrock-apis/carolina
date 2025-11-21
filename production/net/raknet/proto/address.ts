@@ -43,11 +43,7 @@ export function writeAddress(dataview: DataView, offset: number, remoteInfo: Add
 export function readAddress(view: DataView, offset: number): AddressInfo {
    const family = view.getUint8(offset++);
    const isIpv4 = family === 4;
-   const address: AddressInfo = {
-      family: isIpv4 ? 'IPv4' : 'IPv6',
-      address: '',
-      port: 0,
-   };
+   const address: AddressInfo = { family: isIpv4 ? 'IPv4' : 'IPv6', address: '', port: 0 };
 
    if (isIpv4) {
       // Read IPv4 address

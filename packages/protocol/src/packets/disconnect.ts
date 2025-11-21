@@ -7,15 +7,13 @@ import {
    createStructSerializable,
    SerializationTypeFor,
 } from '@carolina/binary';
+
 import { PacketIds } from '../enums';
-import { PacketCompilable, PacketType } from '../packet';
 import { DisconnectReason } from '../enums/disconnect-reason';
+import { PacketCompilable, PacketType } from '../packet';
 
 //Creates simple interface compounded type
-const DisconnectMessage = createStructSerializable({
-   message: Str(VarInt),
-   filteredMessage: Str(VarInt),
-});
+const DisconnectMessage = createStructSerializable({ message: Str(VarInt), filteredMessage: Str(VarInt) });
 
 @PacketCompilable(PacketIds.Disconnect)
 class DisconnectPacket extends PacketType {
@@ -43,10 +41,7 @@ class DisconnectPacket extends PacketType {
       that.reason = reason;
       if (message) {
          that.hideDisconnectScreen = false;
-         that.message = {
-            filteredMessage: message,
-            message,
-         };
+         that.message = { filteredMessage: message, message };
       } else that.hideDisconnectScreen = true;
       return that;
    }

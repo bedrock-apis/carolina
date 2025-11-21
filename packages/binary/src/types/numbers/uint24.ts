@@ -7,7 +7,7 @@ export interface Uint24LEConstructor extends ValueTypeConstructor<Uint24LE, numb
 export const Uint24LE: Uint24LEConstructor = VALUE_TYPE_CONSTRUCTOR_FACTORY(
    'Uint24LE',
    0,
-   NumberType,
+   NumberType
 ) as Uint24LEConstructor;
 export interface Uint24LE extends NumberType<number> {}
 

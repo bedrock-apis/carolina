@@ -9,11 +9,7 @@ export class Authentication {
       if (typeof authType !== 'number') throw new Error('Type of Authentication must be number: ' + authType);
       if (!(authType in AuthenticationType)) throw new Error('Unknown Authentication type: ' + authType);
       if (typeof Token !== 'string') throw new Error('Token has to be type of string: ' + authType);
-      return {
-         AuthenticationType: authType,
-         Certificate,
-         Token: Token,
-      };
+      return { AuthenticationType: authType, Certificate, Token: Token };
    }
    public static async authenticate(token: string): Promise<JWTBodyObject> {
       const [head, body, tail] = this.split(token);
@@ -33,18 +29,15 @@ export class Authentication {
       const verifyKey = await crypto.subtle.importKey(
          'jwk',
          key,
-         {
-            name: 'RSASSA-PKCS1-v1_5',
-            hash: 'SHA-256',
-         },
+         { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
          false,
-         ['verify'],
+         ['verify']
       );
       const valid = await crypto.subtle.verify(
          { name: 'RSASSA-PKCS1-v1_5' },
          verifyKey,
          Uint8Array.fromBase64(tail, { alphabet: 'base64url' }),
-         new TextEncoder().encode(`${head}.${body}`),
+         new TextEncoder().encode(`${head}.${body}`)
       );
       if (!valid) throw new Error('Spoofed token, verification failed!');
       return data;

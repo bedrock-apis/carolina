@@ -1,15 +1,17 @@
-import { ServerConnection, SocketSource } from '@carolina/net/raknet';
-import { type Carolina } from '../carolina';
-import { RakNetListener } from './raknet-listener';
-import { NetworkConnection } from './connection';
-import { ResizableCursor } from '@carolina/binary';
 import { createSocket } from 'node:dgram';
+
+import { ResizableCursor } from '@carolina/binary';
+import { ServerConnection, SocketSource } from '@carolina/net/raknet';
+
+import { type Carolina } from '../carolina';
 import {
    NETWORK_ANY_ADDRESS4,
    NETWORK_ANY_ADDRESS6,
    NETWORK_LAN_DISCOVERY_PORT4,
    NETWORK_LAN_DISCOVERY_PORT6,
 } from '../constants';
+import { NetworkConnection } from './connection';
+import { RakNetListener } from './raknet-listener';
 
 export class NetworkServer {
    protected readonly raknet: RakNetListener;
@@ -38,14 +40,14 @@ export class NetworkServer {
    }
    public async bindV4(
       port: number = NETWORK_LAN_DISCOVERY_PORT4,
-      ipaddress: string = NETWORK_ANY_ADDRESS4,
+      ipaddress: string = NETWORK_ANY_ADDRESS4
    ): Promise<void> {
       const source = await createSource('udp4', port, ipaddress);
       this.addListenerSource(source);
    }
    public async bindV6(
       port: number = NETWORK_LAN_DISCOVERY_PORT6,
-      ipaddress: string = NETWORK_ANY_ADDRESS6,
+      ipaddress: string = NETWORK_ANY_ADDRESS6
    ): Promise<void> {
       const source = await createSource('udp6', port, ipaddress);
       this.addListenerSource(source);

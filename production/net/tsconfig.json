@@ -8,6 +8,6 @@
       "api/**/*.ts",
       "raknet/**/*.ts",
       "nethernet/**/*.ts",
-      "../../packages/common/**/*.ts"
+      "../../packages/common/src/deferred-runner.ts"
    ]
 }

@@ -1,4 +1,5 @@
 import { AbstractType, Compilable, mergeSourceDirectNoEnumerable, SerializableType } from '@carolina/binary';
+
 import { PacketIds } from './enums/packet-ids';
 
 const { assign } = Object;
@@ -22,7 +23,7 @@ export function PacketCompilable(packetId: PacketIds): <T extends { new (): Pack
 export function ManualImplement<T extends new () => S, S>(
    target: T,
    packetId: number,
-   type: Omit<SerializableType<S>, 'getIdentifier'>,
+   type: Omit<SerializableType<S>, 'getIdentifier'>
 ): void {
    (type as Mutable<typeof PacketType>).packetId = packetId;
    mergeSourceDirectNoEnumerable(target, type as any);

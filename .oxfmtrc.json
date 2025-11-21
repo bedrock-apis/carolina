@@ -1,0 +1,23 @@
+{
+   "$schema": "./node_modules/oxfmt/configuration_schema.json",
+   "ignorePatterns": [
+      "*/dist/**/*"
+   ],
+   "endOfLine": "lf",
+   "tabWidth": 3,
+   "useTabs": false,
+   "printWidth": 120,
+   "semi": true,
+   "experimentalSortImports": {
+      "ignoreCase": true,
+      "order": "asc",
+      "newlinesBetween": true,
+      "partitionByComment": true
+   },
+   "arrowParens": "avoid",
+   "bracketSpacing": true,
+   "objectWrap": "collapse",
+   "quoteProps": "as-needed",
+   "trailingComma": "es5",
+   "singleQuote": true,
+}

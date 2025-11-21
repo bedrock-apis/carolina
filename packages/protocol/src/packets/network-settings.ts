@@ -1,6 +1,7 @@
 import { Byte, Float, SerializeAs, Short } from '@carolina/binary';
-import { PacketType, PacketCompilable } from '../packet';
+
 import { PacketCompressionAlgorithm, PacketIds } from '../enums';
+import { PacketType, PacketCompilable } from '../packet';
 
 @PacketCompilable(PacketIds.NetworkSettings)
 export class NetworkSettingsPacket extends PacketType {

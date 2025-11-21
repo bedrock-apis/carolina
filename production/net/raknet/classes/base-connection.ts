@@ -1,6 +1,8 @@
+import { nextTick } from 'node:process';
+
 // We access this file directly because we don't want to rely on whole @package/common
 import { DeferredRunner } from '../../../../packages/common/src/deferred-runner';
-import { nextTick } from 'node:process';
+import { Connection } from '../../api/interface';
 import {
    ACK_DATAGRAM_BIT,
    IS_ORDERED_EXCLUSIVE_LOOKUP,
@@ -17,7 +19,6 @@ import { getChunkIterator, readCapsuleFrameData, writeCapsuleFrameHeader } from 
 import { readACKLikePacket, rentAcknowledgePacketWith } from '../proto/acknowledge';
 import { readUint24, writeUint24 } from '../proto/uint24';
 import { FragmentMeta } from './fragment-meta';
-import { Connection } from '../../api/interface';
 
 type CapsuleCache = { frame: FrameDescriptor; reliability: number };
 export abstract class BaseConnection implements Connection {
@@ -28,7 +29,7 @@ export abstract class BaseConnection implements Connection {
    public constructor(
       public readonly source: SocketSource,
       public readonly endpoint: AddressInfo,
-      public readonly guid: bigint,
+      public readonly guid: bigint
    ) {
       this.id = new.target.getIdentifierFor(endpoint);
       this.outgoingBuffer[0] = VALID_DATAGRAM_BIT;
@@ -90,7 +91,7 @@ export abstract class BaseConnection implements Connection {
       // In theory the connection would have to be at least 2 days of active playing, more like the MC client would crash
       if (id > 0xffffe0)
          console.warn(
-            'Fatal warning, frame sets ids are about to overflow uint24, i personally have no idea what to do, please contact developers team.',
+            'Fatal warning, frame sets ids are about to overflow uint24, i personally have no idea what to do, please contact developers team.'
          );
 
       const frameIndex = id & 0xff,
@@ -163,7 +164,7 @@ export abstract class BaseConnection implements Connection {
          // Rent acknowledge buffer
          const buffer = rentAcknowledgePacketWith(
             RakNetUnconnectedPacketId.AckDatagram,
-            BaseConnection.getRangesFromSequence(this.incomingReceivedDatagramAcknowledgeStack.values()),
+            BaseConnection.getRangesFromSequence(this.incomingReceivedDatagramAcknowledgeStack.values())
          );
          //Send
          this.sendToSocket(buffer);
@@ -176,7 +177,7 @@ export abstract class BaseConnection implements Connection {
          // Rent acknowledge buffer
          const buffer = rentAcknowledgePacketWith(
             RakNetUnconnectedPacketId.NackDatagram,
-            BaseConnection.getRangesFromSequence(this.incomingMissingDatagram.values()),
+            BaseConnection.getRangesFromSequence(this.incomingMissingDatagram.values())
          );
 
          this.sendToSocket(buffer);
@@ -194,7 +195,7 @@ export abstract class BaseConnection implements Connection {
    protected readonly outgoingBufferDataView: DataView = new DataView(this.outgoingBuffer.buffer);
    protected readonly outgoingUnacknowledgedCache: Record<number, Array<CapsuleCache>> = Object.create(null);
    protected readonly outgoingToSendStack: CircularBufferQueue<CapsuleCache> = new CircularBufferQueue<CapsuleCache>(
-      1024,
+      1024
    );
    protected outgoingUnacknowledgedReliableCapsules: number = 0;
    protected get outgoingBufferAvailableSize(): number {
@@ -213,15 +214,15 @@ export abstract class BaseConnection implements Connection {
 
    protected readonly flushStackScheduler: DeferredRunner = new DeferredRunner(
       nextTick,
-      this.batchCurrentBuffer.bind(this),
+      this.batchCurrentBuffer.bind(this)
    );
    protected readonly flushQueueScheduler: DeferredRunner = new DeferredRunner(
       setImmediate,
-      this.processQueue.bind(this),
+      this.processQueue.bind(this)
    );
    protected readonly acknowledgeFlushScheduler: DeferredRunner = new DeferredRunner(
       nextTick,
-      this.processCurrentAcknowledge.bind(this),
+      this.processCurrentAcknowledge.bind(this)
    );
 
    protected enqueueFrame(data: Uint8Array, reliability: number): void {
@@ -274,11 +275,7 @@ export abstract class BaseConnection implements Connection {
 
          for (const chunk of getChunkIterator(data, chunkSize)) {
             let fragment_meta = Object.create(meta);
-            fragment_meta.fragment = {
-               id,
-               index,
-               length: fragmentCount,
-            };
+            fragment_meta.fragment = { id, index, length: fragmentCount };
             // set
             fragment_meta.body = chunk;
             fragment_meta.reliableIndex = this.outgoingReliableIndex++;
@@ -333,7 +330,7 @@ export abstract class BaseConnection implements Connection {
          this.outgoingBufferDataView,
          data.frame,
          data.frame.body.length,
-         data.reliability,
+         data.reliability
       );
       // Set body
       this.outgoingBuffer.set(data.frame.body, this.outgoingBufferCursor);
@@ -378,7 +375,7 @@ export abstract class BaseConnection implements Connection {
    }
    //#endregion
    protected static *getRangesFromSequence(
-      sequence: Iterator<number>,
+      sequence: Iterator<number>
    ): Generator<{ min: number; max: number }, number> {
       let v = sequence.next();
       if (v.done) return 0;

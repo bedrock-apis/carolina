@@ -5,11 +5,7 @@ import { RakNetConnectedPacketId, RakNetUnconnectedPacketId } from '../enums';
 export function getUnconnectedPingTime(buffer: DataView): bigint {
    return (buffer as DataView).getBigUint64(1, false);
 }
-export function getUnconnectedPongInfo(buffer: DataView): {
-   message: Uint8Array;
-   guid: bigint;
-   pingTime: bigint;
-} {
+export function getUnconnectedPongInfo(buffer: DataView): { message: Uint8Array; guid: bigint; pingTime: bigint } {
    return {
       pingTime: buffer.getBigUint64(1, false),
       guid: buffer.getBigUint64(9, false),

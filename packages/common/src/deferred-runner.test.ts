@@ -1,4 +1,5 @@
 import { suite, test, expect, vi } from 'vitest';
+
 import { DeferredRunner } from './deferred-runner';
 
 suite('DeferredRunner', () => {

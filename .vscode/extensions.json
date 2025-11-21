@@ -3,7 +3,6 @@
       "streetsidesoftware.code-spell-checker",
       "oxc.oxc-vscode",
       "vitest.explorer",
-      "esbenp.prettier-vscode",
       "exodiusstudios.comment-anchors"
    ]
 }

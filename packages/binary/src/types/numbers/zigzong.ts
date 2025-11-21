@@ -10,7 +10,7 @@ export interface ZigZongConstructor extends ValueTypeConstructor<ZigZong, bigint
 export const ZigZong: ZigZongConstructor = VALUE_TYPE_CONSTRUCTOR_FACTORY(
    'ZigZong',
    0n,
-   NumberType,
+   NumberType
 ) as ZigZongConstructor;
 export interface ZigZong extends NumberType<bigint> {}
 

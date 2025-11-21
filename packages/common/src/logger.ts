@@ -8,7 +8,7 @@ export class Logger {
    private readonly base: string;
    public log(...params: unknown[]): void {
       log(
-         `\x1b[2m${this.textPadding(this.getTimeFormatted(), 22)}${this.text} ${params.join(' ')}\x1b[${Logger.softReset}m`,
+         `\x1b[2m${this.textPadding(this.getTimeFormatted(), 22)}${this.text} ${params.join(' ')}\x1b[${Logger.softReset}m`
       );
    }
    public info(...params: unknown[]): void {

@@ -42,39 +42,29 @@ type CursorKey = keyof Cursor;
 
 function createSerializeFunction(
    setViewMethod: string,
-   sizeOf: number,
+   sizeOf: number
 ): (cursor: Cursor, value: number | bigint, littleEndian?: boolean) => void {
    const $ = Function(
       cursorVariableName,
       valueVariableName,
       endiannessVariableName,
-      createInlineSerialize(setViewMethod, valueVariableName, sizeOf, endiannessVariableName),
+      createInlineSerialize(setViewMethod, valueVariableName, sizeOf, endiannessVariableName)
    );
-   defineProperty($, 'name', {
-      configurable: true,
-      enumerable: false,
-      writable: false,
-      value: 'serialize',
-   });
+   defineProperty($, 'name', { configurable: true, enumerable: false, writable: false, value: 'serialize' });
    return $ as any;
 }
 
 function createDeserializeFunction(
    getViewMethod: string,
-   sizeOf: number,
+   sizeOf: number
 ): (cursor: Cursor, littleEndian?: boolean) => number | bigint {
    const $ = Function(
       cursorVariableName,
       endiannessVariableName,
       `const _ = ${createInlineDeserialize(getViewMethod, sizeOf, endiannessVariableName)};
-return _;`,
+return _;`
    );
-   defineProperty($, 'name', {
-      configurable: true,
-      enumerable: false,
-      writable: false,
-      value: 'deserialize',
-   });
+   defineProperty($, 'name', { configurable: true, enumerable: false, writable: false, value: 'deserialize' });
    return $ as any;
 }
 

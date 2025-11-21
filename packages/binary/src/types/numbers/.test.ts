@@ -1,4 +1,5 @@
 import { expect, suite, test } from 'vitest';
+
 import { Byte, Int, Long, Short, Uint24, VarInt, VarLong, ZigZag, ZigZong } from '.';
 import { Cursor } from '../../cursor';
 const NUMBER_TYPES = [Byte, Short, Int, VarInt, ZigZag, Uint24];

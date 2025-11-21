@@ -1,4 +1,5 @@
 import { expect, suite, test } from 'vitest';
+
 import { ipv4FromNumber, ipv4ToNumber } from './address';
 
 suite('Basic', () => {

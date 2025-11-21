@@ -32,10 +32,7 @@ export class ClientConnection extends BaseConnection {
             const result = this.unconnectedPings.get(pingTime);
             this.unconnectedPings.delete(pingTime);
             clearTimeout(result?.timeout);
-            result?.resolve({
-               latency: Date.now() - Number(pingTime),
-               message: new TextDecoder().decode(msg),
-            });
+            result?.resolve({ latency: Date.now() - Number(pingTime), message: new TextDecoder().decode(msg) });
             break;
          }
          default:

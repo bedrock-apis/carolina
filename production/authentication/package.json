@@ -9,6 +9,11 @@
       "validation",
       "bedrock"
    ],
+   "scripts": {
+      "check": "tsgo --noEmit",
+      "build": "rolldown -c ../../rolldown.common.config.ts",
+      "watch": "rolldown -c ../../rolldown.common.config.ts -w"
+   },
    "main": "./dist/main.js",
    "types": "./dist/main.d.ts",
    "author": "bedrock-apis",

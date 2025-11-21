@@ -1,9 +1,10 @@
+import { existsSync } from 'node:fs';
+import { glob, readFile } from 'node:fs/promises';
+import { join, resolve } from 'node:path';
 import { RolldownOptions } from 'rolldown';
 import { dts } from 'rolldown-plugin-dts';
-import { glob, readFile } from 'node:fs/promises';
+
 import { workspaces } from './package.json' with { type: 'json' };
-import { existsSync } from 'node:fs';
-import { join, resolve } from 'node:path';
 
 const entries: Promise<RolldownOptions[] | RolldownOptions | null>[] = [];
 for (const bPath of workspaces)
@@ -17,7 +18,7 @@ export function defineConfig(
    dependencies: Record<string, string>,
    output = './dist/',
    emitDeclarationFiles = true,
-   tsconfig: string = './tsconfig.json',
+   tsconfig: string = './tsconfig.json'
 ): RolldownOptions[] {
    const externalNames = Object.getOwnPropertyNames(dependencies);
    const external = new RegExp(`^(${['node:', ...externalNames].join('|')})`);
@@ -25,18 +26,8 @@ export function defineConfig(
       input: entries,
       external,
       plugins: [dts({ tsgo: true, tsconfig })],
-      transform: {
-         decorator: {
-            legacy: true,
-         },
-      },
-      output: {
-         cleanDir: true,
-         dir: output,
-         minify: true,
-         keepNames: true,
-         sourcemap: 'inline',
-      },
+      transform: { decorator: { legacy: true } },
+      output: { cleanDir: true, dir: output, minify: true, keepNames: true, sourcemap: 'inline' },
       treeshake: true,
    };
    return [baseOptions];
@@ -57,18 +48,9 @@ export async function createEntry(base: string): Promise<RolldownOptions | Rolld
    return {
       input: Object.fromEntries(Object.entries(entries).map(e => [e[0], resolve(base, e[1] as string)])),
       external: _external,
-      transform: {
-         decorator: {
-            legacy: true,
-         },
-      },
+      transform: { decorator: { legacy: true } },
       plugins: declarations ? [dts({ tsgo: true, tsconfig: resolve(base, 'tsconfig.json') })] : [],
-      output: {
-         cleanDir: true,
-         dir: resolve(base, dir),
-         minify: true,
-         keepNames: true,
-      },
+      output: { cleanDir: true, dir: resolve(base, dir), minify: true, keepNames: true },
       treeshake: true,
    } satisfies RolldownOptions;
 }

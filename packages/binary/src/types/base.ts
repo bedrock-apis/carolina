@@ -17,7 +17,7 @@ const { create, setPrototypeOf, defineProperty, defineProperties, getOwnProperty
 export const VALUE_TYPE_CONSTRUCTOR_FACTORY: <T>(
    name: string,
    $: T,
-   base?: ValueTypeConstructor<ValueType<T>>,
+   base?: ValueTypeConstructor<ValueType<T>>
 ) => ValueTypeConstructor<ValueType<T>> = <T>(name: string, $: T, base?: ValueTypeConstructor<ValueType<T>>) => {
    function typedValue(this: ValueType<T>, _: T): ValueType<T> {
       const value = this ?? create(prototype);
@@ -29,12 +29,7 @@ export const VALUE_TYPE_CONSTRUCTOR_FACTORY: <T>(
       setPrototypeOf(typedValue, base);
       setPrototypeOf(prototype, /*SHARED_PROTOTYPE*/ base.prototype);
    }
-   defineProperty(typedValue, 'name', {
-      configurable: true,
-      enumerable: false,
-      writable: false,
-      value: name,
-   });
+   defineProperty(typedValue, 'name', { configurable: true, enumerable: false, writable: false, value: name });
    mergeSourceDirectNoEnumerable(typedValue, {
       getIdentifier() {
          return (this as unknown as { name: string }).name;
@@ -47,8 +42,8 @@ export function mergeSourceWithInheritance<T, S extends Partial<T>>(target: T, s
    return defineProperties(
       target,
       getOwnPropertyDescriptors(
-         setPrototypeOf(source, create(getPrototypeOf(target), getOwnPropertyDescriptors(target))),
-      ),
+         setPrototypeOf(source, create(getPrototypeOf(target), getOwnPropertyDescriptors(target)))
+      )
    ) as T & S;
 }
 export function mergeSourceDirectNoEnumerable<T, S extends Partial<T>>(target: T, source: S): T & S {

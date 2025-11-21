@@ -3,8 +3,9 @@ import { appendFile, mkdir, readdir, rm } from 'node:fs/promises';
 import path, { dirname, resolve } from 'node:path';
 import { env, platform } from 'node:process';
 import { Readable } from 'node:stream';
-import { UnzipStreamConsumer } from 'unzip-web-stream';
 import { ReadableStream } from 'node:stream/web';
+import { UnzipStreamConsumer } from 'unzip-web-stream';
+
 import { CACHE_BDS, CACHE_BDS_DOWNLOAD, CACHE_BDS_EXE_PATH, CACHE_DUMP_OUTPUT } from './constants';
 
 export async function fetchJson<T extends object>(url: string): Promise<T | null> {
@@ -33,23 +34,23 @@ export async function unzip(stream: ReadableStream, basePath: string): Promise<v
             if (lastUpdate + 200 < performance.now()) {
                lastUpdate = performance.now();
                console.log(
-                  `📦\t${path} \tTotal Files: ${filesExtracted}  Time: ${((lastUpdate - startTime) / 1000).toFixed(1)} \x1b[A`,
+                  `📦\t${path} \tTotal Files: ${filesExtracted}  Time: ${((lastUpdate - startTime) / 1000).toFixed(1)} \x1b[A`
                );
             }
             promises.push(
                new Promise(res =>
                   Readable.fromWeb(readable as any)
                      .pipe(createWriteStream(path))
-                     .on('finish', res),
-               ),
+                     .on('finish', res)
+               )
             );
          },
-      }),
+      })
    );
    await Promise.all(promises);
 
    console.log(
-      `\n📦\tExtracting done . . .\t->\tTotal Files: ${filesExtracted}  Time: ${((lastUpdate - startTime) / 1000).toFixed(1)} \x1b[A`,
+      `\n📦\tExtracting done . . .\t->\tTotal Files: ${filesExtracted}  Time: ${((lastUpdate - startTime) / 1000).toFixed(1)} \x1b[A`
    );
 }
 
@@ -76,7 +77,7 @@ export async function getSource(): Promise<ReadableStream> {
    }
 
    const latest = await fetchJson<{ linux: { preview: string }; windows: { preview: string } }>(
-      'https://raw.githubusercontent.com/Bedrock-OSS/BDS-Versions/main/versions.json',
+      'https://raw.githubusercontent.com/Bedrock-OSS/BDS-Versions/main/versions.json'
    );
    if (!latest) {
       const readable = await getCachedBinary();

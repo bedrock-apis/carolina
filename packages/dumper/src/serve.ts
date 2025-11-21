@@ -2,6 +2,7 @@ import { existsSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { createServer, Server } from 'node:http';
 import { dirname, resolve } from 'node:path';
+
 import { CACHE_DUMP_OUTPUT } from './constants';
 
 export class HTTPServer {
@@ -17,7 +18,7 @@ export class HTTPServer {
          resp.writeHead(
             realResponse.status,
             realResponse.statusText,
-            Object.fromEntries(realResponse.headers.entries()),
+            Object.fromEntries(realResponse.headers.entries())
          );
          const body = realResponse.body;
          if (!body) return void resp.end();

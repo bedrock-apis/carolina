@@ -7,7 +7,7 @@ const VIEW = new DataView(ACK_BUFFER.buffer);
 
 export function rentAcknowledgePacketWith(
    kind: RakNetUnconnectedPacketId.AckDatagram | RakNetUnconnectedPacketId.NackDatagram,
-   ranges: Iterable<{ max: number; min: number }>,
+   ranges: Iterable<{ max: number; min: number }>
 ): Uint8Array {
    // Packet Id
    ACK_BUFFER[0] = kind;

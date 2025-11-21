@@ -1,5 +1,6 @@
 import { SerializableType } from '@carolina/binary';
 import { PacketType } from '@carolina/protocol';
+
 import { NetworkConnection } from '../network/connection';
 export const HANDLERS: Record<
    number,

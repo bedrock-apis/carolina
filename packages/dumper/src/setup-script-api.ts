@@ -2,6 +2,7 @@ import { existsSync } from 'node:fs';
 import { readFile, rm, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { build } from 'rolldown';
+
 import { CACHE_BDS, SOURCE_DIR } from './constants';
 
 export async function setupScriptAPI(): Promise<void> {
@@ -35,7 +36,7 @@ export async function allowAllModules(): Promise<void> {
             '@minecraft/server-editor',
             '@minecraft/server-gametest',
          ],
-      }),
+      })
    );
 }
 export async function prepareManifest(): Promise<void> {
@@ -49,10 +50,7 @@ export async function prepareManifest(): Promise<void> {
    };
    if (manifest.dependencies.find((_: { module_name?: string }) => _.module_name === '@minecraft/server-net')) return;
 
-   manifest.dependencies.push({
-      module_name: '@minecraft/server-net',
-      version: '1.0.0-beta',
-   });
+   manifest.dependencies.push({ module_name: '@minecraft/server-net', version: '1.0.0-beta' });
 
    manifest.dependencies = manifest.dependencies.filter(e => e.module_name !== '@minecraft/server-editor');
 

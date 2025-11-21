@@ -1,16 +1,15 @@
 {
    "scripts": {
-      "dump": "pnpm run build && node ./packages/dumper/dist/main.js",
       "init": "pnpm install && pnpm run build",
-      "build": "rolldown -c .\\rolldown.config.ts",
-      "watch": "rolldown -c .\\rolldown.dev.config.ts -w",
-      "app": "bun --enable-source-maps ./app/dist/main.js",
+      "build": "turbo run build",
+      "watch": "turbo run watch",
+      "app": "pnpm run build && bun --enable-source-maps ./app/dist/main.js",
       "check": "turbo check -- --pretty",
       "test": "vitest --run",
       "bench": "vitest bench --run",
       "lint": "oxlint",
-      "format:ts": "prettier --write \"**/*.ts\"",
-      "format:ts:check": "prettier --check \"**/*.ts\""
+      "fmt": "oxfmt",
+      "check:fmt": "oxfmt --check"
    },
    "workspaces": [
       "production/*",
@@ -35,11 +34,13 @@
       "@types/node": "^24.10.1",
       "@typescript/native-preview": "7.0.0-dev.20250816.1",
       "nx": "^22.0.4",
+      "oxfmt": "0.14.0",
       "oxlint": "^1.29.0",
-      "prettier": "^3.6.2",
       "rolldown": "1.0.0-beta.51",
-      "rolldown-plugin-dts": "^0.17.8",
+      "rolldown-plugin-dts": "^0.18.0",
+      "turbo": "^2.6.1",
       "typescript": "5.9.3",
       "vitest": "^4.0.10"
-   }
+   },
+   "packageManager": "pnpm@10.23.0"
 }

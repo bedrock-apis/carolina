@@ -1,7 +1,8 @@
-import { Cursor } from '../cursor';
-import { Int } from './numbers';
-import { Buffer } from './buffer-type';
 import { expect, suite, test } from 'vitest';
+
+import { Cursor } from '../cursor';
+import { Buffer } from './buffer-type';
+import { Int } from './numbers';
 
 const cursor = Cursor.create(new Uint8Array(1 << 10));
 

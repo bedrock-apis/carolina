@@ -4,10 +4,7 @@ import { FrameDescriptor } from '../interfaces';
 import { readUint24, writeUint24 } from './uint24';
 
 export function readCapsuleFrameData(view: DataView, offset: number): { offset: number } & FrameDescriptor {
-   const result: FrameDescriptor & { offset: number } = {
-      body: null!,
-      offset,
-   };
+   const result: FrameDescriptor & { offset: number } = { body: null!, offset };
    const header = view.getUint8(offset++);
 
    // First top 3bits of the byte 8-5 = 3
@@ -61,7 +58,7 @@ export function writeCapsuleFrameHeader(
    view: DataView,
    desc: Omit<FrameDescriptor, 'body'>,
    bodyLength: number,
-   reliability: RakNetReliability,
+   reliability: RakNetReliability
 ): number {
    let header = reliability << 5;
    if (desc.fragment) header |= IS_FRAGMENTED_BIT;

@@ -1,0 +1,77 @@
+{
+   "folders": [
+      {
+         "name": "App",
+         "path": "../app"
+      },
+      {
+         "name": "Benchmarks",
+         "path": "../benchmarks"
+      },
+      {
+         "name": "Core",
+         "path": "../packages/core"
+      },
+      {
+         "name": "Raknet",
+         "path": "../production/net"
+      },
+      {
+         "name": "Protocol",
+         "path": "../packages/protocol"
+      },
+      {
+         "name": "Root Repository",
+         "path": "../"
+      }
+   ],
+   "settings": {
+      "files.exclude": {
+         "**/node_modules": true,
+         "**/dist": true,
+         "**/.turbo": true,
+         "**/.git": true,
+         "**/.svn": true,
+         "**/.hg": true,
+         "**/.DS_Store": true,
+         "**/Thumbs.db": true
+      },
+      "cSpell.words": [
+         "MCPE",
+         "oxlint",
+         "raknet",
+         "rolldown",
+         "tsgo",
+         "varint",
+         "varlong",
+         "zigzong",
+         "Zong"
+      ],
+      "window.border": "#3586A4",
+      "explorer.fileNesting.enabled": true,
+      "explorer.fileNesting.patterns": {
+         "package.json": "package-lock.json, yarn.lock, pnpm-lock.yaml, pnpm-workspace.yaml",
+         "vitest.config.ts": "turbo.json, *.config.json, *.config.ts, *config.json, .oxlintrc.json, .oxfmtrc.json",
+         ".gitignore": ".git*, .edit*, .env*",
+         "readme.md": "*.md",
+         "*.ts": "${basename}.test.ts"
+      },
+      "editor.formatOnSave": true,
+      "oxc.fmt.experimental": true,
+      "editor.defaultFormatter": "oxc.oxc-vscode",
+      "editor.insertSpaces": true,
+      "editor.tabSize": 3,
+      "[typescript]": {
+         "editor.defaultFormatter": "oxc.oxc-vscode"
+      },
+      "files.eol": "\n"
+   },
+   "extensions": {
+      "recommendations": [
+         "streetsidesoftware.code-spell-checker",
+         "oxc.oxc-vscode",
+         "vitest.explorer",
+         "exodiusstudios.comment-anchors"
+      ]
+   },
+}

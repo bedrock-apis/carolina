@@ -1,6 +1,7 @@
-import { RakNetReliability, ServerConnection } from '@carolina/net/raknet';
-import { NetworkServer } from './server';
+import { deflateRawSync, inflateRawSync } from 'node:zlib';
+
 import { Cursor, ResizableCursor, SerializableType, VarInt } from '@carolina/binary';
+import { RakNetReliability, ServerConnection } from '@carolina/net/raknet';
 import {
    PacketIds,
    NetworkSettingsPacket,
@@ -11,9 +12,10 @@ import {
    LoginPacket,
    LoginTokensPayload,
 } from '@carolina/protocol';
-import { deflateRawSync, inflateRawSync } from 'node:zlib';
-import { HANDLERS, registerHandlers } from '../handlers/base';
+
 import { Authentication, AuthenticationType } from '../../../../production/authentication';
+import { HANDLERS, registerHandlers } from '../handlers/base';
+import { NetworkServer } from './server';
 
 export class NetworkConnection {
    static {
@@ -44,7 +46,7 @@ export class NetworkConnection {
    protected readonly networkSettings = new NetworkSettingsPacket();
    public constructor(
       public readonly server: NetworkServer,
-      public readonly connection: ServerConnection,
+      public readonly connection: ServerConnection
    ) {
       connection.onGamePacket = this.handlePayload.bind(this);
       this.networkSettings.compressionAlgorithm = PacketCompressionAlgorithm.Zlib;
@@ -175,7 +177,7 @@ registerHandlers(LoginPacket, async (packet, player) => {
       Uint8Array.fromBase64(key),
       { name: 'ECDSA', namedCurve: 'P-384' },
       false,
-      ['verify'],
+      ['verify']
    );
 
    // verify ES384 signature
@@ -183,7 +185,7 @@ registerHandlers(LoginPacket, async (packet, player) => {
       { name: 'ECDSA', hash: 'SHA-384' },
       publicKey,
       Uint8Array.fromBase64(sB64, { alphabet: 'base64url' }),
-      dataToVerify,
+      dataToVerify
    );
 
    // valid is true/false
@@ -191,8 +193,6 @@ registerHandlers(LoginPacket, async (packet, player) => {
    const socket = await Bun.udpSocket({
       binaryType: 'uint8array',
       port: 19132,
-      socket: {
-         data(socket, data, port, address) {},
-      },
+      socket: { data(socket, data, port, address) {} },
    });
 });

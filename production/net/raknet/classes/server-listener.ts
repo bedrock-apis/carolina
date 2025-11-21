@@ -1,13 +1,14 @@
-import { ServerConnection } from './server-connection';
+import type { Connection, ServerListener } from '../../api/interface';
+
 import { IDEAL_MAX_MTU_SIZE, random64, UDP_HEADER_SIZE } from '../constants';
 import { AddressInfo, SocketSource } from '../interfaces';
-import { BaseConnection } from './base-connection';
 import { getUnconnectedPingTime, rentUnconnectedPongBufferWith } from '../proto';
-import { getDataViewFromBuffer } from '../proto/uint24';
-import { rentOpenConnectionReplyOneBufferWith } from '../proto/open-connection-reply-one';
 import { getOpenConnectionRequestTwoInfo } from '../proto/connection-request';
+import { rentOpenConnectionReplyOneBufferWith } from '../proto/open-connection-reply-one';
 import { rentOpenConnectionReplyTwoBufferWith } from '../proto/open-connection-reply-two';
-import type { Connection, ServerListener } from '../../api/interface';
+import { getDataViewFromBuffer } from '../proto/uint24';
+import { BaseConnection } from './base-connection';
+import { ServerConnection } from './server-connection';
 export class ServerConnectionListener implements ServerListener {
    public static STALE_CONNECTION_ELIMINATION_INTERVAL = 3_000;
    public static STALE_CONNECTION_LIFETIME_MAX_AGE = 15_000;
@@ -59,7 +60,7 @@ export class ServerConnectionListener implements ServerListener {
    protected [7 /*RakNetUnconnectedPacketId.OpenConnectionRequestTwo*/](
       source: SocketSource,
       data: Uint8Array,
-      receiver: AddressInfo,
+      receiver: AddressInfo
    ): void {
       const view = getDataViewFromBuffer(data);
       const { guid, mtu, serverAddress } = getOpenConnectionRequestTwoInfo(view);
@@ -87,7 +88,7 @@ export class ServerConnectionListener implements ServerListener {
    protected [5 /*RakNetUnconnectedPacketId.OpenConnectionRequestOne*/](
       socket: SocketSource,
       data: Uint8Array,
-      receiver: AddressInfo,
+      receiver: AddressInfo
    ): void {
       let MTU = data.length + UDP_HEADER_SIZE;
 
@@ -95,7 +96,7 @@ export class ServerConnectionListener implements ServerListener {
       const buffer = rentOpenConnectionReplyOneBufferWith(
          this.guid,
          // Official raknet source /Source/RakPeer.cpp:5186
-         MTU > IDEAL_MAX_MTU_SIZE ? IDEAL_MAX_MTU_SIZE : MTU,
+         MTU > IDEAL_MAX_MTU_SIZE ? IDEAL_MAX_MTU_SIZE : MTU
       );
 
       // Send rented buffer
@@ -106,7 +107,7 @@ export class ServerConnectionListener implements ServerListener {
    protected [1 /*RakNetUnconnectedPacketId.UnconnectedPing*/](
       socket: SocketSource,
       data: Uint8Array,
-      receiver: AddressInfo,
+      receiver: AddressInfo
    ): void {
       const view = getDataViewFromBuffer(data);
       const pingTime = getUnconnectedPingTime(view);
@@ -116,7 +117,7 @@ export class ServerConnectionListener implements ServerListener {
          pingTime,
          this.guid,
          this.onGetMOTD?.(receiver) ??
-            new TextEncoder().encode(`MCPE;Carolina;390;1.14.60;16;50;${this.guid};The New World;`),
+            new TextEncoder().encode(`MCPE;Carolina;390;1.14.60;16;50;${this.guid};The New World;`)
       );
       // Send rented buffer
       socket.send(buffer, receiver);

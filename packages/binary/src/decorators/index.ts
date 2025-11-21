@@ -1,4 +1,4 @@
-import { SerializableType, Str, VarInt } from '../types';
+import { SerializableType } from '../types';
 import { AbstractType } from './abstract-type';
 
 export * from './abstract-type';
@@ -44,7 +44,7 @@ export function Compilable<T extends { new (): unknown }>(target: T): void {
 function internalCompileToString(
    type: SerializableType<unknown>,
    propertyInfo: Iterable<PropertyInfo>,
-   objectCreation: string,
+   objectCreation: string
 ): void {
    const types: SerializableType<unknown>[] = [];
    const deserializationCode: string[] = [];
@@ -62,13 +62,13 @@ function internalCompileToString(
             lengthEncoding,
             C_LENGTH_CONSTANT,
             types,
-            ...lengthEncodingParams!,
+            ...lengthEncodingParams!
          );
          const { deserializer: dm, serializer: sm } = getSerializationCodeFor(
             type,
             C_SINGLE_ELEMENT_CONSTANT,
             types,
-            ...typeParams!,
+            ...typeParams!
          );
 
          dc = `${dl}${C_ARRAY_CONSTANT}=${keyAccess}=new Array(${C_LENGTH_CONSTANT});for(let i=0,${C_SINGLE_ELEMENT_CONSTANT};i<${C_LENGTH_CONSTANT};${C_ELEMENT_ACCESS}=${C_SINGLE_ELEMENT_CONSTANT},i++){${dm}}`;
@@ -88,12 +88,12 @@ function internalCompileToString(
    }
    type.deserialize = new Function(
       ...types.map((_, i) => '$' + (i + 1)),
-      `function deserialize($){const $0=${objectCreation};${arraysFlags ? C_ARRAY_RUNTIME_HELPER : ''}\n${deserializationCode.join('\n')}\nreturn $0;};return deserialize;`,
+      `function deserialize($){const $0=${objectCreation};${arraysFlags ? C_ARRAY_RUNTIME_HELPER : ''}\n${deserializationCode.join('\n')}\nreturn $0;};return deserialize;`
    )(...types) as () => unknown;
 
    type.serialize = new Function(
       ...types.map((_, i) => '$' + (i + 1)),
-      `function serialize($, $0){${arraysFlags ? C_ARRAY_RUNTIME_HELPER : ''}${serializationCode.join('\n')}};return serialize;`,
+      `function serialize($, $0){${arraysFlags ? C_ARRAY_RUNTIME_HELPER : ''}${serializationCode.join('\n')}};return serialize;`
    )(...types) as () => unknown;
 }
 export function LengthEncodeAs<T extends SerializableType<number>>(
@@ -146,7 +146,7 @@ export function setCompilationInliningEnabled(enabled: boolean): void {
 export function Conditional<T extends AbstractType>(
    key: StringKeyOf<T>,
    valueToCompare?: string | number | bigint | boolean,
-   operator?: ValidOperators,
+   operator?: ValidOperators
 ): (target: T, property: string) => void {
    return (target, property) => {
       let meta = METADATA_MAP.get(target);
@@ -166,13 +166,13 @@ export function Conditional<T extends AbstractType>(
 
 export type ValidOperators = '===' | '==' | '<=' | '>=' | '>' | '<' | '||' | '&&' | '!==' | '!=';
 export function createStructSerializable<T extends Record<string, SerializableType<unknown>>>(
-   definition: T,
+   definition: T
 ): SerializableType<{ [P in keyof T]: SerializationTypeFor<T[P]> }> {
    const type = {} as SerializableType<unknown>;
    internalCompileToString(
       type,
       Object.keys(definition).map(e => ({ key: e, type: definition[e] })),
-      '{}',
+      '{}'
    );
    return type as any;
 }

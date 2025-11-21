@@ -9,9 +9,9 @@
    "author": "bedrock-apis",
    "license": "MIT",
    "scripts": {
-      "build": "rolldown -c ./rolldown.config.ts",
       "check": "tsgo --noEmit",
-      "watch": "rolldown -w -c"
+      "build": "rolldown -c ../../rolldown.common.config.ts",
+      "watch": "rolldown -c ../../rolldown.common.config.ts -w"
    },
    "dependencies": {
       "@carolina/binary": "workspace:^"

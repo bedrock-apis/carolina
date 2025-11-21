@@ -20,7 +20,7 @@ export function rentConnectionRequestAcceptPacketWith(
    clientAddress: AddressInfo,
    serverAddress: AddressInfo,
    requestTime: bigint,
-   serverTime: bigint,
+   serverTime: bigint
 ): Uint8Array {
    // Client address
    let offset = writeAddress(REQUEST_ACCEPTED_VIEW, 1, clientAddress);

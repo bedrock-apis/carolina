@@ -1,5 +1,6 @@
-import { dump } from './dump';
 import { exit } from 'node:process';
+
+import { dump } from './dump';
 
 dump()
    .catch(e => {

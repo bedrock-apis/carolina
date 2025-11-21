@@ -11,7 +11,9 @@
    "author": "bedrock-apis",
    "license": "MIT",
    "scripts": {
-      "check": "tsgo --noEmit"
+      "check": "tsgo --noEmit",
+      "build": "rolldown -c ../../rolldown.common.config.ts",
+      "watch": "rolldown -c ../../rolldown.common.config.ts -w"
    },
    "exports": {
       ".": {
@@ -31,7 +33,6 @@
       },
       "dir": "./dist",
       "external": "dependencies",
-      "declarations": true,
-      "mappings": true
+      "declarations": true
    }
 }

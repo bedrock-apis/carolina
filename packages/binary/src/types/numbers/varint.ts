@@ -5,7 +5,7 @@ import { NumberType } from '../number-type';
 export const VarInt: ValueTypeConstructor<VarInt, number> = VALUE_TYPE_CONSTRUCTOR_FACTORY(
    'VarInt',
    0,
-   NumberType,
+   NumberType
 ) as ValueTypeConstructor<VarInt, number>;
 export interface VarInt extends NumberType<number> {}
 

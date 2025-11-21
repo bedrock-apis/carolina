@@ -1,6 +1,7 @@
 import { Int, SerializeAs, Cursor, Str, VarInt, Buffer, Compilable, AbstractType } from '@carolina/binary';
-import { PacketCompilable, PacketType } from '../packet';
+
 import { PacketIds } from '../enums';
+import { PacketCompilable, PacketType } from '../packet';
 
 @PacketCompilable(PacketIds.Login)
 export class LoginPacket extends PacketType {

@@ -4,11 +4,7 @@ export interface FrameDescriptor {
    sequenceIndex?: number;
    orderIndex?: number;
    orderChannel?: number;
-   fragment?: {
-      id: number;
-      length: number;
-      index: number;
-   };
+   fragment?: { id: number; length: number; index: number };
 }
 export interface AddressInfo {
    address: string;

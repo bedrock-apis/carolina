@@ -13,7 +13,7 @@ function String(type: SerializableType<number>, ...params: unknown[]): StringTyp
    v = VALUE_TYPE_CONSTRUCTOR_FACTORY<string>(
       `StringType(${id ?? 'Unknown Number Type'})`,
       '',
-      String as unknown as ValueTypeConstructor<any>,
+      String as unknown as ValueTypeConstructor<any>
    ) as StringTypeConstructor;
    (v as Mutable<StringTypeConstructor>).type = type;
    (v as Mutable<StringTypeConstructor>).typeParams = params;
@@ -49,7 +49,7 @@ export interface StringType extends InternalValueType<string> {}
       deserialize(cursor) {
          const length = (this as StringTypeConstructor).type!.deserialize(
                cursor,
-               ...((this as StringTypeConstructor).typeParams as []),
+               ...((this as StringTypeConstructor).typeParams as [])
             ),
             $ = cursor.getSliceSpan(length);
          return ((cursor.pointer += $.length), decoder.decode($));
@@ -59,7 +59,7 @@ export interface StringType extends InternalValueType<string> {}
          (this as StringTypeConstructor).type!.serialize(
             cursor,
             buffer.length,
-            ...((this as StringTypeConstructor).typeParams as []),
+            ...((this as StringTypeConstructor).typeParams as [])
          );
          cursor.buffer.set(buffer, cursor.pointer);
          cursor.pointer += buffer.length;

@@ -26,24 +26,10 @@ export const MAX_FRAME_SET_HEADER_SIZE: number = MAX_CAPSULE_HEADER_SIZE + 4;
 export const random64: () => bigint = () =>
    (BigInt(~~(Math.random() * 0xffff_ffff)) << 32n) | BigInt(~~(Math.random() * 0xffff_ffff));
 
-export const IS_RELIABLE_LOOKUP: Record<number, boolean> = {
-   2: true,
-   3: true,
-   4: true,
-};
-export const IS_SEQUENCED_LOOKUP: Record<number, boolean> = {
-   1: true,
-   4: true,
-};
-export const IS_ORDERED_LOOKUP: Record<number, boolean> = {
-   1: true,
-   3: true,
-   4: true,
-};
-export const IS_ORDERED_EXCLUSIVE_LOOKUP: Record<number, boolean> = {
-   3: true,
-   7: true,
-};
+export const IS_RELIABLE_LOOKUP: Record<number, boolean> = { 2: true, 3: true, 4: true };
+export const IS_SEQUENCED_LOOKUP: Record<number, boolean> = { 1: true, 4: true };
+export const IS_ORDERED_LOOKUP: Record<number, boolean> = { 1: true, 3: true, 4: true };
+export const IS_ORDERED_EXCLUSIVE_LOOKUP: Record<number, boolean> = { 3: true, 7: true };
 
 Reflect.setPrototypeOf(IS_RELIABLE_LOOKUP, null);
 Reflect.setPrototypeOf(IS_SEQUENCED_LOOKUP, null);

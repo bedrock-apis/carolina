@@ -1,23 +1,31 @@
 {
-   "cSpell.words": ["MCPE", "oxlint", "raknet", "rolldown", "tsgo", "varint", "varlong", "zigzong", "Zong"],
+   "cSpell.words": [
+      "MCPE",
+      "oxlint",
+      "raknet",
+      "rolldown",
+      "tsgo",
+      "varint",
+      "varlong",
+      "zigzong",
+      "Zong"
+   ],
    "window.border": "#3586A4",
    "explorer.fileNesting.enabled": true,
    "explorer.fileNesting.patterns": {
       "package.json": "package-lock.json, yarn.lock, pnpm-lock.yaml, pnpm-workspace.yaml",
-      "vitest.config.ts": "turbo.json, *.config.json, *.config.ts, *config.json, .oxlintrc.json",
+      "vitest.config.ts": "turbo.json, *.config.json, *.config.ts, *config.json, .oxlintrc.json, .oxfmtrc.json",
       ".gitignore": ".git*, .edit*, .env*",
       "readme.md": "*.md",
       "*.ts": "${basename}.test.ts"
    },
    "editor.formatOnSave": true,
-   "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+   "oxc.fmt.experimental": true,
+   "editor.defaultFormatter": "oxc.oxc-vscode",
    "editor.insertSpaces": true,
    "editor.tabSize": 3,
    "[typescript]": {
-      "editor.defaultFormatter": "esbenp.prettier-vscode"
+      "editor.defaultFormatter": "oxc.oxc-vscode"
    },
-   "files.eol": "\r\n",
-   "[xml]": {
-      "editor.defaultFormatter": "mikeburgh.xml-format"
-   }
+   "files.eol": "\n",
 }

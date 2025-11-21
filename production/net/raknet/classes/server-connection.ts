@@ -13,7 +13,7 @@ export class ServerConnection extends BaseConnection {
       endpoint: AddressInfo,
       public readonly serverAddress: AddressInfo,
       guid: bigint,
-      mtuSize: number,
+      mtuSize: number
    ) {
       super(source, endpoint, guid);
       this.outgoingMTU = mtuSize - UDP_HEADER_SIZE;

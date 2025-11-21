@@ -13,7 +13,7 @@ function Buff(type: SerializableType<number>, ...params: unknown[]): BufferTypeC
    v = VALUE_TYPE_CONSTRUCTOR_FACTORY<string>(
       `Buffer(${id ?? 'Unknown Number Type'})`,
       '',
-      Buffer as unknown as ValueTypeConstructor<any>,
+      Buffer as unknown as ValueTypeConstructor<any>
    ) as BufferTypeConstructor;
    (v as Mutable<BufferTypeConstructor>).type = type;
    (v as Mutable<BufferTypeConstructor>).typeParams = params;
@@ -47,7 +47,7 @@ export interface BufferType extends InternalValueType<string> {}
       deserialize(cursor) {
          const length = (this as BufferTypeConstructor).type!.deserialize(
                cursor,
-               ...((this as BufferTypeConstructor).typeParams as []),
+               ...((this as BufferTypeConstructor).typeParams as [])
             ),
             $ = cursor.getSliceSpan(length);
          return ((cursor.pointer += $.length), $);
@@ -56,7 +56,7 @@ export interface BufferType extends InternalValueType<string> {}
          (this as BufferTypeConstructor).type!.serialize(
             cursor,
             value.length,
-            ...((this as BufferTypeConstructor).typeParams as []),
+            ...((this as BufferTypeConstructor).typeParams as [])
          );
          cursor.buffer.set(value, cursor.pointer);
          cursor.pointer += value.length;
