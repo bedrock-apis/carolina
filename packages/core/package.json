@@ -16,13 +16,17 @@
    "dependencies": {
       "@carolina/binary": "workspace:^",
       "@carolina/protocol": "workspace:^",
-      "@carolina/net": "workspace:^",
+      "@bedrock-apis/carolina-net": "workspace:^",
       "@types/bun": "^1.2.20"
    },
    "rolldown": {
-      "sources": {
-         "main": "./src/main.ts"
+      "entries": {
+         "main": "./src/main.ts",
+         "thread": "./src/thread.ts"
       },
-      "external": "dependencies"
+      "dir": "./dist",
+      "external": "dependencies",
+      "declarations": true,
+      "mappings": true
    }
 }

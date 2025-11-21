@@ -15,9 +15,12 @@
    },
    "dependencies": {},
    "rolldown": {
-      "sources": {
+      "entries": {
          "main": "./src/main.ts"
       },
-      "external": "dependencies"
+      "dir": "./dist",
+      "external": "dependencies",
+      "declarations": true,
+      "mappings": true
    }
 }

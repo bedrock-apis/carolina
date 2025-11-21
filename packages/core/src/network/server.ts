@@ -1,4 +1,4 @@
-import { ServerConnection, SocketSource } from '@carolina/raknet';
+import { ServerConnection, SocketSource } from '@carolina/net/raknet';
 import { type Carolina } from '../carolina';
 import { RakNetListener } from './raknet-listener';
 import { NetworkConnection } from './connection';
@@ -64,7 +64,7 @@ async function createSource(kind: 'udp4' | 'udp6', port: number, ipaddress?: str
    return {
       onDataCallback: _ => socket.on('message', (buffer, { address, port }) => _(buffer, { address, family, port })),
       send: async (data, endpoint) => void socket.send(data, endpoint.port, endpoint.address),
-   };
+   } satisfies SocketSource;
    /*
    const socket = await Bun.udpSocket({
       binaryType: 'uint8array',

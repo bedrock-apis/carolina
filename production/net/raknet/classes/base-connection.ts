@@ -1,5 +1,5 @@
 // We access this file directly because we don't want to rely on whole @package/common
-import { DeferredRunner } from '../../../common/src/deferred-runner';
+import { DeferredRunner } from '../../../../packages/common/src/deferred-runner';
 import { nextTick } from 'node:process';
 import {
    ACK_DATAGRAM_BIT,
@@ -357,9 +357,7 @@ export abstract class BaseConnection implements Connection {
       //console.log('Batched: ' + this.outgoingToSendStack.isEmpty());
    }
    protected sendToSocket(data: Uint8Array): void {
-      const copy = new Uint8Array(data.byteLength);
-      copy.set(data);
-      this.source.send(copy, this.endpoint);
+      this.source.send(data, this.endpoint);
    }
    //#endregion
    //#region General

@@ -15,7 +15,7 @@
       "@carolina/binary": "workspace:^",
       "@carolina/core": "workspace:^",
       "@carolina/protocol": "workspace:^",
-      "@carolina/net": "workspace:^"
+      "@bedrock-apis/carolina-net": "workspace:^"
    },
    "devDependencies": {
       "@bedrock-apis/nbt": "0.0.1-alpha.4",

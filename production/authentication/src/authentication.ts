@@ -18,11 +18,10 @@ export class Authentication {
    public static async authenticate(token: string): Promise<JWTBodyObject> {
       const [head, body, tail] = this.split(token);
       const { alg, kid, typ } = this.partialParse<JWTHeadObject>(head);
-      console.log({ alg, kid, typ });
       if (typ !== 'JWT') throw new Error('Unexpected token type, expected JWT token, received: ' + typ);
       const config = await OpenConfiguration.getConfig();
       if (!config) throw new Error('OpenConfig not available.');
-      if (!config.id_token_signing_alg_values_supported.includes(alg)) throw new Error('Unsupported algoritm');
+      if (!config.id_token_signing_alg_values_supported.includes(alg)) throw new Error('Unsupported algorithm');
       const data = this.partialParse<JWTBodyObject>(body);
       if (data.exp * 1000 < Date.now()) throw new Error('Expired token!');
       if (data.aud !== this.AUDIENCE_API) throw new Error('Invalid Audience API!');
@@ -31,7 +30,7 @@ export class Authentication {
       if (!key) throw new Error('Authentication unknown KID!');
 
       if (alg !== 'RS256') throw new Error('Not implemented verification algorithm: ' + alg);
-      const varifyKey = await crypto.subtle.importKey(
+      const verifyKey = await crypto.subtle.importKey(
          'jwk',
          key,
          {
@@ -43,7 +42,7 @@ export class Authentication {
       );
       const valid = await crypto.subtle.verify(
          { name: 'RSASSA-PKCS1-v1_5' },
-         varifyKey,
+         verifyKey,
          Uint8Array.fromBase64(tail, { alphabet: 'base64url' }),
          new TextEncoder().encode(`${head}.${body}`),
       );

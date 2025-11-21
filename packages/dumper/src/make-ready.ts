@@ -104,7 +104,8 @@ export async function getSource(): Promise<ReadableStream> {
       .on('error', () => {
          if (existsSync(file)) rmSync(file);
       });
-   return unzip;
+   //return unzip;
+   return unzip as ReadableStream;
 }
 
 export async function getCachedBinary(): Promise<ReadableStream | null> {

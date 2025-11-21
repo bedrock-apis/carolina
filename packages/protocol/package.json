@@ -17,10 +17,13 @@
       "@carolina/binary": "workspace:^"
    },
    "rolldown": {
-      "sources": {
+      "entries": {
          "main": "./src/main.ts"
       },
-      "external": "dependencies"
+      "dir": "./dist",
+      "external": "dependencies",
+      "declarations": true,
+      "mappings": true
    },
    "devDependencies": {
       "@types/bun": "^1.3.2"

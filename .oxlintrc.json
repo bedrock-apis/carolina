@@ -1,6 +1,10 @@
 {
    "$schema": "./node_modules/oxlint/configuration_schema.json",
-   "plugins": ["unicorn", "typescript", "oxc"],
+   "plugins": [
+      "unicorn",
+      "typescript",
+      "oxc"
+   ],
    "categories": {},
    "rules": {
       "import/first": "error",
@@ -101,11 +105,6 @@
       "unicorn/prefer-string-starts-ends-with": "warn"
    },
    "settings": {
-      "jsx-a11y": {
-         "polymorphicPropName": null,
-         "components": {},
-         "attributes": {}
-      },
       "next": {
          "rootDir": []
       },
@@ -128,5 +127,7 @@
       "builtin": true
    },
    "globals": {},
-   "ignorePatterns": ["__*/*", "**/*.test.ts"]
+   "ignorePatterns": [
+      "**/*.test.ts"
+   ]
 }

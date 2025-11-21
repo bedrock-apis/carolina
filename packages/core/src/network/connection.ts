@@ -13,7 +13,7 @@ import {
 } from '@carolina/protocol';
 import { deflateRawSync, inflateRawSync } from 'node:zlib';
 import { HANDLERS, registerHandlers } from '../handlers/base';
-import { Authentication, AuthenticationType } from '../authentication';
+import { Authentication, AuthenticationType } from '../../../../production/authentication';
 
 export class NetworkConnection {
    static {
@@ -188,4 +188,11 @@ registerHandlers(LoginPacket, async (packet, player) => {
 
    // valid is true/false
    console.log(valid);
+   const socket = await Bun.udpSocket({
+      binaryType: 'uint8array',
+      port: 19132,
+      socket: {
+         data(socket, data, port, address) {},
+      },
+   });
 });

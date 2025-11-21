@@ -1,14 +1,17 @@
 {
-   "name": "@carolina/net",
+   "name": "@bedrock-apis/carolina-net",
    "version": "1.0.0-beta.1",
    "type": "module",
-   "keywords": [],
+   "keywords": [
+      "minecraft",
+      "raknet",
+      "bedrock",
+      "protocol"
+   ],
    "author": "bedrock-apis",
    "license": "MIT",
    "scripts": {
-      "build": "rolldown -c ./rolldown.config.ts",
-      "check": "tsgo --noEmit",
-      "watch": "rolldown -w -c"
+      "check": "tsgo --noEmit"
    },
    "exports": {
       ".": {
@@ -21,11 +24,14 @@
       }
    },
    "rolldown": {
-      "sources": {
+      "entries": {
          "main": "./api/interface.ts",
          "raknet": "./raknet/main.ts",
          "nethernet": "./nethernet/main.ts"
       },
-      "external": "dependencies"
+      "dir": "./dist",
+      "external": "dependencies",
+      "declarations": true,
+      "mappings": true
    }
 }

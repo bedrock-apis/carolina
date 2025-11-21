@@ -4,5 +4,10 @@
       "declaration": true,
       "isolatedDeclarations": true
    },
-   "include": ["api/**/*.ts", "raknet/**/*.ts", "nethernet/**/*.ts"]
+   "include": [
+      "api/**/*.ts",
+      "raknet/**/*.ts",
+      "nethernet/**/*.ts",
+      "../../packages/common/**/*.ts"
+   ]
 }
