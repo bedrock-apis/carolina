@@ -85,19 +85,13 @@ export class Authentication {
       return data;
    }
 }
-/*
-function getJWTData<T extends object>(src: string): T {
-   let indexOf = src.indexOf('.'),
-      lastIndexOf = src.lastIndexOf('.');
-   console.log(src.split('.').map(e => new TextDecoder().decode(Uint8Array.fromBase64(e))));
-   console.log(new TextDecoder().decode(Uint8Array.fromBase64(src.substring(indexOf + 1, lastIndexOf))));
-}*/
 export interface JWTHeadObject {
    alg: string;
    kid: string;
    typ: string;
 }
 export interface JWTBodyObject {
+   /**Xbox Gamer Tag */
    /**Xbox Gamer Tag */
    xname: string;
    /**Xbox UID */
