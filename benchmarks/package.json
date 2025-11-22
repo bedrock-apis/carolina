@@ -4,8 +4,10 @@
    "type": "module",
    "packageManager": "pnpm@10.22.0",
    "dependencies": {
+      "@bedrock-apis/carolina-authentication": "1.0.0-beta.2",
       "@bedrock-apis/carolina-net": "workspace:^",
       "@sanctumterra/raknet": "^1.4.2",
-      "@serenityjs/raknet": "0.8.15-beta-20251114055206"
+      "@serenityjs/raknet": "0.8.15-beta-20251114055206",
+      "fast-jwt": "^6.0.2"
    }
 }

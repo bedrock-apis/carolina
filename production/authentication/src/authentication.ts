@@ -2,6 +2,8 @@ import { AuthenticationType } from './authentication-type';
 import { OpenConfiguration } from './open-configuration';
 
 export class Authentication {
+   public static UTF8_TEXT_DECODER: TextDecoder = new TextDecoder('utf8');
+   public static UTF8_TEXT_ENCODER: TextEncoder = new TextEncoder();
    public static AUDIENCE_API: string = 'api://auth-minecraft-services/multiplayer';
    public static CACHED_PIK_KEYS: [];
    public static parse(authentication: string): BaseAuthenticationPayload {
@@ -37,19 +39,47 @@ export class Authentication {
          { name: 'RSASSA-PKCS1-v1_5' },
          verifyKey,
          Uint8Array.fromBase64(tail, { alphabet: 'base64url' }),
-         new TextEncoder().encode(`${head}.${body}`)
+         Authentication.UTF8_TEXT_ENCODER.encode(`${head}.${body}`)
       );
       if (!valid) throw new Error('Spoofed token, verification failed!');
       return data;
    }
+   public static async verify<T extends object>(token: string, cpk: string): Promise<T> {
+      // split JWT
+      const [hB64, pB64, sB64] = Authentication.split(token);
+
+      // import public key (raw P-384)
+      const publicKey = await crypto.subtle.importKey(
+         'spki',
+         Uint8Array.fromBase64(cpk),
+         { name: 'ECDSA', namedCurve: 'P-384' },
+         false,
+         ['verify']
+      );
+
+      // verify ES384 signature
+      const isValid = await crypto.subtle.verify(
+         { name: 'ECDSA', hash: 'SHA-384' },
+         publicKey,
+         Uint8Array.fromBase64(sB64, { alphabet: 'base64url' }),
+         Authentication.UTF8_TEXT_ENCODER.encode(`${hB64}.${pB64}`)
+      );
+      if (!isValid) throw new Error('Invalid JWT Token, failed to verify');
+
+      return this.partialParse<T>(pB64);
+   }
    public static split(token: string): [string, string, string] {
-      const slices = token.split('.');
-      if (slices.length !== 3)
-         throw new SyntaxError('Invalid JWT syntax, expected 3 parts, received: ' + slices.length);
-      return slices as [string, string, string];
+      const fI = token.indexOf('.'),
+         lI = token.lastIndexOf('.');
+      if (fI === -1 || lI === -1 || fI >= lI) throw new SyntaxError('Malformed JWT Token');
+      return [token.substring(0, fI), token.substring(fI + 1, lI), token.substring(lI + 1)];
    }
    public static partialParse<T extends object>(payload: string): T {
-      const data = JSON.parse(atob(payload));
+      const data = JSON.parse(
+         Authentication.UTF8_TEXT_DECODER.decode(Uint8Array.fromBase64(payload, { alphabet: 'base64url' }), {
+            stream: false,
+         })
+      );
       if (data && typeof data !== 'object')
          throw new Error('Unexpected JWT data type, expected object, but received: ' + typeof data);
       return data;

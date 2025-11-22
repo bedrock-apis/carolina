@@ -1,3 +1,4 @@
+import { writeFileSync } from 'node:fs';
 import { deflateRawSync, inflateRawSync } from 'node:zlib';
 
 import { Cursor, ResizableCursor, SerializableType, VarInt } from '@carolina/binary';
@@ -151,6 +152,8 @@ function tryWriteUnknownSize<T>(type: SerializableType<T>, value: T, cursor: Res
 }
 registerHandlers(LoginPacket, async (packet, player) => {
    const data = LoginTokensPayload.fromBytes(packet.payload);
+   writeFileSync('test.authentication.txt', data.authentication);
+   writeFileSync('test.clientData.txt', data.data);
    const { AuthenticationType: auth, Token } = Authentication.parse(data.authentication);
    if (auth !== AuthenticationType.Online) return void player.connection.disconnect();
    const userIdentity = await Authentication.authenticate(Token).catch(_ => {
@@ -160,39 +163,12 @@ registerHandlers(LoginPacket, async (packet, player) => {
    if (!userIdentity) return; // Failed to authenticate
    console.log('XUID: ' + userIdentity.xid);
    console.log('CPK: ' + userIdentity.cpk);
-
-   const key = userIdentity.cpk;
-   const jwt = data.data;
-
-   // split JWT
-   const [hB64, pB64, sB64] = jwt.split('.');
-
-   // prepare data to verify
-   const encoder = new TextEncoder();
-   const dataToVerify = encoder.encode(`${hB64}.${pB64}`);
-
-   // import public key (raw P-384)
-   const publicKey = await crypto.subtle.importKey(
-      'spki',
-      Uint8Array.fromBase64(key),
-      { name: 'ECDSA', namedCurve: 'P-384' },
-      false,
-      ['verify']
-   );
-
-   // verify ES384 signature
-   const valid = await crypto.subtle.verify(
-      { name: 'ECDSA', hash: 'SHA-384' },
-      publicKey,
-      Uint8Array.fromBase64(sB64, { alphabet: 'base64url' }),
-      dataToVerify
-   );
+   const parsedData = await Authentication.verify(data.data, userIdentity.cpk);
 
    // valid is true/false
-   console.log(valid);
-   const socket = await Bun.udpSocket({
-      binaryType: 'uint8array',
-      port: 19132,
-      socket: { data(socket, data, port, address) {} },
-   });
+   console.log(
+      Object.keys(parsedData).map(
+         e => `${e}: ${parsedData[e]?.substring ? parsedData[e].substring(0, 100) : parsedData[e]}`
+      )
+   );
 });

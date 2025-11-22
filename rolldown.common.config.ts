@@ -26,6 +26,6 @@ export default {
    external: _external,
    transform: { decorator: { legacy: true } },
    plugins: declarations ? [dts({ tsgo: false, tsconfig: resolve('./tsconfig.json') })] : [],
-   output: { cleanDir: true, dir: resolve(dir), minify: true, keepNames: true },
+   output: { cleanDir: true, dir: resolve(dir), minify: true, keepNames: true, sourcemap: 'inline' },
    treeshake: true,
 } satisfies RolldownOptions;
