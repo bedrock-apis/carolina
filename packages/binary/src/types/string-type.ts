@@ -1,4 +1,9 @@
-import { mergeSourceDirectNoEnumerable, VALUE_TYPE_CONSTRUCTOR_FACTORY, ValueTypeConstructor } from './base';
+import {
+   mergeSourceDirectNoEnumerable,
+   VALUE_TYPE_CONSTRUCTOR_FACTORY,
+   ValueType,
+   ValueTypeConstructor,
+} from './base';
 import { InternalValueType, InternalValueTypeConstructor } from './internal-value-type';
 import { SerializableType } from './serializable-type';
 
@@ -13,7 +18,7 @@ function String(type: SerializableType<number>, ...params: unknown[]): StringTyp
    v = VALUE_TYPE_CONSTRUCTOR_FACTORY<string>(
       `StringType(${id ?? 'Unknown Number Type'})`,
       '',
-      String as unknown as ValueTypeConstructor<any>
+      String as unknown as ValueTypeConstructor<ValueType<string>, unknown, []>
    ) as StringTypeConstructor;
    (v as Mutable<StringTypeConstructor>).type = type;
    (v as Mutable<StringTypeConstructor>).typeParams = params;
@@ -41,13 +46,13 @@ export interface StringType extends InternalValueType<string> {}
 {
    const decoder = new TextDecoder();
    const encoder = new TextEncoder();
-   let type = String as unknown as StringTypeConstructor;
+   const type = String as unknown as StringTypeConstructor;
    mergeSourceDirectNoEnumerable(type, {
       getIdentifier() {
          return (this as unknown as new () => void).name;
       },
       deserialize(cursor) {
-         const length = (this as StringTypeConstructor).type!.deserialize(
+         const length = (this as StringTypeConstructor).type.deserialize(
                cursor,
                ...((this as StringTypeConstructor).typeParams as [])
             ),
@@ -56,7 +61,7 @@ export interface StringType extends InternalValueType<string> {}
       },
       serialize(cursor, value) {
          const buffer = encoder.encode(value);
-         (this as StringTypeConstructor).type!.serialize(
+         (this as StringTypeConstructor).type.serialize(
             cursor,
             buffer.length,
             ...((this as StringTypeConstructor).typeParams as [])

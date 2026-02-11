@@ -1,5 +1,19 @@
 # Carolina Changelog
 
+# 0.0.0-alpha.6
+
+- Updated development stack and updates tools to their latest versions
+- Improved amount of rules check by Oxlint
+- Adjusted code to follow Oxlint rules
+- Improved build steps to be runnable with `bun run` or `pnpm run`
+- Improved build speed with `tsgo` for emitting declaration files
+- Removed old files used as reference
+- Improved code quality for raknet implementation
+- Refactored Network driver for carolina core
+- Simplified Dumper code, now using `@bedrock-apis/bds-utils`
+- Reworked how protocol would be stored
+- Refactored @carolina/net abstraction
+
 # 0.0.0-alpha.5
 
 - Raknet - Implemented stale connections elimination

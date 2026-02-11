@@ -4,4 +4,3 @@ packages:
    - 'app'
    - 'benchmarks'
    - 'packages/*'
-   - 'production/*'

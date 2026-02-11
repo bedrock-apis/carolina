@@ -11,12 +11,15 @@ export interface VarLong extends NumberType<bigint> {}
 
 mergeSourceDirectNoEnumerable(VarLong, {
    deserialize: function deserialize(cursor: Cursor): bigint {
-      for (let i = 0, shift = 0n, num = 0n; i < 10; i++, shift += 7n) {
+      let num = 0n,
+         shift = 0n;
+      for (let i = 0; i < 9; i++, shift += 7n) {
          const byte = BigInt(cursor.buffer[cursor.pointer++]);
          num |= (byte & 0x7fn) << shift;
          if ((byte & 0x80n) === 0n) return num;
       }
-      throw new Error('VarInt64 too long: exceeds 10 bytes');
+      num |= BigInt(cursor.buffer[cursor.pointer++]) << (shift + 7n);
+      return num;
    },
    serialize: function serialize(cursor: Cursor, value: bigint): void {
       for (let i = 0; i < 10; i++) {

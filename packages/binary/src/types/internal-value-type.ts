@@ -1,11 +1,19 @@
-import { mergeSourceDirectNoEnumerable, VALUE_TYPE_CONSTRUCTOR_FACTORY, ValueType, ValueTypeConstructor } from './base';
+import {
+   mergeSourceDirectNoEnumerable,
+   VALUE_TYPE_CONSTRUCTOR_FACTORY,
+   ValueType,
+   ValueTypeConstructor,
+} from './base';
 
 export interface InternalValueType<T> extends ValueType<T> {}
-export interface InternalValueTypeConstructor<T extends InternalValueType<any>, S> extends ValueTypeConstructor<T, S> {}
+export interface InternalValueTypeConstructor<
+   T extends InternalValueType<unknown>,
+   S,
+> extends ValueTypeConstructor<T, S> {}
 export const InternalValueType: InternalValueTypeConstructor<
-   InternalValueType<any>,
-   any
-> = VALUE_TYPE_CONSTRUCTOR_FACTORY<any>('InternalValueType', null) as any;
+   InternalValueType<unknown>,
+   unknown
+> = VALUE_TYPE_CONSTRUCTOR_FACTORY<unknown>('InternalValueType', null);
 
 mergeSourceDirectNoEnumerable(InternalValueType, {
    deserialize: function deserialize(): void {

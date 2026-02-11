@@ -13,7 +13,8 @@ export interface Uint24LE extends NumberType<number> {}
 
 mergeSourceDirectNoEnumerable(Uint24LE, {
    deserialize: function deserialize(cursor: Cursor): number {
-      const $ = cursor.view.getUint16(cursor.pointer, true) | (cursor.view.getUint8((cursor.pointer += 2)) << 16);
+      const $ =
+         cursor.view.getUint16(cursor.pointer, true) | (cursor.view.getUint8((cursor.pointer += 2)) << 16);
       cursor.pointer++;
       return $;
    },

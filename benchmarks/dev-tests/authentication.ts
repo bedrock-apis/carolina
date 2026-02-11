@@ -1,4 +1,5 @@
-const OPENID_CONFIG_URL = 'https://authorization.franchise.minecraft-services.net/.well-known/openid-configuration';
+const OPENID_CONFIG_URL =
+   'https://authorization.franchise.minecraft-services.net/.well-known/openid-configuration';
 let jwksCache = { keys: [], fetchedAt: 0 };
 
 export async function fetchJWKS(): Promise<object> {

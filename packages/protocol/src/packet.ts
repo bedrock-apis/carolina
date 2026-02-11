@@ -1,8 +1,7 @@
 import { AbstractType, Compilable, mergeSourceDirectNoEnumerable, SerializableType } from '@carolina/binary';
 
-import { PacketIds } from './enums/packet-ids';
+import { PacketIds } from './827/enums/packet-ids';
 
-const { assign } = Object;
 type Mutable<T> = { -readonly [k in keyof T]: T[k] };
 export abstract class PacketType extends AbstractType {
    public static readonly packetId: number = -1;
@@ -26,5 +25,5 @@ export function ManualImplement<T extends new () => S, S>(
    type: Omit<SerializableType<S>, 'getIdentifier'>
 ): void {
    (type as Mutable<typeof PacketType>).packetId = packetId;
-   mergeSourceDirectNoEnumerable(target, type as any);
+   mergeSourceDirectNoEnumerable(target, type as never);
 }

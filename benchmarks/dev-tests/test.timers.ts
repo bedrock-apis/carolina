@@ -8,7 +8,7 @@ const timers = {
 
 // --- Benchmark runner ---
 function runBenchmark(iterations = 10_000_000): any {
-   const results = {};
+   const results: Record<string, any> = {};
 
    for (const [name, fn] of Object.entries(timers)) {
       const start = process.hrtime.bigint();
@@ -31,7 +31,9 @@ function runBenchmark(iterations = 10_000_000): any {
 function printResults(results: any): any {
    console.log('--- Timer Benchmark Results ---');
    for (const [name, stats] of Object.entries(results)) {
-      console.log(`${name.padEnd(20)} | total: ${stats.totalMs} ms | avg: ${stats.avgNsPerCall} ns/call`);
+      console.log(
+         `${name.padEnd(20)} | total: ${(stats as any).totalMs} ms | avg: ${(stats as any).avgNsPerCall} ns/call`
+      );
    }
 }
 

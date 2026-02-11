@@ -15,13 +15,7 @@ Root JSON overview
 A single top-level document groups versioning information and collections of packets, structs and enums:
 
 ```json
-{
-   "minecraft-engine": "1.22.130",
-   "protocol-version": 997,
-   "packets": [],
-   "structs": [],
-   "enums": []
-}
+{ "minecraft-engine": "1.22.130", "protocol-version": 997, "packets": [], "structs": [], "enums": [] }
 ```
 
 - "minecraft-engine": engine or BDS version string for reference.
@@ -36,13 +30,7 @@ Each type object describes either a primitive or a reference to a compound/struc
 1. Primitive (numeric types must have encoding)
 
 ```json
-{
-   "type": {
-      "family": "primitive",
-      "name": "int32",
-      "encoding": "little-endian"
-   }
-}
+{ "type": { "family": "primitive", "name": "int32", "encoding": "little-endian" } }
 ```
 
 - family: "primitive" indicates a basic binary type.
@@ -104,12 +92,7 @@ Each type object describes either a primitive or a reference to a compound/struc
 5. Struct reference
 
 ```json
-{
-   "type": {
-      "family": "struct",
-      "name": "MyStruct"
-   }
-}
+{ "type": { "family": "struct", "name": "MyStruct" } }
 ```
 
 - name refers to an entry in the top-level "structs" array.
@@ -117,12 +100,7 @@ Each type object describes either a primitive or a reference to a compound/struc
 6. Enum reference
 
 ```json
-{
-   "type": {
-      "family": "enum",
-      "name": "GameMode"
-   }
-}
+{ "type": { "family": "enum", "name": "GameMode" } }
 ```
 
 - name refers to an entry in the top-level "enums" array.
@@ -197,25 +175,13 @@ Examples
 1. Simple equality (this.field == 5)
 
 ```json
-{
-   "operator": "equal",
-   "chain": ["#./field", 5]
-}
+{ "operator": "equal", "chain": ["#./field", 5] }
 ```
 
 2. Nested comparison (this.x == (5 < 10))
 
 ```json
-{
-   "operator": "equal",
-   "chain": [
-      "#./x",
-      {
-         "operator": "less-than",
-         "chain": [5, 10]
-      }
-   ]
-}
+{ "operator": "equal", "chain": ["#./x", { "operator": "less-than", "chain": [5, 10] }] }
 ```
 
 3. Logical AND (a && b && c)
@@ -240,10 +206,7 @@ Examples
 4. Only for players in creative (this.gamemode == GameMode.creative)
 
 ```json
-{
-   "operator": "equal",
-   "chain": ["#./gamemode", "%GameMode:Creative"]
-}
+{ "operator": "equal", "chain": ["#./gamemode", "%GameMode:Creative"] }
 ```
 
 Notes about optional vs conditional

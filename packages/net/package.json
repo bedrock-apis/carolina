@@ -1,0 +1,38 @@
+{
+   "name": "@carolina/net",
+   "version": "1.0.0-beta.1",
+   "keywords": [
+      "bedrock",
+      "minecraft",
+      "protocol",
+      "raknet"
+   ],
+   "license": "MIT",
+   "author": "bedrock-apis",
+   "type": "module",
+   "exports": {
+      ".": {
+         "types": "./dist/main.d.ts",
+         "default": "./dist/main.js"
+      },
+      "./raknet": {
+         "types": "./dist/raknet.d.ts",
+         "default": "./dist/raknet.js"
+      }
+   },
+   "scripts": {
+      "check": "tsgo --noEmit",
+      "build": "rolldown -c ../../rolldown.common.config.ts",
+      "watch": "rolldown -c ../../rolldown.common.config.ts -w"
+   },
+   "rolldown": {
+      "entries": {
+         "main": "./api/interface.ts",
+         "raknet": "./raknet/main.ts",
+         "nethernet": "./nethernet/main.ts"
+      },
+      "dir": "./dist",
+      "external": "dependencies",
+      "declarations": true
+   }
+}

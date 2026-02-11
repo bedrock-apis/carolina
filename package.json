@@ -1,22 +1,40 @@
 {
-   "scripts": {
-      "init": "pnpm install && pnpm run build",
-      "build": "turbo run build",
-      "watch": "turbo run watch",
-      "app": "pnpm run build && bun --enable-source-maps ./app/dist/main.js",
-      "check": "turbo check -- --pretty",
-      "test": "vitest --run",
-      "bench": "vitest bench --run",
-      "lint": "oxlint",
-      "fmt": "oxfmt",
-      "check:fmt": "oxfmt --check"
-   },
+   "private": true,
+   "license": "MIT",
+   "author": "bedrock-apis",
    "workspaces": [
-      "production/*",
       "packages/*",
       "app",
       "benchmarks"
    ],
+   "type": "module",
+   "scripts": {
+      "it": "oxfmt --write && turbo check -- --pretty && turbo run build",
+      "build": "turbo run build",
+      "watch": "turbo run watch",
+      "--vitest--": "",
+      "test": "vitest --run",
+      "bench": "vitest bench --run",
+      "--checks--": "",
+      "fmt": "oxfmt --write",
+      "lint": "oxlint --fix-suggestions",
+      "check": "turbo check -- --pretty && oxlint && oxfmt --check",
+      "check:ts": "turbo check -- --pretty",
+      "check:fmt": "oxfmt --check",
+      "check:lint": "oxlint"
+   },
+   "devDependencies": {
+      "@types/bun": "^1.3.2",
+      "@types/node": "^24.10.1",
+      "@typescript/native-preview": "7.0.0-dev.20260211.1",
+      "oxfmt": "0.31.0",
+      "oxlint": "^1.46.0",
+      "rolldown": "1.0.0-rc.1",
+      "rolldown-plugin-dts": "^0.21.6",
+      "turbo": "^2.6.1",
+      "typescript": "6.0.0-dev.20260211",
+      "vitest": "^4.0.10"
+   },
    "prettier": {
       "arrowParens": "avoid",
       "endOfLine": "lf",
@@ -25,22 +43,5 @@
       "singleQuote": true,
       "tabWidth": 3
    },
-   "private": true,
-   "author": "bedrock-apis",
-   "license": "MIT",
-   "type": "module",
-   "devDependencies": {
-      "@types/bun": "^1.3.2",
-      "@types/node": "^24.10.1",
-      "@typescript/native-preview": "7.0.0-dev.20250816.1",
-      "nx": "^22.0.4",
-      "oxfmt": "0.14.0",
-      "oxlint": "^1.29.0",
-      "rolldown": "1.0.0-beta.51",
-      "rolldown-plugin-dts": "^0.18.0",
-      "turbo": "^2.6.1",
-      "typescript": "5.9.3",
-      "vitest": "^4.0.10"
-   },
-   "packageManager": "pnpm@10.23.0"
+   "packageManager": "pnpm@10.29.2"
 }

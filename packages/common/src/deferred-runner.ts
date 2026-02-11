@@ -2,8 +2,8 @@ export class DeferredRunner {
    public readonly schedule: (func: () => void) => unknown;
    public readonly task: () => void;
 
-   protected isQueued: boolean = false; // cancellation flag
-   protected wasQueued: boolean = false; // tracks if a schedule was made
+   protected isQueued = false; // cancellation flag
+   protected wasQueued = false; // tracks if a schedule was made
 
    public constructor(schedule: (func: () => void) => unknown, task: () => void) {
       this.schedule = schedule;

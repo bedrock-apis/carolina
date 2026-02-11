@@ -1,4 +1,8 @@
-import { generateStaticTypeWithEndianness, StaticSizedNumber, StaticSizedNumberConstructor } from './static-endianness';
+import {
+   generateStaticTypeWithEndianness,
+   StaticSizedNumber,
+   StaticSizedNumberConstructor,
+} from './static-endianness';
 
 export interface IntConstructor extends StaticSizedNumberConstructor<number> {}
 export const Int: IntConstructor = generateStaticTypeWithEndianness('Int', 0, 4, 'setInt32', 'getInt32');

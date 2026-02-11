@@ -2,7 +2,8 @@ import { Cursor } from '@carolina/binary';
 import { NetworkSettingsPacket, PacketIds } from '@carolina/protocol';
 
 import { registerHandlers } from '../handlers/base';
-import { NetworkConnection } from './connection';
+//import { NetworkConnection } from './connection';
+interface NetworkConnection {}
 
 export class NetworkProtocolHandler {
    static [K: number]: (connection: NetworkConnection, packetId: number, cursor: Cursor) => void;

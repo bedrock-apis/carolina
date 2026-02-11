@@ -1,28 +1,28 @@
 {
    "name": "@carolina/core",
    "version": "1.0.0",
+   "keywords": [],
+   "license": "MIT",
+   "author": "bedrock-apis",
    "type": "module",
    "main": "dist/main.js",
-   "--comment--": "We use src as we can link the files the typescript loads and rename works across",
    "types": "src/main.ts",
-   "keywords": [],
-   "author": "bedrock-apis",
-   "license": "MIT",
    "scripts": {
       "check": "tsgo --noEmit",
       "build": "rolldown -c ../../rolldown.common.config.ts",
       "watch": "rolldown -c ../../rolldown.common.config.ts -w"
    },
    "dependencies": {
+      "@bedrock-apis/carolina-authentication": "1.0.0-beta.3",
       "@carolina/binary": "workspace:^",
-      "@carolina/protocol": "workspace:^",
-      "@bedrock-apis/carolina-net": "workspace:^",
-      "@types/bun": "^1.2.20"
+      "@carolina/common": "workspace:^",
+      "@carolina/net": "workspace:^",
+      "@carolina/protocol": "workspace:^"
    },
+   "--comment--": "We use src as we can link the files the typescript loads and rename works across",
    "rolldown": {
       "entries": {
-         "main": "./src/main.ts",
-         "thread": "./src/thread.ts"
+         "main": "./src/main.ts"
       },
       "dir": "./dist",
       "external": "dependencies",

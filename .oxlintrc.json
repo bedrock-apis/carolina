@@ -1,10 +1,6 @@
 {
    "$schema": "./node_modules/oxlint/configuration_schema.json",
-   "plugins": [
-      "unicorn",
-      "typescript",
-      "oxc"
-   ],
+   "plugins": ["unicorn", "typescript", "oxc"],
    "categories": {},
    "rules": {
       "import/first": "error",
@@ -102,16 +98,32 @@
       "unicorn/no-useless-length-check": "warn",
       "unicorn/no-useless-spread": "warn",
       "unicorn/prefer-set-size": "warn",
-      "unicorn/prefer-string-starts-ends-with": "warn"
+      "unicorn/prefer-string-starts-ends-with": "warn",
+      "typescript/explicit-module-boundary-types": "warn",
+      "typescript/no-explicit-any": "warn",
+      "typescript/no-floating-promises": "error",
+      "typescript/no-misused-promises": "warn",
+      "typescript/strict-boolean-expressions": "warn",
+      "typescript/no-var-requires": "error",
+      "typescript/prefer-readonly": "warn",
+      "typescript/ban-types": ["warn"],
+      "typescript/consistent-type-assertions": "warn",
+      "typescript/adjacent-overload-signatures": "warn",
+      "typescript/explicit-member-accessibility": ["warn", { "accessibility": "explicit" }],
+      "typescript/no-inferrable-types": "warn",
+      // Additional balanced strict rules:
+      "import/no-default-export": "warn",
+      "prefer-const": "warn",
+      "no-shadow": "warn",
+      "typescript/no-unsafe-assignment": "warn",
+      "typescript/no-unsafe-call": "warn",
+      "typescript/no-unsafe-member-access": "warn",
+      "typescript/no-non-null-assertion": "warn",
+      "typescript/consistent-type-definitions": ["warn", "interface"]
    },
    "settings": {
-      "next": {
-         "rootDir": []
-      },
-      "react": {
-         "formComponents": [],
-         "linkComponents": []
-      },
+      "next": { "rootDir": [] },
+      "react": { "formComponents": [], "linkComponents": [] },
       "jsdoc": {
          "ignorePrivate": false,
          "ignoreInternal": false,
@@ -123,11 +135,7 @@
          "tagNamePreference": {}
       }
    },
-   "env": {
-      "builtin": true
-   },
+   "env": { "builtin": true },
    "globals": {},
-   "ignorePatterns": [
-      "**/*.test.ts"
-   ]
+   "ignorePatterns": ["**/*.test.ts", "/benchmarks/**/*.ts"]
 }

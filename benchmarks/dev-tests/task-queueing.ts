@@ -3,7 +3,7 @@ const start = performance.now();
 nextTick(() => queueMicrotask(test('MicroFromNextTick')));
 nextTick(() => nextTick(test('NextTickFromNextTick')));
 setImmediate(() => setImmediate(test('SetSetImmediate')));
-setImmediate(() => nextTick(test('SetImmediate Next Tick')));
+setImmediate(() => nextTick(test('SetImmediate NextTick')));
 setTimeout(test('Timeout 1'), 1);
 setTimeout(test('TimeoutZero'), 0);
 setImmediate(test(setImmediate.name));

@@ -6,8 +6,7 @@ import { InlineSerializable } from '../serializable-type';
 const { defineProperty } = Reflect;
 
 export interface StaticSizedNumberConstructor<T extends number | bigint>
-   extends ValueTypeConstructor<StaticSizedNumber<T>, T, [littleEndian?: boolean]>,
-      InlineSerializable {}
+   extends ValueTypeConstructor<StaticSizedNumber<T>, T, [littleEndian?: boolean]>, InlineSerializable {}
 export interface StaticSizedNumber<T extends number | bigint> extends NumberType<T> {}
 type DataViewSetMethodKey = { [K in keyof DataView]: K extends `set${string}` ? K : never }[keyof DataView];
 type DataViewGetMethodKey = { [K in keyof DataView]: K extends `get${string}` ? K : never }[keyof DataView];
@@ -16,14 +15,21 @@ export function generateStaticTypeWithEndianness<
    T extends number | bigint,
    S extends DataViewSetMethodKey,
    G extends DataViewGetMethodKey,
->(name: string, defaultValue: T, sizeOf: number, setMethod: S, getMethod: G): StaticSizedNumberConstructor<T> {
+>(
+   name: string,
+   defaultValue: T,
+   sizeOf: number,
+   setMethod: S,
+   getMethod: G
+): StaticSizedNumberConstructor<T> {
    const $ = VALUE_TYPE_CONSTRUCTOR_FACTORY(name, defaultValue, NumberType);
 
    mergeSourceDirectNoEnumerable($, {
       deserialize: createDeserializeFunction(getMethod as string, sizeOf),
       serialize: createSerializeFunction(setMethod as string, sizeOf),
       inliner: {
-         inlineDeserializableCode: ($1: unknown) => createInlineDeserialize(getMethod as string, sizeOf, Boolean($1)),
+         inlineDeserializableCode: ($1: unknown) =>
+            createInlineDeserialize(getMethod as string, sizeOf, Boolean($1)),
          inlineSerializableCode: ($0: unknown, $1: unknown) =>
             createInlineSerialize(setMethod as string, $0 as string, sizeOf, Boolean($1)),
       },
@@ -32,7 +38,7 @@ export function generateStaticTypeWithEndianness<
       },
    });
 
-   return $ as any;
+   return $ as StaticSizedNumberConstructor<T>;
 }
 
 const cursorVariableName = '$';
@@ -51,7 +57,7 @@ function createSerializeFunction(
       createInlineSerialize(setViewMethod, valueVariableName, sizeOf, endiannessVariableName)
    );
    defineProperty($, 'name', { configurable: true, enumerable: false, writable: false, value: 'serialize' });
-   return $ as any;
+   return $ as (cursor: Cursor, value: number | bigint, littleEndian?: boolean) => void;
 }
 
 function createDeserializeFunction(
@@ -64,11 +70,21 @@ function createDeserializeFunction(
       `const _ = ${createInlineDeserialize(getViewMethod, sizeOf, endiannessVariableName)};
 return _;`
    );
-   defineProperty($, 'name', { configurable: true, enumerable: false, writable: false, value: 'deserialize' });
-   return $ as any;
+   defineProperty($, 'name', {
+      configurable: true,
+      enumerable: false,
+      writable: false,
+      value: 'deserialize',
+   });
+   return $ as (cursor: Cursor, littleEndian?: boolean) => number | bigint;
 }
 
-function createInlineSerialize(setMethod: string, value: string, sizeOf: number, endianness: unknown): string {
+function createInlineSerialize(
+   setMethod: string,
+   value: string,
+   sizeOf: number,
+   endianness: unknown
+): string {
    return `$.${'view' satisfies CursorKey}.${setMethod}($.${'pointer' satisfies CursorKey},${value},${endianness});$.${'pointer' satisfies CursorKey}+=${sizeOf}`;
 }
 function createInlineDeserialize(getMethod: string, sizeOf: number, endianness: unknown): string {

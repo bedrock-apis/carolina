@@ -22,6 +22,8 @@
 
 Bun has demonstrated superior performance in most benchmarks, as verified by ConMaster2112. While DataViews are slightly slower than V8 implementations, Bun excels in other areas.
 
+EDIT: After real-world scenarios, we found NodeJS run the best after all, but Bun is still considered for other areas like tooling runtime, and package manager.
+
 - **Deno:** Offers good performance and an exemplary API design, but is relatively heavy and lacks certain hook features required for this project. It can compile to executables out of the box.
 - **Bun:** Provides better performance in most scenarios, is lightweight, features a well-designed API, includes numerous features, and supports out-of-the-box compilation.
 - **Node:** Delivers reasonable performance but is heavier, has an outdated API design, and requires third-party tools for compilation. It does, however, support hooks.
@@ -32,14 +34,15 @@ Bun has demonstrated superior performance in most benchmarks, as verified by Con
 - It is faster than NPM.
 - PNPM works seamlessly with workspaces.
 - It is perceived as more stable compared to Yarn.
+- We plan to switch to bun in the far future once, bun is battle tested on workspaces
 
 ## Justification for Using Rolldown
 
-- Rolldown is fast and has been stress-tested.
+- Rolldown is fast and has been well stress-tested.
 - It is supported by active developers.
 - The plugin ecosystem is extensive.
 - The tool is user-friendly.
-- It supports direct compilation for TypeScript.
+- It supports direct compilation for TypeScript, out of the box and doesn't relies on tsc compiler
 
 ## Selection of TurboRepo
 
@@ -55,3 +58,4 @@ Bun has demonstrated superior performance in most benchmarks, as verified by Con
 ## Advantages of Vitest
 
 - Vitest is well-suited for testing CLI tools and has proven effective in this regard.
+- After some consideration with might migrate our tests to bun test files.

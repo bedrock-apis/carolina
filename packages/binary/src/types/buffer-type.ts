@@ -1,4 +1,9 @@
-import { mergeSourceDirectNoEnumerable, VALUE_TYPE_CONSTRUCTOR_FACTORY, ValueTypeConstructor } from './base';
+import {
+   mergeSourceDirectNoEnumerable,
+   VALUE_TYPE_CONSTRUCTOR_FACTORY,
+   ValueType,
+   ValueTypeConstructor,
+} from './base';
 import { InternalValueType, InternalValueTypeConstructor } from './internal-value-type';
 import { SerializableType } from './serializable-type';
 
@@ -13,7 +18,7 @@ function Buff(type: SerializableType<number>, ...params: unknown[]): BufferTypeC
    v = VALUE_TYPE_CONSTRUCTOR_FACTORY<string>(
       `Buffer(${id ?? 'Unknown Number Type'})`,
       '',
-      Buffer as unknown as ValueTypeConstructor<any>
+      Buffer as unknown as ValueTypeConstructor<ValueType<string>, unknown, []>
    ) as BufferTypeConstructor;
    (v as Mutable<BufferTypeConstructor>).type = type;
    (v as Mutable<BufferTypeConstructor>).typeParams = params;
@@ -39,13 +44,13 @@ export interface BufferTypeConstructor extends InternalValueTypeConstructor<Buff
 }
 export interface BufferType extends InternalValueType<string> {}
 {
-   let type = Buffer as unknown as BufferTypeConstructor;
+   const type = Buffer as unknown as BufferTypeConstructor;
    mergeSourceDirectNoEnumerable(type, {
       getIdentifier() {
          return (this as unknown as new () => void).name;
       },
       deserialize(cursor) {
-         const length = (this as BufferTypeConstructor).type!.deserialize(
+         const length = (this as BufferTypeConstructor).type.deserialize(
                cursor,
                ...((this as BufferTypeConstructor).typeParams as [])
             ),
@@ -53,7 +58,7 @@ export interface BufferType extends InternalValueType<string> {}
          return ((cursor.pointer += $.length), $);
       },
       serialize(cursor, value) {
-         (this as BufferTypeConstructor).type!.serialize(
+         (this as BufferTypeConstructor).type.serialize(
             cursor,
             value.length,
             ...((this as BufferTypeConstructor).typeParams as [])

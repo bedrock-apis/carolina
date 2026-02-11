@@ -9,7 +9,7 @@ export class DebugOptions {
       if (enabled)
          for (const type of knownTypes) {
             mergeSourceWithInheritance(type, {
-               serialize(cursor, value) {
+               serialize(cursor, _value) {
                   (cursor as DebugCursor).push(this as SerializableType<unknown>);
                   super.serialize(...arguments);
                   (cursor as DebugCursor).pop();
@@ -23,18 +23,17 @@ export class DebugOptions {
          }
    }
 }
+
 export class DebugCursor extends Cursor<ArrayBuffer> {
    public readonly internalStack: { type: SerializableType<unknown>; pointer: number }[] = [];
-   public push(type: SerializableType<unknown>) {
+   public push(type: SerializableType<unknown>): void {
       this.internalStack.push({ type, pointer: this.pointer });
    }
-   public pop() {
+   public pop(): void {
       this.internalStack.pop();
    }
 }
-/*process.stdout.write(
-         `\x1b[48;2;${(h >> 16) & 0xff};${(h >> 8) & 0xff};${h & 0xff}m${Buffer.prototype.toString.call(slice, 'hex')}\x1b[0m`,
-      );*/
+
 export function hash24(str: string): number {
    let hash = 0;
    for (let i = 0; i < str.length; i++) {

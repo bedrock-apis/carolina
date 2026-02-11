@@ -11,21 +11,21 @@ const prependSize = 10;
 const payload = Array.from({ length: prependSize }, (_, i) => i);
 
 benchmark('push', () => {
-   let arr: number[] = [];
+   const arr: number[] = [];
    for (let i = 0; i < iterations; i++) {
       arr.push(...payload);
    }
 });
 
 benchmark('unshift', () => {
-   let arr: number[] = [];
+   const arr: number[] = [];
    for (let i = 0; i < iterations; i++) {
       arr.unshift(...payload);
    }
 });
 
 benchmark('concat', () => {
-   let arr: number[] = [];
+   letarr: number[] = [];
    for (let i = 0; i < iterations; i++) {
       arr = payload.concat(arr);
    }

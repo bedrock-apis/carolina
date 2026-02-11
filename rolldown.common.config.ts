@@ -24,8 +24,6 @@ const _external = new RegExp(`^(${['node:', '@carolina', '@bedrock-apis', ...dep
 export default {
    input: Object.fromEntries(Object.entries(entries).map(e => [e[0], resolve(e[1] as string)])),
    external: _external,
-   transform: { decorator: { legacy: true } },
-   plugins: declarations ? [dts({ tsgo: false, tsconfig: resolve('./tsconfig.json') })] : [],
-   output: { cleanDir: true, dir: resolve(dir), minify: true, keepNames: true, sourcemap: 'inline' },
-   treeshake: true,
+   plugins: declarations ? [dts({ tsgo: true, tsconfig: resolve('./tsconfig.json') })] : [],
+   output: { cleanDir: true, dir: resolve(dir), sourcemap: true as boolean, minify: false as boolean },
 } satisfies RolldownOptions;

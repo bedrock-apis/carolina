@@ -1,14 +1,14 @@
 {
    "name": "@carolina/protocol",
    "version": "1.0.0",
+   "keywords": [],
+   "license": "MIT",
+   "author": "bedrock-apis",
    "type": "module",
    "main": "dist/main.js",
-   "--comment--": "We use src as we can link the files the typescript loads and rename works across",
    "types": "src/main.ts",
-   "keywords": [],
-   "author": "bedrock-apis",
-   "license": "MIT",
    "scripts": {
+      "gen": "bun run ./gen/main.ts ",
       "check": "tsgo --noEmit",
       "build": "rolldown -c ../../rolldown.common.config.ts",
       "watch": "rolldown -c ../../rolldown.common.config.ts -w"
@@ -16,6 +16,10 @@
    "dependencies": {
       "@carolina/binary": "workspace:^"
    },
+   "devDependencies": {
+      "@types/bun": "^1.3.2"
+   },
+   "--comment--": "We use src as we can link the files the typescript loads and rename works across",
    "rolldown": {
       "entries": {
          "main": "./src/main.ts"
@@ -24,8 +28,5 @@
       "external": "dependencies",
       "declarations": true,
       "mappings": true
-   },
-   "devDependencies": {
-      "@types/bun": "^1.3.2"
    }
 }

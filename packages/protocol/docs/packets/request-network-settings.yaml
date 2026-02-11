@@ -1,5 +1,5 @@
-packet_id: 0x45
 name: RequestNetworkSettings
+packet_id: 0x45
 description: 'Client sends a command string to be executed.'
 
 fields:

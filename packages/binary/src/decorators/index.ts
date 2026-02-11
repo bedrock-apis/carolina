@@ -39,7 +39,11 @@ export function Compilable<T extends { new (): unknown }>(target: T): void {
    const meta = METADATA_MAP.get(target.prototype);
    METADATA_MAP.delete(target.prototype);
    if (!meta) throw new ReferenceError('No fields metadata assigned');
-   internalCompileToString(target as unknown as SerializableType<undefined>, meta.entries.values(), 'new this');
+   internalCompileToString(
+      target as unknown as SerializableType<undefined>,
+      meta.entries.values(),
+      'new this'
+   );
 }
 function internalCompileToString(
    type: SerializableType<unknown>,
@@ -62,13 +66,13 @@ function internalCompileToString(
             lengthEncoding,
             C_LENGTH_CONSTANT,
             types,
-            ...lengthEncodingParams!
+            ...(lengthEncodingParams ?? [])
          );
          const { deserializer: dm, serializer: sm } = getSerializationCodeFor(
             type,
             C_SINGLE_ELEMENT_CONSTANT,
             types,
-            ...typeParams!
+            ...(typeParams ?? [])
          );
 
          dc = `${dl}${C_ARRAY_CONSTANT}=${keyAccess}=new Array(${C_LENGTH_CONSTANT});for(let i=0,${C_SINGLE_ELEMENT_CONSTANT};i<${C_LENGTH_CONSTANT};${C_ELEMENT_ACCESS}=${C_SINGLE_ELEMENT_CONSTANT},i++){${dm}}`;
@@ -79,7 +83,7 @@ function internalCompileToString(
          sc = sm;
       }
       if (conditions) {
-         let text = `if(${conditions.map(e => (e.inlined ? `(${e.inlined})` : e.isValuePresent ? `($0.${e.key}${e.operator}${JSON.stringify(e.value)})` : `($0.${e.key})`)).join('&&')})`;
+         const text = `if(${conditions.map(e => (e.inlined ? `(${e.inlined})` : e.isValuePresent ? `($0.${e.key}${e.operator}${JSON.stringify(e.value)})` : `($0.${e.key})`)).join('&&')})`;
          dc = `${text}{${dc}}`;
          sc = `${text}{${sc}}`;
       }
@@ -144,7 +148,7 @@ export function setCompilationInliningEnabled(enabled: boolean): void {
 }
 
 export function Conditional<T extends AbstractType>(
-   key: StringKeyOf<T>,
+   key: string,
    valueToCompare?: string | number | bigint | boolean,
    operator?: ValidOperators
 ): (target: T, property: string) => void {
@@ -174,7 +178,8 @@ export function createStructSerializable<T extends Record<string, SerializableTy
       Object.keys(definition).map(e => ({ key: e, type: definition[e] })),
       '{}'
    );
-   return type as any;
+   return type as SerializableType<{ [P in keyof T]: SerializationTypeFor<T[P]> }>;
 }
 
-export type SerializationTypeFor<T extends SerializableType<unknown>> = T extends SerializableType<infer R> ? R : never;
+export type SerializationTypeFor<T extends SerializableType<unknown>> =
+   T extends SerializableType<infer R> ? R : never;

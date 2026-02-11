@@ -7,7 +7,11 @@ export interface ZigZagConstructor extends ValueTypeConstructor<ZigZag, number> 
    decode(value: number): number;
 }
 
-export const ZigZag: ZigZagConstructor = VALUE_TYPE_CONSTRUCTOR_FACTORY('ZigZag', 0, NumberType) as ZigZagConstructor;
+export const ZigZag: ZigZagConstructor = VALUE_TYPE_CONSTRUCTOR_FACTORY(
+   'ZigZag',
+   0,
+   NumberType
+) as ZigZagConstructor;
 export interface ZigZag extends NumberType<number> {}
 
 mergeSourceDirectNoEnumerable(ZigZag, {

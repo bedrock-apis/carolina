@@ -11,10 +11,11 @@ export interface VarInt extends NumberType<number> {}
 
 mergeSourceDirectNoEnumerable(VarInt, {
    deserialize: function deserialize(cursor: Cursor): number {
-      for (let i = 0, shift = 0, num = 0; i < 5; i++, shift += 7) {
-         const byte = cursor.buffer[cursor.pointer++];
+      const pointer = cursor.pointer;
+      for (let i = pointer, shift = 0, num = 0; i < pointer + 5; i++, shift += 7) {
+         const byte = cursor.buffer[i];
          num |= (byte & 0x7f) << shift;
-         if ((byte & 0x80) === 0) return num;
+         if ((byte & 0x80) === 0) return ((cursor.pointer = i + 1), num);
       }
       throw new Error('VarInt32 too long: exceeds 5 bytes');
    },

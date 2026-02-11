@@ -1,15 +1,5 @@
 {
-   "cSpell.words": [
-      "MCPE",
-      "oxlint",
-      "raknet",
-      "rolldown",
-      "tsgo",
-      "varint",
-      "varlong",
-      "zigzong",
-      "Zong"
-   ],
+   "cSpell.words": ["MCPE", "oxlint", "raknet", "rolldown", "tsgo", "varint", "varlong", "zigzong", "Zong"],
    "window.border": "#3586A4",
    "explorer.fileNesting.enabled": true,
    "explorer.fileNesting.patterns": {
@@ -20,12 +10,12 @@
       "*.ts": "${basename}.test.ts"
    },
    "editor.formatOnSave": true,
-   "oxc.fmt.experimental": true,
+   "editor.formatOnSaveMode": "file",
    "editor.defaultFormatter": "oxc.oxc-vscode",
    "editor.insertSpaces": true,
    "editor.tabSize": 3,
-   "[typescript]": {
-      "editor.defaultFormatter": "oxc.oxc-vscode"
-   },
-   "files.eol": "\n",
+   "[typescript]": { "editor.defaultFormatter": "oxc.oxc-vscode" },
+   "[json]": { "editor.defaultFormatter": "oxc.oxc-vscode" },
+   "[jsonc]": { "editor.defaultFormatter": "oxc.oxc-vscode" },
+   "files.eol": "\n"
 }

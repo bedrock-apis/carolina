@@ -1,84 +1,55 @@
-import { createSocket } from 'node:dgram';
+import { a, EventEmitter } from '@carolina/common';
 
-import { ResizableCursor } from '@carolina/binary';
-import { ServerConnection, SocketSource } from '@carolina/net/raknet';
+import { Carolina } from '../carolina';
+import { NetworkDriver, NetworkEngineEventKeys } from '../drivers/driver';
+import { Client } from './client';
 
-import { type Carolina } from '../carolina';
-import {
-   NETWORK_ANY_ADDRESS4,
-   NETWORK_ANY_ADDRESS6,
-   NETWORK_LAN_DISCOVERY_PORT4,
-   NETWORK_LAN_DISCOVERY_PORT6,
-} from '../constants';
-import { NetworkConnection } from './connection';
-import { RakNetListener } from './raknet-listener';
-
-export class NetworkServer {
-   protected readonly raknet: RakNetListener;
-   // All buffers should be able to fit in here
-   public readonly singlePacketCursorHelper = new ResizableCursor(256, 1 << 14);
-   // All buffers should be able to fit in here
-   public readonly multiPacketCursorHelper = new ResizableCursor(256, 1 << 16);
-   public readonly rawConnections = new Map<ServerConnection, NetworkConnection>();
-   public constructor(public readonly carolina: Carolina) {
-      this.raknet = new RakNetListener(carolina);
-      this.raknet.onNewConnection = (connection): void => void this.onConnectionCreate(connection);
-      this.raknet.onErrorHandler = console.error.bind(null, '[CarolinaServer][ERROR]');
-      this.raknet.onConnectionDisconnected = (connection): void => this.onConnectionDiscard(connection);
-   }
-   public onConnectionDiscard(raknet: ServerConnection): void {
-      this.rawConnections.delete(raknet);
-   }
-   public onConnectionCreate(connection: ServerConnection): NetworkConnection {
-      const cc = new NetworkConnection(this, connection);
-      this.rawConnections.set(connection, cc);
-      return cc;
-   }
-   public onConnectionReady(connection: NetworkConnection): void {}
-   public addListenerSource(source: SocketSource): void {
-      this.raknet.addListenerSource(source);
-   }
-   public async bindV4(
-      port: number = NETWORK_LAN_DISCOVERY_PORT4,
-      ipaddress: string = NETWORK_ANY_ADDRESS4
-   ): Promise<void> {
-      const source = await createSource('udp4', port, ipaddress);
-      this.addListenerSource(source);
-   }
-   public async bindV6(
-      port: number = NETWORK_LAN_DISCOVERY_PORT6,
-      ipaddress: string = NETWORK_ANY_ADDRESS6
-   ): Promise<void> {
-      const source = await createSource('udp6', port, ipaddress);
-      this.addListenerSource(source);
-   }
+export interface ServerEvents {
+   connected: { client: Client };
+   disconnected: { client: Client };
+   message: { client: Client; message: Uint8Array };
 }
-
-async function createSource(kind: 'udp4' | 'udp6', port: number, ipaddress?: string): Promise<SocketSource> {
-   const family = kind === 'udp4' ? 'IPv4' : 'IPv6';
-   const socket = createSocket(kind);
-   const { promise, reject, resolve } = Promise.withResolvers();
-   if (ipaddress) socket.bind(port, ipaddress, resolve);
-   else socket.bind(port, resolve);
-   socket.once('error', reject);
-   await promise;
-   socket.off('error', reject);
-   return {
-      onDataCallback: _ => socket.on('message', (buffer, { address, port }) => _(buffer, { address, family, port })),
-      send: async (data, endpoint) => void socket.send(data, endpoint.port, endpoint.address),
-   } satisfies SocketSource;
-   /*
-   const socket = await Bun.udpSocket({
-      binaryType: 'uint8array',
-      hostname: '0.0.0.0',
-      port: 19132,
-      socket: {
-         data: (_, msg, port, address) => fn?.(msg, { port, address, family: 'IPv4' }),
-      },
-   });
-   let fn: null | ((uint8Array: Uint8Array, address: AddressInfo) => void) = null;
-   return {
-      onDataCallback: _ => (fn = _),
-      send: async (buffer, endpoint) => void socket.send(buffer, endpoint.port, endpoint.address),
-   };*/
+export class Server {
+   public readonly carolina: Carolina;
+   public readonly driver: NetworkDriver;
+   public readonly events: EventEmitter<ServerEvents> = new EventEmitter();
+   public readonly clients: Map<number, Client> = new Map();
+   public constructor(carolina: Carolina, driver: NetworkDriver) {
+      this.carolina = carolina;
+      this.driver = driver;
+      this.driver.incoming.set(NetworkEngineEventKeys.Connect, ({ clientId, runtimeId }) => {
+         this.carolina.logger.log(a`Driver connection connected: ${clientId}`);
+         if (this.clients.has(runtimeId)) {
+            this.carolina.logger.error(
+               a`Logic Error that should never happen, client already exists, runtimeId: ${runtimeId}, clientId: ${clientId}`
+            );
+            return;
+         }
+         const client = new Client(clientId, runtimeId, this);
+         this.clients.set(runtimeId, client);
+         this.events.dispatch('connected', { client });
+      });
+      this.driver.incoming.set(NetworkEngineEventKeys.Disconnect, ({ clientId, runtimeId }) => {
+         this.carolina.logger.log(a`Driver connection disconnected: ${clientId}`);
+         const client = this.clients.get(runtimeId);
+         if (!client) {
+            this.carolina.logger.error(
+               a`Logic Error that should never happen, client that is not registered had disconnected, runtimeId: ${runtimeId}, clientId: ${clientId}`
+            );
+            return;
+         }
+         this.clients.delete(runtimeId);
+         this.events.dispatch('disconnected', { client });
+      });
+      this.driver.incoming.set(NetworkEngineEventKeys.Message, ({ message, runtimeId }) => {
+         const client = this.clients.get(runtimeId);
+         if (!client) {
+            this.carolina.logger.error(
+               a`Logic Error that should never happen, client that is not registered had received message, runtimeId: ${runtimeId}`
+            );
+            return;
+         }
+         this.events.dispatch('message', { client, message });
+      });
+   }
 }

@@ -1,8 +1,7 @@
-import { bench, describe } from 'vitest';
-
-import { proto } from '@bedrock-apis/carolina-net/raknet';
+import { proto } from '@bedrock-apis/net';
 import { FrameSet as FS } from '@sanctumterra/raknet';
 import { FrameSet } from '@serenityjs/raknet';
+import { bench, describe } from 'vitest';
 
 describe('FrameSet Deserialization', () => {
    const TEST_PACKET = Buffer.from(

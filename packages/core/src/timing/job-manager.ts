@@ -4,14 +4,14 @@ export class JobManager {
    protected runs: Func[] = [];
    protected readonly jobs: Set<Iterator<number>> = new Set();
    protected readonly records: Record<number, Func[]> = {};
-   public runTimeout(func: Func, delay: number = 1): void {
+   public runTimeout(func: Func, delay = 1): void {
       delay = Math.max(0, delay);
       (this.records[this.currentTick + delay] ??= []).push(func);
    }
    public run(func: Func): void {
       this.runs.push(func);
    }
-   protected currentTick: number = 0;
+   protected currentTick = 0;
    public tick(tick: number): void {
       this.currentTick = tick;
       const runs = this.runs;

@@ -1,29 +1,12 @@
 {
    "folders": [
-      {
-         "name": "App",
-         "path": "../app"
-      },
-      {
-         "name": "Core",
-         "path": "../packages/core"
-      },
-      {
-         "name": "Raknet",
-         "path": "../production/net"
-      },
-      {
-         "name": "Protocol",
-         "path": "../packages/protocol"
-      },
-      {
-         "name": "Benchmarks",
-         "path": "../benchmarks"
-      },
-      {
-         "name": "Root Repository",
-         "path": "../"
-      }
+      { "name": "App", "path": "../app" },
+      { "name": "Core", "path": "../packages/core" },
+      { "name": "Binary", "path": "../packages/binary" },
+      { "name": "Protocol", "path": "../packages/protocol" },
+      { "name": "Tooling", "path": "../packages/tools" },
+      { "name": "Benchmarks", "path": "../benchmarks" },
+      { "name": "Root Repository", "path": "../" },
    ],
    "settings": {
       "files.exclude": {
@@ -34,7 +17,7 @@
          "**/.svn": true,
          "**/.hg": true,
          "**/.DS_Store": true,
-         "**/Thumbs.db": true
+         "**/Thumbs.db": true,
       },
       "cSpell.words": [
          "MCPE",
@@ -45,7 +28,7 @@
          "varint",
          "varlong",
          "zigzong",
-         "Zong"
+         "Zong",
       ],
       "window.border": "#3586A4",
       "explorer.fileNesting.enabled": true,
@@ -54,24 +37,24 @@
          "vitest.config.ts": "turbo.json, *.config.json, *.config.ts, *config.json, .oxlintrc.json, .oxfmtrc.json",
          ".gitignore": ".git*, .edit*, .env*",
          "readme.md": "*.md",
-         "*.ts": "${basename}.test.ts"
+         "*.ts": "${basename}.test.ts",
       },
       "editor.formatOnSave": true,
-      "oxc.fmt.experimental": true,
+      "editor.formatOnSaveMode": "file",
       "editor.defaultFormatter": "oxc.oxc-vscode",
       "editor.insertSpaces": true,
       "editor.tabSize": 3,
-      "[typescript]": {
-         "editor.defaultFormatter": "oxc.oxc-vscode"
-      },
-      "files.eol": "\n"
+      "[typescript]": { "editor.defaultFormatter": "oxc.oxc-vscode" },
+      "[json]": { "editor.defaultFormatter": "oxc.oxc-vscode" },
+      "files.eol": "\n",
    },
    "extensions": {
+      "unwantedRecommendations": ["esbenp.prettier-vscode", "dbaeumer.vscode-eslint"],
       "recommendations": [
          "streetsidesoftware.code-spell-checker",
          "oxc.oxc-vscode",
          "vitest.explorer",
-         "exodiusstudios.comment-anchors"
-      ]
+         "exodiusstudios.comment-anchors",
+      ],
    },
 }
