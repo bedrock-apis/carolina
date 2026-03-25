@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
-import { RolldownOptions } from 'rolldown';
+import { Plugin, RolldownOptions } from 'rolldown';
 import { dts } from 'rolldown-plugin-dts';
 const PACKAGE_PATH = './package.json';
 
@@ -24,6 +24,8 @@ const _external = new RegExp(`^(${['node:', '@carolina', '@bedrock-apis', ...dep
 export default {
    input: Object.fromEntries(Object.entries(entries).map(e => [e[0], resolve(e[1] as string)])),
    external: _external,
-   plugins: declarations ? [dts({ tsgo: true, tsconfig: resolve('./tsconfig.json') })] : [],
+   plugins: (declarations
+      ? [dts({ tsgo: true, tsconfig: resolve('./tsconfig.json') })]
+      : []) as unknown as Plugin[],
    output: { cleanDir: true, dir: resolve(dir), sourcemap: true as boolean, minify: false as boolean },
 } satisfies RolldownOptions;

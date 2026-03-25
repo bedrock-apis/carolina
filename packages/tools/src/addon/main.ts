@@ -1,57 +1,79 @@
-console.log('Hello');
-/*import { BlockVolume, CommandError, CompoundBlockVolume, system, world } from '@minecraft/server';
+import { BlockPermutation, BlockTypes, LiquidType, system, world } from '@minecraft/server';
+import { HttpRequest, HttpRequestMethod, http } from '@minecraft/server-net';
 
-import { generateBlockObject } from './blocks';
-import { exit, report } from './net-helper';
+import { CLOSE_COMMAND, LOCAL_DOMAIN, WRITE_FILE } from '../constants';
 
-system.beforeEvents.startup.subscribe(() => system.run(main));
+world.afterEvents.worldLoad.subscribe(async () => {
+   // Pre-setup
+   console.log('Clean up');
+   world.tickingAreaManager.removeAllTickingAreas();
+   await system.waitTicks(5);
+   console.log('Ticking setup');
+   const dimension = world.getDimension('overworld');
+   /*await world.tickingAreaManager.createTickingArea('test', {
+      dimension,
+      from: { x: 0, y: 0, z: 0 },
+      to: { x: 1, y: 1, z: 1 },
+   });*/
+   dimension.runCommand('tickingarea add circle 0 0 0 1 test');
 
-async function main(): Promise<void> {
-   const dimension = world.getDimension('minecraft:overworld');
-   try {
-      {
-         const result = dimension.runCommand('tickingarea add circle 0 0 0 4 lamo true');
-         console.log(result.successCount);
+   while (true) {
+      const block = dimension.getBlock({ x: 0, y: 0, z: 0 });
+      if (block) break;
+      // oxlint-disable-next-line no-await-in-loop
+      await system.waitTicks(10);
+      console.log('Checking for blocks');
+   }
 
-         const compoud = new CompoundBlockVolume({ x: 0, y: 0, z: 0 });
-         compoud.pushVolume({ volume: new BlockVolume({ x: -1, y: -1, z: -1 }, { x: 1, y: 1, z: 1 }) });
-         await system.waitTicks(5);
-         mainWhile: while (true) {
-            console.log('Looping');
-            for (const loc of compoud.getBlockLocationIterator()) {
-               await system.waitTicks(1);
-               if (!dimension.isChunkLoaded(loc)) continue mainWhile;
+   console.log('Running JOB');
+   system.runJob(
+      (function* (): Generator<void> {
+         //#region Blocks
+         {
+            const blocks = [];
+            // oxlint-disable-next-line typescript/no-non-null-assertion
+            const block = dimension.getBlock({ x: 0, y: 0, z: 0 })!;
+            for (const type of BlockTypes.getAll()) {
+               const bp = BlockPermutation.resolve(type.id);
+               block.setPermutation(bp);
+               const color = block.getMapColor();
+               yield void blocks.push({
+                  id: type.id,
+                  tags: bp.getTags(),
+                  components: block.getComponents().map(_ => _.typeId),
+                  map_color:
+                     (Number(color.alpha > 0.5) << 24) |
+                     ((color.red * 255) << 16) |
+                     ((color.green * 255) << 8) |
+                     (color.blue * 255),
+                  flags: [
+                     block.isAir,
+                     block.isLiquid,
+                     block.isSolid,
+                     bp.isLiquidBlocking(LiquidType.Water),
+                     bp.canContainLiquid(LiquidType.Water),
+                     bp.canBeDestroyedByLiquidSpread(LiquidType.Water),
+                     bp.liquidSpreadCausesSpawn(LiquidType.Water),
+                  ]
+                     .map(_ => Number(_))
+                     .reduce((_, _1, i) => _ | (_ << i)),
+               });
+               console.log(bp.type.id);
             }
-            break;
+
+            // Post blocks
+            yield void http.request(
+               new HttpRequest(LOCAL_DOMAIN + WRITE_FILE + `?name=data/block-type-info.json`)
+                  .setMethod(HttpRequestMethod.Post)
+                  .setBody(JSON.stringify(blocks, null, 3))
+            );
          }
-         await dimension.fillBlocks(compoud, 'bedrock');
+         //#endregion
 
-         const blocks = await runThread(generateBlockObject(dimension));
-         await report('block_maps.json', blocks);
-      }
-
-      await report('hello_world.json', { hello: true });
-   } catch (e) {
-      console.error('main failure', e);
-   } finally {
-      await exit();
-   }
-}
-
-async function runThread<T>(iterator: Iterable<void, T>): Promise<T> {
-   return new Promise<T>((r, j) => system.runJob(localExecutor<T>(iterator, r, j)));
-
-   function* localExecutor<T>(
-      iterator: Iterable<void, T>,
-      resolve: (any: T) => void,
-      reject: (er: unknown) => void
-   ): Generator<void> {
-      try {
-         const results = yield* iterator;
-         resolve(results);
-      } catch (error) {
-         reject(error);
-      }
-   }
-}
-*/
+         // Clean-up
+         yield void http.request(
+            new HttpRequest(LOCAL_DOMAIN + CLOSE_COMMAND).setMethod(HttpRequestMethod.Head)
+         );
+      })()
+   );
+});

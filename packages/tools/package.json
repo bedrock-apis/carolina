@@ -8,15 +8,15 @@
    "main": "dist/main.js",
    "types": "src/main.ts",
    "scripts": {
-      "dump": "pnpm run build && node ./dist/main.js",
+      "dump": "pnpm run build && bun ./dist/main.js",
       "check": "tsgo --noEmit",
       "build": "rolldown -c ./rolldown.config.ts",
       "watch": "rolldown -c ./rolldown.config.ts -w"
    },
    "devDependencies": {
       "@bedrock-apis/bds-utils": "1.1.0-beta.1",
-      "@minecraft/server": "2.6.0-beta.1.26.0-stable",
-      "@minecraft/server-net": "1.0.0-beta.1.26.0-stable",
+      "@minecraft/server": "2.8.0-beta.1.26.20-preview.20",
+      "@minecraft/server-net": "1.0.0-beta.1.26.20-preview.20",
       "@types/bun": "^1.3.2",
       "@types/node": "^24.0.0"
    },

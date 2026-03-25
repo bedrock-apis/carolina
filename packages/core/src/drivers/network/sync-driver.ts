@@ -1,3 +1,4 @@
+import { RaknetNetworkEngine } from '../driver';
 import { NetworkDriver } from './driver';
 import { NetworkEngine, NetworkEngineEventKeys } from './engine/network-engine';
 
@@ -22,12 +23,15 @@ export class SyncNetworkDriver<S extends NetworkEngine = NetworkEngine> extends 
          });
       });
       this.outgoing.set(NetworkEngineEventKeys.Message, ({ message, runtimeId: uniqueId }) => {
-         const client = this.engine.clients.get(uniqueId)?.connection;
-         if (client) this.engine.server.send(client, message);
+         const client = this.engine.clients.get(uniqueId);
+         if (client) this.engine.send(client, message);
       });
       this.outgoing.set(NetworkEngineEventKeys.Disconnect, ({ runtimeId: uniqueId }) => {
          const connection = this.engine.clients.get(uniqueId);
          if (connection) this.engine.disconnect(connection);
+      });
+      this.outgoing.set('discovery-options', options => {
+         if (this.engine instanceof RaknetNetworkEngine) void this.engine.setMotd(options);
       });
    }
    public override dispose(): void {

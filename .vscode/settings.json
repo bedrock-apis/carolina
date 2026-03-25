@@ -1,5 +1,27 @@
 {
-   "cSpell.words": ["MCPE", "oxlint", "raknet", "rolldown", "tsgo", "varint", "varlong", "zigzong", "Zong"],
+   "files.exclude": {
+      "**/node_modules": true,
+      "**/dist": true,
+      "**/.turbo": true,
+      "**/.git": true,
+      "**/.svn": true,
+      "**/.hg": true,
+      "**/.DS_Store": true,
+      "**/Thumbs.db": true
+   },
+   "cSpell.words": [
+      "AQUALIDERIUM",
+      "MCPE",
+      "Overworld",
+      "oxlint",
+      "raknet",
+      "rolldown",
+      "tsgo",
+      "varint",
+      "varlong",
+      "zigzong",
+      "Zong"
+   ],
    "window.border": "#3586A4",
    "explorer.fileNesting.enabled": true,
    "explorer.fileNesting.patterns": {

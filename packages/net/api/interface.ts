@@ -4,6 +4,7 @@ export interface NetworkServer {
    onConnectionDisconnected: ((connection: NetworkConnection) => void) | null;
    onConnectionMessaged: ((connection: NetworkConnection, message: Uint8Array) => void) | null;
    onError: ((error: unknown) => void) | null;
+   onLog: ((message: string) => void) | null;
    // General Methods
    dispose(): void;
    disconnect(connection: NetworkConnection): void;
@@ -29,16 +30,4 @@ export interface NetworkConnection {
 export interface ConnectionEndpoint {
    address: string;
    port: number;
-}
-
-export interface ServerListener {
-   onConnectionDisconnect: ((connection: Connection) => void) | undefined;
-   onNewConnection: ((connection: Connection) => void) | undefined;
-   onError: ((error: unknown) => void) | undefined;
-}
-export interface Connection {
-   readonly id: string;
-   send(payload: Uint8Array): void;
-   disconnect(): void;
-   onPayloadReceived: ((payload: Uint8Array) => void) | undefined;
 }

@@ -1,5 +1,7 @@
+import { InjectAsNoEnumerableStruct } from '@carolina/common';
+
 import { Cursor } from './cursor';
-import { mergeSourceWithInheritance, SerializableType } from './types';
+import { SerializableType } from './serialization';
 export const knownTypes: Set<SerializableType<unknown>> = new Set();
 export class DebugOptions {
    public static readonly isDebugModeEnabled: boolean = false;
@@ -8,7 +10,7 @@ export class DebugOptions {
       this.isDebugModeEnabled = enabled;
       if (enabled)
          for (const type of knownTypes) {
-            mergeSourceWithInheritance(type, {
+            InjectAsNoEnumerableStruct(type, {
                serialize(cursor, _value) {
                   (cursor as DebugCursor).push(this as SerializableType<unknown>);
                   super.serialize(...arguments);

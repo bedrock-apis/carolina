@@ -1,0 +1,7 @@
+minecraft-engine: '1.21.130'
+protocol-version: 997
+
+includes:
+   packets: './packets'
+   structs: './structs'
+   enums: './enums'

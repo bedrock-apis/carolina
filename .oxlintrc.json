@@ -76,6 +76,7 @@
       "oxc/number-arg-out-of-range": "warn",
       "oxc/only-used-in-recursion": "warn",
       "oxc/uninvoked-array-callback": "warn",
+      "typescript/no-meaningless-void-operator": "off",
       "typescript/no-duplicate-enum-values": "warn",
       "typescript/no-extra-non-null-assertion": "warn",
       "typescript/no-misused-new": "warn",
@@ -109,8 +110,18 @@
       "typescript/ban-types": ["warn"],
       "typescript/consistent-type-assertions": "warn",
       "typescript/adjacent-overload-signatures": "warn",
+      "typescript/typedef": [
+         "error",
+         {
+            "propertyDeclaration": true,
+            "variableDeclaration": false,
+            "parameter": false,
+            "memberVariableDeclaration": true,
+            "arrowParameter": false,
+            "arrayDestructuring": false
+         }
+      ],
       "typescript/explicit-member-accessibility": ["warn", { "accessibility": "explicit" }],
-      "typescript/no-inferrable-types": "warn",
       // Additional balanced strict rules:
       "import/no-default-export": "warn",
       "prefer-const": "warn",

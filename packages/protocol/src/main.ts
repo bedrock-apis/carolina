@@ -1,5 +1,6 @@
-export * from './827/enums';
-export * from './827/packets';
-export * from './827/types';
-export * from './packet';
-export const PROTOCOL_VERSION = 827;
+export * from './abstract';
+export * from './enums';
+export * from './types';
+export * from './packets';
+export * from './proto';
+export const PROTOCOL_VERSION = 944;

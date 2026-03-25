@@ -1,9 +1,13 @@
 type Func = () => void;
+export type TickHandler = (tick: number) => void;
 export class JobManager {
    public onError?: (error?: unknown) => void;
    protected runs: Func[] = [];
+   protected readonly unorderedTickHandlers: TickHandler[] = [];
    protected readonly jobs: Set<Iterator<number>> = new Set();
    protected readonly records: Record<number, Func[]> = {};
+   protected currentTick = 0;
+   public readonly jobIterator = this.getJobsIterator();
    public runTimeout(func: Func, delay = 1): void {
       delay = Math.max(0, delay);
       (this.records[this.currentTick + delay] ??= []).push(func);
@@ -11,17 +15,30 @@ export class JobManager {
    public run(func: Func): void {
       this.runs.push(func);
    }
-   protected currentTick = 0;
+   public subscribe(handler: TickHandler): TickHandler {
+      this.unorderedTickHandlers.push(handler);
+      return handler;
+   }
+   public unsubscribe(handler: TickHandler): TickHandler {
+      const index = this.unorderedTickHandlers.indexOf(handler);
+      if (index === -1) return handler;
+
+      // Fast spawn and removal
+      this.unorderedTickHandlers[index] = this.unorderedTickHandlers[this.unorderedTickHandlers.length - 1];
+      this.unorderedTickHandlers.pop();
+      return handler;
+   }
    public tick(tick: number): void {
       this.currentTick = tick;
-      const runs = this.runs;
-      this.runs = [];
-      for (let i = 0; i < runs.length; i++)
+      for (let i = 0; i < this.unorderedTickHandlers.length; i++) {
+         const handler = this.unorderedTickHandlers[i];
          try {
-            runs[i]?.();
+            handler?.(tick);
          } catch (error) {
             this.onError?.(error);
          }
+      }
+      const runs = this.runs;
       const currentRecords = this.records[tick];
       if (currentRecords)
          for (let i = 0; i < currentRecords.length; i++)
@@ -31,8 +48,16 @@ export class JobManager {
                this.onError?.(error);
             }
       delete this.records[tick];
+      this.runs = [];
+      for (let i = 0; i < runs.length; i++)
+         try {
+            runs[i]?.();
+         } catch (error) {
+            this.onError?.(error);
+         }
    }
-   public *getJobsIterator(): Generator<boolean> {
+
+   protected *getJobsIterator(): Generator<boolean> {
       while (true) {
          for (const job of this.jobs) {
             try {

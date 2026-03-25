@@ -1,6 +1,6 @@
 export const MAX_ORDER_CHANNEL = 32;
 export const SYSTEM_ADDRESS_COUNT = 20;
-export const RAKNET_PROTOCOL_VERSION = 6;
+export const RAKNET_PROTOCOL_VERSION = 11;
 export const MAGIC: Uint8Array = new Uint8Array([
    0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78,
 ]);

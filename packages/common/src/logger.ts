@@ -1,6 +1,6 @@
 import { DIM, FormatCode } from './format-helper';
 
-const { log, debug, warn, error, info } = globalThis.console;
+const { log, warn, error, info } = globalThis.console;
 const rgb = FormatCode.createForegroundRGB;
 
 const BASE_COLOR = DIM.prefix;
@@ -22,7 +22,7 @@ const INFO = `\x1b[90m[${INFO_COLOR.wrap(`INFO`)}\x1b[90m]`;
 const WARN = `\x1b[90m[${WARN_COLOR.wrap(`WARN`)}\x1b[90m]`;
 const ERROR = `\x1b[90m[${ERROR_COLOR.wrap(`ERROR`)}\x1b[90m]`;
 
-enum OutputLoggerLevel {
+export enum OutputLoggerLevel {
    None = 0,
    Errors = 1,
    Warnings = 2,
@@ -42,7 +42,7 @@ export class Logger {
    }
    public debug(...params: unknown[]): void {
       if (Logger.level >= 5)
-         debug(
+         log(
             `\x1b[0;3m${BASE_COLOR}${this.getTimeFormatted()} ${this.text} ${DEBUG.padEnd(PADDING + DC_L)} \x1b[39m${params.join(' ')}\x1b[0m`
          );
    }
@@ -67,7 +67,7 @@ export class Logger {
    public error(...params: unknown[]): void {
       if (Logger.level >= 1)
          error(
-            `\n\x1b[0;1m${this.getTimeFormatted()} ${this.text} ${ERROR.padEnd(PADDING + EC_L)} \x1b[39m${params.join(' ')}\n\x1b[0m`
+            `\x1b[0;1m${this.getTimeFormatted()} ${this.text} ${ERROR.padEnd(PADDING + EC_L)} \x1b[39m${params.join(' ')}\x1b[0m`
          );
    }
    public getTimeFormatted(): string {
@@ -75,7 +75,3 @@ export class Logger {
       return `\x1b[90m[\x1b[37m${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}\x1b[90m]`;
    }
 }
-/*
-for (let i = 0; i < 120; i++) {
-   console.log(`\x1b[${i}mHere is example test for ${i}\x1b[0m`);
-}*/

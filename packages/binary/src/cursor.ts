@@ -1,3 +1,9 @@
+export interface ICursor {
+   readonly buffer: Uint8Array;
+   readonly view: DataView;
+   pointer: number;
+}
+
 export class Cursor<T extends ArrayBufferLike = ArrayBufferLike> {
    /**
     * Zero-Copy

@@ -1,0 +1,12 @@
+export enum PackType {
+   Invalid = 0,
+   Addon = 1,
+   Cached = 2,
+   CopyFree = 3,
+   Behavior = 4,
+   PersonaPiece = 5,
+   Resources = 6,
+   Skins = 7,
+   WorldTemplate = 8,
+   Unknown = 9,
+}

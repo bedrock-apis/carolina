@@ -10,11 +10,12 @@
    "scripts": {
       "gen": "bun run ./gen/main.ts ",
       "check": "tsgo --noEmit",
-      "build": "rolldown -c ../../rolldown.common.config.ts",
-      "watch": "rolldown -c ../../rolldown.common.config.ts -w"
+      "build": "rolldown -c ./rolldown.extended.config.ts",
+      "watch": "rolldown -c ./rolldown.extended.config.ts -w"
    },
    "dependencies": {
-      "@carolina/binary": "workspace:^"
+      "@carolina/binary": "workspace:^",
+      "@carolina/common": "workspace:^"
    },
    "devDependencies": {
       "@types/bun": "^1.3.2"

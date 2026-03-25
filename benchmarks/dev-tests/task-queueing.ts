@@ -2,6 +2,7 @@ import { nextTick } from 'node:process';
 const start = performance.now();
 nextTick(() => queueMicrotask(test('MicroFromNextTick')));
 nextTick(() => nextTick(test('NextTickFromNextTick')));
+//setImmediate(setImmediateLoop);
 setImmediate(() => setImmediate(test('SetSetImmediate')));
 setImmediate(() => nextTick(test('SetImmediate NextTick')));
 setTimeout(test('Timeout 1'), 1);
@@ -23,4 +24,8 @@ await undefined;
 test('Await')();
 function test(name: string): () => void {
    return () => console.log(name, 'Time:', (performance.now() - start).toFixed(2));
+}
+function setImmediateLoop(){
+   setImmediate(setImmediateLoop);
+   test("SetImmediateLoop")();
 }

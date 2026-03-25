@@ -1,5 +1,5 @@
 {
-   "name": "carolina",
+   "name": "app",
    "version": "1.0.0",
    "keywords": [],
    "license": "MIT",
@@ -14,6 +14,7 @@
    },
    "dependencies": {
       "@carolina/binary": "workspace:^",
+      "@carolina/common": "workspace:^",
       "@carolina/core": "workspace:^",
       "@carolina/net": "workspace:^",
       "@carolina/protocol": "workspace:^"

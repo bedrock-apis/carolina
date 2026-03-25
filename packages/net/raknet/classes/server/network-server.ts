@@ -14,13 +14,26 @@ import { RakNetNetworkServerConnection } from './network-server-connection';
 
 const HARDCODED_MOTD = new TextEncoder().encode(`MCPE;Carolina;999;2.0.0;0;50;0;The New World;`);
 export class RakNetNetworkServer implements NetworkServer {
-   public static onLog: ((message: string) => void) | null = null;
+   public onError: NetworkServer['onError'] = null;
+   public onLog: NetworkServer['onLog'] = null;
+   public static STALE_CONNECTION_TIMEOUT: number = 14_000;
+   public constructor() {
+      setInterval(() => {
+         const time = performance.now();
+         for (const connection of this.connections.values())
+            if (time - connection.incomingLastActivity > new.target.STALE_CONNECTION_TIMEOUT) {
+               try {
+                  this.onLog?.(`Stale connection from ${connection.uniqueId} . . .`);
+                  this.disconnect(connection);
+               } catch {}
+            }
+      }, 5_000)?.unref?.();
+   }
    public readonly guid: bigint = random64();
    public readonly connections: Map<string, RakNetNetworkServerConnection> = new Map();
    public onConnectionConnected: NetworkServer['onConnectionConnected'] = null;
    public onConnectionDisconnected: NetworkServer['onConnectionDisconnected'] = null;
    public onConnectionMessaged: NetworkServer['onConnectionMessaged'] = null;
-   public onError: NetworkServer['onError'] = null;
    public onMOTDRequested: (() => Uint8Array) | null = null;
    public blackList: Set<string> | null = null;
    public setAddressBlackList(list: Set<string> | null): void {
@@ -50,7 +63,6 @@ export class RakNetNetworkServer implements NetworkServer {
    public getCurrentCapacity(): number {
       return this.connections.size;
    }
-
    /**
     * Virtualized in way, it accepts any messages even virtual messages, and more
     */
@@ -66,8 +78,7 @@ export class RakNetNetworkServer implements NetworkServer {
          //Connection instance
          const connection = this.connections.get(id);
 
-         if (!connection)
-            return void RakNetNetworkServer.onLog?.('Received online packet from unknown connection: ' + id);
+         if (!connection) return void this.onLog?.('Received online packet from unknown connection: ' + id);
 
          return void connection.process(message);
       }
@@ -77,9 +88,7 @@ export class RakNetNetworkServer implements NetworkServer {
       if (this.blackList?.has(endpoint.address)) return;
 
       if (!(packedId in this))
-         return void RakNetNetworkServer.onLog?.(
-            "Received offline message we don't have handler for: " + packedId
-         );
+         return void this.onLog?.("Received offline message we don't have handler for: " + packedId);
 
       this[packedId as 1](handle, endpoint, message);
    }
@@ -127,9 +136,7 @@ export class RakNetNetworkServer implements NetworkServer {
       handle.send(buffer, endpoint);
       const id = RakNetNetworkConnection.getUniqueIdFromEndpoint(endpoint);
       if (this.connections.has(id))
-         return void RakNetNetworkServer.onLog?.(
-            `Duplicate connection with this endpoint: ${id} is already connected.`
-         );
+         return void this.onLog?.(`Duplicate connection with this endpoint: ${id} is already connected.`);
 
       const connection = new RakNetNetworkServerConnection(this, handle, endpoint, guid, serverAddress); // RakNetConnection.create(this, source, mtu, guid, receiver);
       this.connections.set(id, connection);

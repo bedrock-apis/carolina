@@ -2,6 +2,7 @@ import { Cursor } from '@carolina/binary';
 import { RakNetNetworkServer, SocketSource } from '@carolina/net/raknet';
 import { createSocket } from 'node:dgram';
 
+import { DiscoveryOptions } from '../driver';
 import { NetworkEngine } from './network-engine';
 
 const encoder = new TextEncoder();
@@ -10,12 +11,14 @@ export class RaknetNetworkEngine extends NetworkEngine<RakNetNetworkServer> {
    public constructor() {
       super(new RakNetNetworkServer());
       this.motdCache = RaknetNetworkEngine.toMotdCache(
-         `MCPE;Carolina;390;1.14.60;16;50;${this.server.guid};AQUALIDERIUM - THE NEVER END;`
+         `MCPE;Carolina;975;1.26.10;0;50;${this.server.guid};AQUALIDERIUM - THE NEVER END`
       );
       this.server.onMOTDRequested = (): Uint8Array => this.motdCache;
    }
-   public setMotd(motd: string): void {
-      this.motdCache = RaknetNetworkEngine.toMotdCache(motd);
+   public setMotd(motd: DiscoveryOptions): void {
+      this.motdCache = RaknetNetworkEngine.toMotdCache(
+         `${['MCPE', motd.provider, motd.protocol, motd.version, motd.onlinePlayers, motd.maxPlayers, this.server.guid, motd.level, motd.gameMode, Number(motd.discoverable)].join(';')};`
+      );
    }
    public static toMotdCache(motd: string): Uint8Array {
       return encoder.encode(motd);

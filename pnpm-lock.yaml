@@ -22,7 +22,10 @@ importers:
         version: 0.31.0
       oxlint:
         specifier: ^1.46.0
-        version: 1.46.0
+        version: 1.46.0(oxlint-tsgolint@0.12.1)
+      oxlint-tsgolint:
+        specifier: ^0.12.1
+        version: 0.12.1
       rolldown:
         specifier: 1.0.0-rc.1
         version: 1.0.0-rc.1
@@ -30,8 +33,8 @@ importers:
         specifier: ^0.21.6
         version: 0.21.6(@typescript/native-preview@7.0.0-dev.20260211.1)(rolldown@1.0.0-rc.1)(typescript@6.0.0-dev.20260211)
       turbo:
-        specifier: ^2.6.1
-        version: 2.6.1
+        specifier: ^2.8.8
+        version: 2.8.8
       typescript:
         specifier: 6.0.0-dev.20260211
         version: 6.0.0-dev.20260211
@@ -44,6 +47,9 @@ importers:
       '@carolina/binary':
         specifier: workspace:^
         version: link:../packages/binary
+      '@carolina/common':
+        specifier: workspace:^
+        version: link:../packages/common
       '@carolina/core':
         specifier: workspace:^
         version: link:../packages/core
@@ -85,7 +91,11 @@ importers:
         specifier: ^6.0.2
         version: 6.0.2
 
-  packages/binary: {}
+  packages/binary:
+    dependencies:
+      '@carolina/common':
+        specifier: workspace:^
+        version: link:../common
 
   packages/common: {}
 
@@ -125,6 +135,12 @@ importers:
         specifier: 0.0.0-alpha.1
         version: 0.0.0-alpha.1
 
+  packages/nbt:
+    dependencies:
+      '@carolina/binary':
+        specifier: workspace:^
+        version: link:../binary
+
   packages/net: {}
 
   packages/protocol:
@@ -132,6 +148,9 @@ importers:
       '@carolina/binary':
         specifier: workspace:^
         version: link:../binary
+      '@carolina/common':
+        specifier: workspace:^
+        version: link:../common
     devDependencies:
       '@types/bun':
         specifier: ^1.3.2
@@ -143,11 +162,11 @@ importers:
         specifier: 1.1.0-beta.1
         version: 1.1.0-beta.1
       '@minecraft/server':
-        specifier: 2.6.0-beta.1.26.0-stable
-        version: 2.6.0-beta.1.26.0-stable(@minecraft/common@1.2.0)(@minecraft/vanilla-data@1.21.101)
+        specifier: 2.8.0-beta.1.26.20-preview.20
+        version: 2.8.0-beta.1.26.20-preview.20(@minecraft/common@1.2.0)(@minecraft/vanilla-data@1.21.101)
       '@minecraft/server-net':
-        specifier: 1.0.0-beta.1.26.0-stable
-        version: 1.0.0-beta.1.26.0-stable(@minecraft/common@1.2.0)(@minecraft/server-admin@1.0.0-beta.11940b24)(@minecraft/server@2.6.0-beta.1.26.0-stable(@minecraft/common@1.2.0)(@minecraft/vanilla-data@1.21.101))
+        specifier: 1.0.0-beta.1.26.20-preview.20
+        version: 1.0.0-beta.1.26.20-preview.20(@minecraft/common@1.2.0)(@minecraft/server-admin@1.0.0-beta.11940b24)(@minecraft/server@2.8.0-beta.1.26.20-preview.20(@minecraft/common@1.2.0)(@minecraft/vanilla-data@1.21.101))
       '@types/bun':
         specifier: ^1.3.2
         version: 1.3.2(@types/react@19.1.10)
@@ -397,12 +416,12 @@ packages:
       '@minecraft/server': ^1.17.0 || ^2.0.0
       '@minecraft/server-admin': ^1.0.0-beta.1.21.110-preview.26
 
-  '@minecraft/server-net@1.0.0-beta.1.26.0-stable':
-    resolution: {integrity: sha512-taIn90xq9DdwinwbUKQRCjggFYmZi/C5zxfpmYdBmFGn4YutQueUSkl2BQXER24hSAHIxHyM+rx1RzQIoRoNfg==}
+  '@minecraft/server-net@1.0.0-beta.1.26.20-preview.20':
+    resolution: {integrity: sha512-KIQRJgdr0wY3GixZ9Tq6sLrIbb+8XWLN0cAgeDpoCWsjydW1f5ZcMikv2q49mwEKrShM3U8zhtSfZtfqdHvuxg==}
     peerDependencies:
       '@minecraft/common': ^1.0.0
       '@minecraft/server': ^1.17.0 || ^2.0.0
-      '@minecraft/server-admin': ^1.0.0-beta.1.26.0-stable
+      '@minecraft/server-admin': ^1.0.0-beta.1.26.20-preview.20
 
   '@minecraft/server@2.3.0-beta.1.21.110-preview.26':
     resolution: {integrity: sha512-Zcr03XoClNxCC+4I/Dkl/zj1m42oPh8aTz79TWZWLHnRIsEgH9XuQiP27HVTF6eDZuSv/M52fsdOLDsF76ltiw==}
@@ -410,11 +429,11 @@ packages:
       '@minecraft/common': ^1.2.0
       '@minecraft/vanilla-data': '>=1.20.70 || 1.21.110-preview.26'
 
-  '@minecraft/server@2.6.0-beta.1.26.0-stable':
-    resolution: {integrity: sha512-I8GFHqE4LNnmI5FnCpCGjbURHbdzYJdZtJ9vqfjlJ8TkWKlrrJVQpIr6IDghG0jon1Zv0zMJUWprpo6wsedkVg==}
+  '@minecraft/server@2.8.0-beta.1.26.20-preview.20':
+    resolution: {integrity: sha512-3PknB6QJcV79O+apC+6RVJTawM7syQPL9Ie5DwUylJJ/ODXswYHHBWHs0JaoYbvdN6DY+a/WyxOomJUKmVS6Bg==}
     peerDependencies:
       '@minecraft/common': ^1.2.0
-      '@minecraft/vanilla-data': '>=1.20.70'
+      '@minecraft/vanilla-data': '>=1.20.70 || 1.26.20-preview.20'
 
   '@minecraft/vanilla-data@1.21.101':
     resolution: {integrity: sha512-/SaOkginnFrzWKM6MXcn7RUfL52rvqUPd+u6jNkLm/t6GBj+Kh+ys/go6hFJqMAveHqXw0G2bgH8gKCaMobcvw==}
@@ -544,6 +563,36 @@ packages:
   '@oxfmt/binding-win32-x64-msvc@0.31.0':
     resolution: {integrity: sha512-TB30D+iRLe6eUbc/utOA93+FNz5C6vXSb/TEhwvlODhKYZZSSKn/lFpYzZC7bdhx3a8m4Jq8fEUoCJ6lKnzdpA==}
     engines: {node: ^20.19.0 || >=22.12.0}
+    cpu: [x64]
+    os: [win32]
+
+  '@oxlint-tsgolint/darwin-arm64@0.12.1':
+    resolution: {integrity: sha512-V5xXFGggPyzVySV9cgUi0NLCQJ/GBl4Whd96dadyiu5bmEKMclN1tFdJ870R69TonuTDG5IQLe3L95c53erYWQ==}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@oxlint-tsgolint/darwin-x64@0.12.1':
+    resolution: {integrity: sha512-UbgHnbf8Pd0/Ceo0yJfY4z5x0vnCVAeqXA/wlTom1oHSeNl1OXnW628k4o5B4MJrEwIkUR/4HMPvEV/XG7XIHA==}
+    cpu: [x64]
+    os: [darwin]
+
+  '@oxlint-tsgolint/linux-arm64@0.12.1':
+    resolution: {integrity: sha512-OQj1qGnbPd4WYcaPuOvYvt+UahA1sNtr7owFlzYtNafycAs2umMOr89h6OAJyFfjdmCukIwT4DZJefKl96cxBA==}
+    cpu: [arm64]
+    os: [linux]
+
+  '@oxlint-tsgolint/linux-x64@0.12.1':
+    resolution: {integrity: sha512-NBl6yQeOT93/EyggOTn/QADJl1oPubMkm82SHFEHbQX+XCD3VhDEtjCPaja1crjGec8lbymq72mpNxumsBLARg==}
+    cpu: [x64]
+    os: [linux]
+
+  '@oxlint-tsgolint/win32-arm64@0.12.1':
+    resolution: {integrity: sha512-MlChwWQ3xQjcWJI1KnxiTPicGblstfMOAnGfsRa30HMXtwb+gpnq/zWhKpOFx4VsYAXPofCTGQEM7HolK/k4uw==}
+    cpu: [arm64]
+    os: [win32]
+
+  '@oxlint-tsgolint/win32-x64@0.12.1':
+    resolution: {integrity: sha512-1y1PywzZ5UBIb+GWvcHoaTZ4t0Ae5qGlgtpCKrynl9TfQ92JTHvD+04dceG4Ih/y0YH0ZNkdFFxKbMvt4kHr2w==}
     cpu: [x64]
     os: [win32]
 
@@ -1132,6 +1181,10 @@ packages:
     engines: {node: ^20.19.0 || >=22.12.0}
     hasBin: true
 
+  oxlint-tsgolint@0.12.1:
+    resolution: {integrity: sha512-2Od1S2pA+VkfIlmvHmDwMfhfHyL0jR6JAkP4BkoAidUqYJS1cY2JoLd4uMWcG4mhCQrPYIcEz56VrQ9qUVcoXw==}
+    hasBin: true
+
   oxlint@1.46.0:
     resolution: {integrity: sha512-I9h42QDtAVsRwoueJ4PL/7qN5jFzIUXvbO4Z5ddtII92ZCiD7uiS/JW2V4viBSfGLsbZkQp3YEs6Ls4I8q+8tA==}
     engines: {node: ^20.19.0 || >=22.12.0}
@@ -1231,38 +1284,38 @@ packages:
   tslib@2.8.1:
     resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
 
-  turbo-darwin-64@2.6.1:
-    resolution: {integrity: sha512-Dm0HwhyZF4J0uLqkhUyCVJvKM9Rw7M03v3J9A7drHDQW0qAbIGBrUijQ8g4Q9Cciw/BXRRd8Uzkc3oue+qn+ZQ==}
+  turbo-darwin-64@2.8.8:
+    resolution: {integrity: sha512-7R/XRAleyNB8nIJuenRpS7EnmCM/kYFgcG1rW3F5DF57Nl4WyBO3DzxqwooRheuoXDD1UsJvDse0yRufgxjClA==}
     cpu: [x64]
     os: [darwin]
 
-  turbo-darwin-arm64@2.6.1:
-    resolution: {integrity: sha512-U0PIPTPyxdLsrC3jN7jaJUwgzX5sVUBsKLO7+6AL+OASaa1NbT1pPdiZoTkblBAALLP76FM0LlnsVQOnmjYhyw==}
+  turbo-darwin-arm64@2.8.8:
+    resolution: {integrity: sha512-whpveO0w/dMcgQ0zFrzqK76mG2W+RBQ/pKIpW+sEvNr+T4UcYd2gZpfV2euehJLvdeFErWgW74dIt/MFfkG1bA==}
     cpu: [arm64]
     os: [darwin]
 
-  turbo-linux-64@2.6.1:
-    resolution: {integrity: sha512-eM1uLWgzv89bxlK29qwQEr9xYWBhmO/EGiH22UGfq+uXr+QW1OvNKKMogSN65Ry8lElMH4LZh0aX2DEc7eC0Mw==}
+  turbo-linux-64@2.8.8:
+    resolution: {integrity: sha512-BISkcKk+5/Dh11q+YhdQIGONXmdlQ6LY0iQ+GBIK7QOBAJyJFKmKvUeAeMdWGXOa3sImz2oZ6u2StyR+0Y/VVA==}
     cpu: [x64]
     os: [linux]
 
-  turbo-linux-arm64@2.6.1:
-    resolution: {integrity: sha512-MFFh7AxAQAycXKuZDrbeutfWM5Ep0CEZ9u7zs4Hn2FvOViTCzIfEhmuJou3/a5+q5VX1zTxQrKGy+4Lf5cdpsA==}
+  turbo-linux-arm64@2.8.8:
+    resolution: {integrity: sha512-B+DQWWtM3O+AexFF4aYucT0MvvnQOW4n5y9LA5h3Zc3Lpj10yl9K4dEBzJvMVQ2jTkCRNAvA8q9G3EjqmGmGGA==}
     cpu: [arm64]
     os: [linux]
 
-  turbo-windows-64@2.6.1:
-    resolution: {integrity: sha512-buq7/VAN7KOjMYi4tSZT5m+jpqyhbRU2EUTTvp6V0Ii8dAkY2tAAjQN1q5q2ByflYWKecbQNTqxmVploE0LVwQ==}
+  turbo-windows-64@2.8.8:
+    resolution: {integrity: sha512-KP5TRVrmVnrxDyvERvQq7VXu+h5AiEiBwyr90YsRuYy/Z5zLz8hrNZXejTyUR17xmnuI+RbUSxrQlfmPnxiW1A==}
     cpu: [x64]
     os: [win32]
 
-  turbo-windows-arm64@2.6.1:
-    resolution: {integrity: sha512-7w+AD5vJp3R+FB0YOj1YJcNcOOvBior7bcHTodqp90S3x3bLgpr7tE6xOea1e8JkP7GK6ciKVUpQvV7psiwU5Q==}
+  turbo-windows-arm64@2.8.8:
+    resolution: {integrity: sha512-X45sTOksR8iidk+PZUXpNcfEkOhGCTS2p2J8nSUExr1v7u3T4FixwplzliuWmG7QTPGJapAwItzHbi+d/9ckNQ==}
     cpu: [arm64]
     os: [win32]
 
-  turbo@2.6.1:
-    resolution: {integrity: sha512-qBwXXuDT3rA53kbNafGbT5r++BrhRgx3sAo0cHoDAeG9g1ItTmUMgltz3Hy7Hazy1ODqNpR+C7QwqL6DYB52yA==}
+  turbo@2.8.8:
+    resolution: {integrity: sha512-wP+axjWAKzYfZ7bghuggVST9bX4j5cn3NPMU9NPQqtwaUKL9n9JOnWWBIc9gdrEma1aViYR73EoPjDEpVq+liQ==}
     hasBin: true
 
   typescript@6.0.0-dev.20260211:
@@ -1533,10 +1586,10 @@ snapshots:
       '@minecraft/server': 2.3.0-beta.1.21.110-preview.26(@minecraft/common@1.2.0)(@minecraft/vanilla-data@1.21.101)
       '@minecraft/server-admin': 1.0.0-beta.11940b24
 
-  '@minecraft/server-net@1.0.0-beta.1.26.0-stable(@minecraft/common@1.2.0)(@minecraft/server-admin@1.0.0-beta.11940b24)(@minecraft/server@2.6.0-beta.1.26.0-stable(@minecraft/common@1.2.0)(@minecraft/vanilla-data@1.21.101))':
+  '@minecraft/server-net@1.0.0-beta.1.26.20-preview.20(@minecraft/common@1.2.0)(@minecraft/server-admin@1.0.0-beta.11940b24)(@minecraft/server@2.8.0-beta.1.26.20-preview.20(@minecraft/common@1.2.0)(@minecraft/vanilla-data@1.21.101))':
     dependencies:
       '@minecraft/common': 1.2.0
-      '@minecraft/server': 2.6.0-beta.1.26.0-stable(@minecraft/common@1.2.0)(@minecraft/vanilla-data@1.21.101)
+      '@minecraft/server': 2.8.0-beta.1.26.20-preview.20(@minecraft/common@1.2.0)(@minecraft/vanilla-data@1.21.101)
       '@minecraft/server-admin': 1.0.0-beta.11940b24
 
   '@minecraft/server@2.3.0-beta.1.21.110-preview.26(@minecraft/common@1.2.0)(@minecraft/vanilla-data@1.21.101)':
@@ -1544,7 +1597,7 @@ snapshots:
       '@minecraft/common': 1.2.0
       '@minecraft/vanilla-data': 1.21.101
 
-  '@minecraft/server@2.6.0-beta.1.26.0-stable(@minecraft/common@1.2.0)(@minecraft/vanilla-data@1.21.101)':
+  '@minecraft/server@2.8.0-beta.1.26.20-preview.20(@minecraft/common@1.2.0)(@minecraft/vanilla-data@1.21.101)':
     dependencies:
       '@minecraft/common': 1.2.0
       '@minecraft/vanilla-data': 1.21.101
@@ -1615,6 +1668,24 @@ snapshots:
     optional: true
 
   '@oxfmt/binding-win32-x64-msvc@0.31.0':
+    optional: true
+
+  '@oxlint-tsgolint/darwin-arm64@0.12.1':
+    optional: true
+
+  '@oxlint-tsgolint/darwin-x64@0.12.1':
+    optional: true
+
+  '@oxlint-tsgolint/linux-arm64@0.12.1':
+    optional: true
+
+  '@oxlint-tsgolint/linux-x64@0.12.1':
+    optional: true
+
+  '@oxlint-tsgolint/win32-arm64@0.12.1':
+    optional: true
+
+  '@oxlint-tsgolint/win32-x64@0.12.1':
     optional: true
 
   '@oxlint/binding-android-arm-eabi@1.46.0':
@@ -2074,7 +2145,16 @@ snapshots:
       '@oxfmt/binding-win32-ia32-msvc': 0.31.0
       '@oxfmt/binding-win32-x64-msvc': 0.31.0
 
-  oxlint@1.46.0:
+  oxlint-tsgolint@0.12.1:
+    optionalDependencies:
+      '@oxlint-tsgolint/darwin-arm64': 0.12.1
+      '@oxlint-tsgolint/darwin-x64': 0.12.1
+      '@oxlint-tsgolint/linux-arm64': 0.12.1
+      '@oxlint-tsgolint/linux-x64': 0.12.1
+      '@oxlint-tsgolint/win32-arm64': 0.12.1
+      '@oxlint-tsgolint/win32-x64': 0.12.1
+
+  oxlint@1.46.0(oxlint-tsgolint@0.12.1):
     optionalDependencies:
       '@oxlint/binding-android-arm-eabi': 1.46.0
       '@oxlint/binding-android-arm64': 1.46.0
@@ -2095,6 +2175,7 @@ snapshots:
       '@oxlint/binding-win32-arm64-msvc': 1.46.0
       '@oxlint/binding-win32-ia32-msvc': 1.46.0
       '@oxlint/binding-win32-x64-msvc': 1.46.0
+      oxlint-tsgolint: 0.12.1
 
   pathe@2.0.3: {}
 
@@ -2204,32 +2285,32 @@ snapshots:
   tslib@2.8.1:
     optional: true
 
-  turbo-darwin-64@2.6.1:
+  turbo-darwin-64@2.8.8:
     optional: true
 
-  turbo-darwin-arm64@2.6.1:
+  turbo-darwin-arm64@2.8.8:
     optional: true
 
-  turbo-linux-64@2.6.1:
+  turbo-linux-64@2.8.8:
     optional: true
 
-  turbo-linux-arm64@2.6.1:
+  turbo-linux-arm64@2.8.8:
     optional: true
 
-  turbo-windows-64@2.6.1:
+  turbo-windows-64@2.8.8:
     optional: true
 
-  turbo-windows-arm64@2.6.1:
+  turbo-windows-arm64@2.8.8:
     optional: true
 
-  turbo@2.6.1:
+  turbo@2.8.8:
     optionalDependencies:
-      turbo-darwin-64: 2.6.1
-      turbo-darwin-arm64: 2.6.1
-      turbo-linux-64: 2.6.1
-      turbo-linux-arm64: 2.6.1
-      turbo-windows-64: 2.6.1
-      turbo-windows-arm64: 2.6.1
+      turbo-darwin-64: 2.8.8
+      turbo-darwin-arm64: 2.8.8
+      turbo-linux-64: 2.8.8
+      turbo-linux-arm64: 2.8.8
+      turbo-windows-64: 2.8.8
+      turbo-windows-arm64: 2.8.8
 
   typescript@6.0.0-dev.20260211: {}
 

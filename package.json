@@ -12,6 +12,8 @@
       "it": "oxfmt --write && turbo check -- --pretty && turbo run build",
       "build": "turbo run build",
       "watch": "turbo run watch",
+      "dump": "pnpm --filter @carolina/tools run dump",
+      "start": "pnpm --filter app run start",
       "--vitest--": "",
       "test": "vitest --run",
       "bench": "vitest bench --run",
@@ -29,9 +31,10 @@
       "@typescript/native-preview": "7.0.0-dev.20260211.1",
       "oxfmt": "0.31.0",
       "oxlint": "^1.46.0",
+      "oxlint-tsgolint": "^0.12.1",
       "rolldown": "1.0.0-rc.1",
       "rolldown-plugin-dts": "^0.21.6",
-      "turbo": "^2.6.1",
+      "turbo": "^2.8.8",
       "typescript": "6.0.0-dev.20260211",
       "vitest": "^4.0.10"
    },
@@ -43,5 +46,5 @@
       "singleQuote": true,
       "tabWidth": 3
    },
-   "packageManager": "pnpm@10.29.2"
+   "packageManager": "pnpm@10.29.3"
 }

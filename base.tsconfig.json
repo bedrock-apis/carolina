@@ -7,6 +7,13 @@
       "forceConsistentCasingInFileNames": true,
       "strict": true,
       "skipLibCheck": true,
-      "experimentalDecorators": true
+      "experimentalDecorators": true,
+      "emitDecoratorMetadata": false,
+      "noImplicitOverride": true,
+      "noImplicitAny": true,
+      "noImplicitReturns": true,
+      "noImplicitThis": true,
+      "exactOptionalPropertyTypes": true,
+      "strictFunctionTypes": true
    }
 }

@@ -447,7 +447,7 @@ export class RakNetNetworkConnection implements NetworkConnection {
       sequence: Iterator<number>
    ): Generator<{ min: number; max: number }, number> {
       let v = sequence.next();
-      if (v.done) return 0;
+      if (v.done === true) return 0;
 
       // min for range
       let min = v.value,
@@ -455,7 +455,7 @@ export class RakNetNetworkConnection implements NetworkConnection {
       let i = 1;
       while (true) {
          v = sequence.next();
-         if (v.done) break;
+         if (v.done === true) break;
          const current = v.value;
          const dif = current - max;
          if (dif === 1) max = current;

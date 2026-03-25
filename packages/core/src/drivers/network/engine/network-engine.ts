@@ -1,7 +1,7 @@
-import { Cursor, VarInt } from '@carolina/binary';
+import { Cursor, VarInt32 } from '@carolina/binary';
 import { a, PersonalEmitter } from '@carolina/common';
 import { NetworkConnection, NetworkServer } from '@carolina/net';
-import { PacketCompressionAlgorithm, RequestNetworkSettingsPacket } from '@carolina/protocol';
+import { RequestNetworkSettingsPacket, PacketCompressionAlgorithm } from '@carolina/protocol';
 import { deflateRawSync, inflateRawSync } from 'node:zlib';
 
 import { NETWORK_DRIVER_LOGGER } from '../../../loggers';
@@ -26,7 +26,6 @@ export abstract class NetworkEngine<S extends NetworkServer = NetworkServer> {
    public constructor(listener: S) {
       this.server = listener;
       this.server.onConnectionConnected = (c): void => {
-         console.log(c.uniqueId);
          const connection = new DriverConnection(c);
          this.clients.set(connection.runtimeId, connection);
          this.connections.set(c, connection);
@@ -43,9 +42,12 @@ export abstract class NetworkEngine<S extends NetworkServer = NetworkServer> {
          this.clients.delete(connection.runtimeId);
          this.connections.delete(c);
          this.events.dispatch(NetworkEngineEventKeys.Disconnect, { connection });
-         console.log('Disconnected', c.uniqueId);
       };
-      this.server.onError = (error): void => NETWORK_DRIVER_LOGGER.error(error);
+      this.server.onError = (error): void => {
+         console.log(error);
+         NETWORK_DRIVER_LOGGER.error(error);
+      };
+      this.server.onLog = (message): void => NETWORK_DRIVER_LOGGER.log(message);
    }
    protected handlePayload(connection: DriverConnection, message: Uint8Array): void {
       // Handle case the payload is prefixed by raknet game packet id
@@ -56,7 +58,7 @@ export abstract class NetworkEngine<S extends NetworkServer = NetworkServer> {
          const cursor = Cursor.create(message);
 
          do {
-            const length = VarInt.deserialize(cursor);
+            const length = VarInt32.deserialize(cursor);
 
             //No copy
             const buffer = cursor.getSliceSpan(length);
@@ -82,14 +84,16 @@ export abstract class NetworkEngine<S extends NetworkServer = NetworkServer> {
       try {
          this.events.dispatch(MESSAGE_EVENT_CACHE_TYPE, { connection, message });
       } catch (error) {
+         console.error(error);
          void NETWORK_DRIVER_LOGGER.error(error);
       }
    }
    protected getWriteCursor(size: number): Cursor {
       return Cursor.create(new Uint8Array(size));
    }
-   protected send(connection: DriverConnection, message: Uint8Array): void {
+   public send(connection: DriverConnection, message: Uint8Array): void {
       const cursor = this.getWriteCursor(message.length + 15);
+
       // Depends on network settings were send it self
       if (!connection.skipNetworkSettingsResolution) {
          // Select compression does depends on payload size
@@ -105,21 +109,20 @@ export abstract class NetworkEngine<S extends NetworkServer = NetworkServer> {
          message =
             compression === PacketCompressionAlgorithm.Zlib ? deflateRawSync(message, { level: 1 }) : message;
       }
-
       cursor.writeSliceSpan(message);
       this.server.send(connection.connection, cursor.getProcessedBytes());
    }
    protected handlePacket(connection: DriverConnection, message: Uint8Array): void {
       const cursor = Cursor.create(message);
-      const packetId = VarInt.deserialize(cursor);
+      const packetId = VarInt32.deserialize(cursor);
       if (packetId === RequestNetworkSettingsPacket.packetId) {
          // a bit hacky, but it does its job and its run only once when player tries to join.
          const cursor1 = Cursor.create(new Uint8Array(64));
          const cursor2 = Cursor.create(new Uint8Array(64));
-         VarInt.serialize(cursor2, connection.networkSettings.getPacketId());
+         VarInt32.serialize(cursor2, connection.networkSettings.getPacketId());
          connection.networkSettings.getType().serialize(cursor2, connection.networkSettings);
          // Length
-         VarInt.serialize(cursor1, cursor2.pointer);
+         VarInt32.serialize(cursor1, cursor2.pointer);
          cursor1.writeSliceSpan(cursor2.getProcessedBytes());
 
          this.send(connection, cursor1.getProcessedBytes());

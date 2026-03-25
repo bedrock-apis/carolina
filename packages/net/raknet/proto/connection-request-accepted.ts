@@ -60,7 +60,6 @@ export function readConnectionRequestAcceptPacket(view: DataView): {
    const clientIndex = view.getUint16(offset, false);
    offset += 2; // Client index is 2 bytes
 
-   console.log(view.getUint8(offset));
    const serverAddress = readAddress(view, offset);
    offset += clientAddress.version === 4 ? IPV4_ADDRESS_BINARY_SIZE : IPV6_ADDRESS_BINARY_SIZE;
 

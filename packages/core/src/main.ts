@@ -1,6 +1,4 @@
-import { DisconnectPacket } from '@carolina/protocol';
-
+import './blocks';
 export * from './constants';
 export * from './carolina';
-
-console.log(DisconnectPacket.deserialize.toString());
+export * from './network/client';

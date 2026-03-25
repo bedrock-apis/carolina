@@ -12,7 +12,9 @@
       "build": "rolldown -c ../../rolldown.common.config.ts",
       "watch": "rolldown -c ../../rolldown.common.config.ts -w"
    },
-   "dependencies": {},
+   "dependencies": {
+      "@carolina/common": "workspace:^"
+   },
    "--comment--": "We use src as we can link the files the typescript loads and rename works across",
    "rolldown": {
       "entries": {

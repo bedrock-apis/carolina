@@ -46,3 +46,45 @@ This pattern works really well with decorators where you can pass types directly
 > by ConMaster
 
 When it comes games like minecraft network batching and more, its all about proper timing, strict execution order and being all in one with the core event loop. If we do it right we don't even have to use setInterval or setTimeout at all. For example we designed raknet in way it doesn't tick but it also batches packet once stack call ends. using setInterval is unpredictable with low delays. If you set setTimeout/setInternal less than 10ms. It still waits about ~15ms in general.
+
+## Rationale for Choosing Bun Runtime
+
+Bun has demonstrated superior performance in most benchmarks, as verified by ConMaster2112. While DataViews are slightly slower than V8 implementations, Bun excels in other areas.
+
+EDIT: After real-world scenarios, we found NodeJS run the best after all, but Bun is still considered for other areas like tooling runtime, and package manager.
+
+- **Deno:** Offers good performance and an exemplary API design, but is relatively heavy and lacks certain hook features required for this project. It can compile to executables out of the box.
+- **Bun:** Provides better performance in most scenarios, is lightweight, features a well-designed API, includes numerous features, and supports out-of-the-box compilation.
+- **Node:** Delivers reasonable performance but is heavier, has an outdated API design, and requires third-party tools for compilation. It does, however, support hooks.
+
+## Reasons for Preferring PNPM Over NPM
+
+- PNPM offers a cleaner workflow.
+- It is faster than NPM.
+- PNPM works seamlessly with workspaces.
+- It is perceived as more stable compared to Yarn.
+- We plan to switch to bun in the far future once, bun is battle tested on workspaces
+
+## Justification for Using Rolldown
+
+- Rolldown is fast and has been well stress-tested.
+- It is supported by active developers.
+- The plugin ecosystem is extensive.
+- The tool is user-friendly.
+- It supports direct compilation for TypeScript, out of the box and doesn't relies on tsc compiler
+
+## Selection of TurboRepo
+
+- TurboRepo was observed in the Serenity project and performed well for monorepo management. While personal ConMaster's experience is limited, it appears to be a suitable choice for this purpose.
+
+## Why Oxlint Was Chosen
+
+- Oxlint is easy to use.
+- It is extremely fast.
+- The configuration is minimal.
+- There is no need to create custom rules.
+
+## Advantages of Vitest
+
+- Vitest is well-suited for testing CLI tools and has proven effective in this regard.
+- After some consideration with might migrate our tests to bun test files.
