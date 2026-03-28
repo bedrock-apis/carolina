@@ -25,6 +25,8 @@ export class BlockPermutationUtils {
    }
 
    public static toBinary(type: BlockType, indexes: number[]): Uint8Array {
+      return new Uint8Array();
+      /*
       // HardCoded NBT Serialization
       const { BINARY_SUFFIX, TEXT_ENCODER } = this;
 
@@ -71,6 +73,6 @@ export class BlockPermutationUtils {
       }
       BINARY_SUFFIX[offset++] = 0; // NBTTag.End
       BINARY_SUFFIX[offset++] = 0; // NBTTag.EndOfRoot
-      return this.CACHE.subarray(0, this.BINARY_PREFIX.length + offset);
+      return this.CACHE.subarray(0, this.BINARY_PREFIX.length + offset);*/
    }
 }

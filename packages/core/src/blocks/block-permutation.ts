@@ -5,8 +5,9 @@ import type { BlockType } from './block-type';
 export class _BlockPermutation {
    public readonly type: BlockType;
    public readonly networkPaletteIndex: number;
+   public readonly networkPaletteIndexOffset: number;
    public readonly networkHashId: number;
-   public readonly states_value_indexes: number[];
+   public readonly blockStatesValueIndexes: readonly number[];
    public constructor(
       type: BlockType,
       networkPaletteIndex: number,
@@ -16,8 +17,10 @@ export class _BlockPermutation {
       this.type = type;
       this.networkPaletteIndex = networkPaletteIndex;
       this.networkHashId = networkHashId;
-      this.states_value_indexes = states_value_indexes;
-      states_value_indexes.length = type.states.length;
+      this.blockStatesValueIndexes = states_value_indexes;
+
+      // Get the relative offset
+      this.networkPaletteIndexOffset = this.networkPaletteIndex - this.type.networkPaletteIndex;
    }
 }
 

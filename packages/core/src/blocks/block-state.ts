@@ -1,4 +1,3 @@
-import { RegistrableObject } from '../abstraction/registry';
 import { PublicClass } from '../abstraction/types';
 
 export interface KindTypeMap {
@@ -9,11 +8,12 @@ export interface KindTypeMap {
 export type Kind = keyof KindTypeMap;
 
 // Internal class with public constructor
-export class _BlockState<T extends Kind = Kind> extends RegistrableObject<string> {
+class BlockState<T extends Kind = Kind> {
+   public readonly id: string;
    public readonly type: T;
-   public readonly options: KindTypeMap[T][] = [];
+   public readonly options: readonly KindTypeMap[T][] = [];
    public constructor(id: string, type: T, options: KindTypeMap[T][]) {
-      super(id);
+      this.id = id;
       this.type = type;
       this.options = options;
    }
@@ -22,7 +22,7 @@ export class _BlockState<T extends Kind = Kind> extends RegistrableObject<string
 /**
  * Represents a state of a block.
  */
-export type BlockState<T extends Kind = Kind> = _BlockState<T>;
-export const BlockState: PublicClass<typeof _BlockState> = _BlockState as unknown as PublicClass<
-   typeof _BlockState
->;
+type _BlockState<T extends Kind = Kind> = BlockState<T>;
+const _BlockState: PublicClass<typeof BlockState> = BlockState as unknown as PublicClass<typeof BlockState>;
+
+export { _BlockState as BlockState, BlockState as __BLOCK_STATE__ };

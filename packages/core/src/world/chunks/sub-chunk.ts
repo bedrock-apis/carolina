@@ -1,13 +1,19 @@
 import { Cursor } from '@carolina/binary';
 
+import { BlockTypes } from '../../blocks';
 import { BaseLayer } from './base-layer';
 import { SubChunkLayer } from './sub-chunk-layer';
 
 export class SubChunk {
    public readonly version: number = 9;
    public readonly index: number = -4;
-   public readonly layers: SubChunkLayer[] = [new SubChunkLayer()];
+   public readonly layers: SubChunkLayer[] = [];
    public readonly biomes: BaseLayer = new BaseLayer();
+   public constructor() {
+      const permutation = BlockTypes.get('minecraft:air');
+      this.layers = [new SubChunkLayer()];
+      this.layers[0].palette.push(permutation?.networkPaletteIndex ?? 0);
+   }
    public static serialize(cursor: Cursor, subChunk: SubChunk): void {
       cursor.writeUint8(subChunk.version);
       cursor.writeUint8(subChunk.layers.length);

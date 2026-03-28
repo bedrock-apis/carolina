@@ -3,8 +3,9 @@ import { PublicClass } from '../abstraction/types';
 import { BlockState } from './block-state';
 
 // Internal class with public constructor
-export class _BlockType extends RegistrableObject<string> {
-   public states: readonly BlockState[] = [];
+class BlockType extends RegistrableObject<string> {
+   public readonly states: readonly BlockState[] = [];
+   public readonly networkPaletteIndex: number = 0;
    public constructor(id: string) {
       super(id);
    }
@@ -13,7 +14,6 @@ export class _BlockType extends RegistrableObject<string> {
 /**
  * Represents a type of block, public apis
  */
-export type BlockType = _BlockType;
-export const BlockType: PublicClass<typeof _BlockType> = _BlockType as unknown as PublicClass<
-   typeof _BlockType
->;
+type _BlockType = BlockType;
+const _BlockType: PublicClass<typeof BlockType> = BlockType as unknown as PublicClass<typeof BlockType>;
+export { _BlockType as BlockType, BlockType as __BLOCK_TYPE__ };

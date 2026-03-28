@@ -4,10 +4,13 @@ export class JobManager {
    public onError?: (error?: unknown) => void;
    protected runs: Func[] = [];
    protected readonly unorderedTickHandlers: TickHandler[] = [];
-   protected readonly jobs: Set<Iterator<number>> = new Set();
+   protected readonly jobs: Set<Iterator<void>> = new Set();
    protected readonly records: Record<number, Func[]> = {};
    protected currentTick = 0;
    public readonly jobIterator = this.getJobsIterator();
+   public runJob(job: Iterator<void>): void {
+      this.jobs.add(job);
+   }
    public runTimeout(func: Func, delay = 1): void {
       delay = Math.max(0, delay);
       (this.records[this.currentTick + delay] ??= []).push(func);

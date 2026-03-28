@@ -1,5 +1,5 @@
 import { Cursor, NBT_FORMAT_WRITER, writeRootSync } from '@carolina/binary';
-import { a, Logger, rgb } from '@carolina/common';
+import { a, Logger, rgb, Vector3 } from '@carolina/common';
 import {
    AnimatePacket,
    BiomeDefinitionListPacket,
@@ -28,7 +28,6 @@ import {
 import { type Carolina, type Client } from '../../main';
 import { NetworkPipeline } from '../../network/pipeline';
 import { Chunk } from '../../world/chunks/chunk';
-import { SubChunk } from '../../world/chunks/sub-chunk';
 
 export class CarolinaNetworkPipeline extends NetworkPipeline<Client> {
    public readonly carolina: Carolina;
@@ -38,7 +37,6 @@ export class CarolinaNetworkPipeline extends NetworkPipeline<Client> {
    }
    public override [PacketIds.Login](source: Client, packet: LoginPacket): void {
       super[PacketIds.Login]?.(source, packet);
-      console.log(LoginTokensPayload.fromBytes(packet.payload).authentication);
       // Login Status
       const status = new PlayStatusPacket();
       status.status = PlayStatus.LoginSuccess;
@@ -201,52 +199,75 @@ export class CarolinaNetworkPipeline extends NetworkPipeline<Client> {
    }
    public override [PacketIds.Animate](source: Client, packet: AnimatePacket): void {}
    public override [PacketIds.SetLocalPlayerAsInitialized](source: Client): void {
-      const OFFSET = 0x811c9dc5;
-      const cursor = Cursor.create(new Uint8Array(256));
-      writeRootSync(
-         cursor,
-         { name: 'minecraft:bedrock', states: { infiniburn_bit: false } },
-         NBT_FORMAT_WRITER,
-         ''
-      );
-      const bytes = cursor.getProcessedBytes();
-      console.log(bytes);
-      let hash = OFFSET;
-      for (const byte of bytes) {
-         hash ^= byte;
-         hash = hash + (hash << 1) + (hash << 4) + (hash << 7) + (hash << 8) + (hash << 24);
-      }
-      console.log(hash | 0);
+      const tick = (): void => {
+         const playerChunkX = lastPos.x >> 4,
+            playerChunkZ = lastPos.z >> 4;
+         const networkChunkPublisherUpdate = new NetworkChunkPublisherUpdatePacket();
+         networkChunkPublisherUpdate.coordinate = lastPos;
+         networkChunkPublisherUpdate.radius = chunkRadius << 4;
+         networkChunkPublisherUpdate.savedChunks = [];
+         // 1. Collect and sort coordinates by distance from center
+         for (let x = playerChunkX - chunkRadius; x < playerChunkX + chunkRadius; x++) {
+            for (let z = playerChunkZ - chunkRadius; z < playerChunkZ + chunkRadius; z++) {
+               if (Math.hypot((x << 4) - lastPos.x, (z << 4) - lastPos.z) >= chunkRadius << 4) continue;
+               const hash = Chunk.getUniqueHash(x, z);
+               if (sentChunks.has(hash)) {
+                  continue;
+               }
+               if (chunksInArray.has(hash)) continue;
+               chunksInArray.add(hash);
+               chunks_to_generate.push({ x, z });
+            }
+         }
+
+         chunks_to_generate.sort((a1, b) => {
+            const distA = (a1.x - playerChunkX) ** 2 + (a1.z - playerChunkZ) ** 2;
+            const distB = (b.x - playerChunkX) ** 2 + (b.z - playerChunkZ) ** 2;
+            return distB - distA;
+         });
+
+         //console.log(chunks_to_generate.length);
+         while (chunks_to_generate.length) {
+            // oxlint-disable-next-line typescript/no-non-null-assertion
+            const chunk = chunks_to_generate.pop()!;
+            const hash = Chunk.getUniqueHash(chunk.x, chunk.z);
+            chunksInArray.delete(hash);
+            if (Math.hypot((chunk.x << 4) - lastPos.x, (chunk.z << 4) - lastPos.z) >= chunkRadius << 4)
+               continue;
+
+            const cursor = Cursor.create(new Uint8Array(4096 * 16));
+            const levelChunk = new LevelChunkPacket();
+            levelChunk.x = chunk.x;
+            levelChunk.z = chunk.z;
+            levelChunk.dimension = DimensionKind.Overworld;
+
+            const chunkObj = new Chunk(chunk.x, chunk.z, -4);
+            //chunkObj.subChunks.push(new SubChunk()); // Assuming y=0 for subchunk index
+            chunkObj.generate();
+
+            Chunk.serialize(cursor, chunkObj);
+            levelChunk.data = cursor.getProcessedBytes();
+            levelChunk.subChunkCount = chunkObj.subChunks.length;
+            //networkChunkPublisherUpdate.savedChunks.push({ x: chunk.x, z: chunk.z });
+            source.send(levelChunk);
+            networkChunkPublisherUpdate.savedChunks.push(chunk);
+
+            sentChunks.add(hash);
+            break;
+         }
+         source.send(networkChunkPublisherUpdate);
+         setTimeout(tick, 5);
+      };
+      setImmediate(tick);
       this.logger.info(a`Player initialized ${source}`);
    }
    public override [PacketIds.RequestChunkRadius](source: Client, packet: RequestChunkRadiusPacket): void {
-      const levelChunk = new LevelChunkPacket();
-      levelChunk.x = 0;
-      levelChunk.z = 0;
-      levelChunk.dimension = DimensionKind.Overworld;
-      levelChunk.subChunkCount = 1;
-
-      const cursor = Cursor.create(new Uint8Array(4096));
-      const chunk2 = new Chunk(0, 0);
-      chunk2.subChunks.push(new SubChunk());
-      Chunk.serialize(cursor, chunk2);
-      levelChunk.data = cursor.getProcessedBytes();
-
-      const networkChunkPublisherUpdate = new NetworkChunkPublisherUpdatePacket();
-      networkChunkPublisherUpdate.coordinate = { x: 0, y: 0, z: 0 };
-      networkChunkPublisherUpdate.radius = packet.radius << 4;
-      networkChunkPublisherUpdate.savedChunks = [];
-      for (let x = -packet.radius; x < packet.radius; x++)
-         for (let z = -packet.radius; z < packet.radius; z++) {
-            levelChunk.x = x;
-            levelChunk.z = z;
-            source.send(levelChunk);
-            networkChunkPublisherUpdate.savedChunks.push({ x, z });
-         }
-      source.send(networkChunkPublisherUpdate);
+      chunkRadius = packet.radius;
       this.logger.info(a`Request chunk radius ${packet.radius}`);
    }
-   public override [PacketIds.PlayerAuthInput](source: Client, packet: PlayerAuthInputPacket): void {}
+   public override [PacketIds.PlayerAuthInput](source: Client, packet: PlayerAuthInputPacket): void {
+      lastPos = packet.location;
+   }
    public override [PacketIds.ServerboundLoadingScreen](
       source: Client,
       packet: ServerboundLoadingScreenPacket
@@ -254,3 +275,29 @@ export class CarolinaNetworkPipeline extends NetworkPipeline<Client> {
       //this.logger.info(packet.hasScreenId, ServerboundLoadingScreenType[packet.type]);
    }
 }
+let chunkRadius = 0;
+let lastPos: Vector3 = { x: 0, y: 0, z: 0 };
+const sentChunks = new Set<number>();
+const chunksInArray = new Set<number>();
+const chunks_to_generate: { x: number; z: number }[] = [];
+
+/*
+      (async (): Promise<void> => {
+         const radius = 16;
+         const chunks: { x: number; z: number }[] = [];
+
+         // 1. Collect and sort coordinates by distance from center
+         for (let x = -radius; x < radius; x++) {
+            for (let z = -radius; z < radius; z++) {
+               chunks.push({ x, z });
+            }
+         }
+
+         chunks.sort((a, b) => a.x ** 2 + a.z ** 2 - (b.x ** 2 + b.z ** 2));
+
+         // 2. Process sorted chunks
+         for (const { x, z } of chunks) {
+            await new Promise(res => setTimeout(res, 1));
+         }
+      })();
+*/

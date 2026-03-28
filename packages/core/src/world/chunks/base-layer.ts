@@ -1,14 +1,18 @@
-import { Cursor, VarInt32, ZigZag32 } from '@carolina/binary';
+import { Cursor, ZigZag32 } from '@carolina/binary';
 
 const GET_INDEX_OPTIMIZED = (x: number, y: number, z: number): number =>
    ((x & 0xf) << 8) | ((z & 0xf) << 4) | (y & 0xf);
 
-export class BaseLayer {
+export interface BaseLayerLike {
+   entries: Uint8Array;
+   palette: number[];
+}
+export class BaseLayer implements BaseLayerLike {
    public static readonly CUBIC_SIZE = 4096; // 16 ** 3;
    public readonly entries: Uint8Array = new Uint8Array(BaseLayer.CUBIC_SIZE);
    public readonly palette: Array<number> = new Array();
    public static readonly getIndex = GET_INDEX_OPTIMIZED;
-   public static serialize(cursor: Cursor, layer: BaseLayer): void {
+   public static serialize(cursor: Cursor, layer: BaseLayerLike): void {
       // Calculate bits per block based on the palette size
       let bitsPerEntry = Math.ceil(Math.log2(layer.palette.length));
       if (bitsPerEntry > 6 && bitsPerEntry <= 8) bitsPerEntry = 8;
@@ -33,7 +37,6 @@ export class BaseLayer {
       const entries = layer.entries;
       const dataview = cursor.view;
       const offset = cursor.pointer;
-
       // Serialize them, little endian
       for (let wordIndex = 0, entryIndex = 0, word = 0; wordIndex < wordCount; wordIndex++, word = 0) {
          for (let i = 0; i < blocksPerWord && entryIndex < BaseLayer.CUBIC_SIZE; i++, entryIndex++)
@@ -50,7 +53,7 @@ export class BaseLayer {
          ZigZag32.serialize(cursor, layer.palette[i]);
    }
    public static deserialize(cursor: Cursor): BaseLayer {
-      const layer = new BaseLayer();
+      const layer = new this();
 
       const header = cursor.readUint8();
       // bit 0 is the boolean flag, remaining 7 bits are bitsPerEntry
@@ -79,7 +82,7 @@ export class BaseLayer {
 
       layer.palette.length = ZigZag32.deserialize(cursor);
       for (let i = 0; i < layer.palette.length; i++) {
-         layer.palette[i] = VarInt32.deserialize(cursor);
+         layer.palette[i] = ZigZag32.deserialize(cursor);
       }
 
       return layer;

@@ -133,6 +133,10 @@ importers:
         version: 1.3.2(@types/react@19.1.10)
 
   packages/tools:
+    dependencies:
+      '@carolina/common':
+        specifier: workspace:^
+        version: link:../common
     devDependencies:
       '@bedrock-apis/bds-utils':
         specifier: 1.1.0-beta.1
@@ -143,9 +147,6 @@ importers:
       '@minecraft/server-net':
         specifier: 1.0.0-beta.1.26.20-preview.20
         version: 1.0.0-beta.1.26.20-preview.20(@minecraft/common@1.2.0)(@minecraft/server-admin@1.0.0-beta.11940b24)(@minecraft/server@2.8.0-beta.1.26.20-preview.20(@minecraft/common@1.2.0)(@minecraft/vanilla-data@1.21.101))
-      '@types/bun':
-        specifier: ^1.3.2
-        version: 1.3.2(@types/react@19.1.10)
       '@types/node':
         specifier: ^24.0.0
         version: 24.10.1

@@ -2,7 +2,7 @@ import { rm, writeFile } from 'node:fs/promises';
 import path, { resolve } from 'node:path';
 import { platform } from 'node:process';
 
-export * from './constants';
+export * from './common/constants';
 export const CACHE_BDS_DOWNLOAD = resolve(import.meta.dirname, './cache-bds-download');
 export const CACHE_BDS = resolve(import.meta.dirname, './cache-bds');
 export const CACHE_DUMP_OUTPUT = resolve(import.meta.dirname, './dump-output');

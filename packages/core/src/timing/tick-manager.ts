@@ -63,6 +63,7 @@ export class TickManager {
             );
          }
       } while ((this.currentTickTime = performance.now() + start) < this.millisecondsPerTick);
+      await new Promise(setImmediate);
    }
 
    /**
